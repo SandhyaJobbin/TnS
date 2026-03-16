@@ -1,0 +1,77 @@
+{
+  "seeding_count": 50,
+  "questions": {
+    "q1": {
+      "dimension": "AI Adoption",
+      "options": {
+        "60%": 0.08,
+        "80%": 0.21,
+        "95%": 0.56,
+        "99%": 0.15
+      }
+    },
+    "q2": {
+      "dimension": "Threat Landscape",
+      "options": {
+        "AI-generated scams": 0.44,
+        "Manipulation networks": 0.27,
+        "Synthetic media": 0.18,
+        "Virtual economy abuse": 0.11
+      }
+    },
+    "q3": {
+      "dimension": "Human Oversight",
+      "options": {
+        "Fully automated": 0.10,
+        "AI-led, human review": 0.45,
+        "Human-led, AI assist": 0.35,
+        "Fully human": 0.10
+      }
+    },
+    "q4": {
+      "dimension": "Regulatory Stance",
+      "options": {
+        "Self-regulation": 0.20,
+        "Industry standards": 0.35,
+        "National regulation": 0.30,
+        "Global treaty": 0.15
+      }
+    },
+    "q5": {
+      "dimension": "AI Adoption",
+      "options": {
+        "Under $5B": 0.10,
+        "$5B–$15B": 0.30,
+        "$15B–$25B": 0.40,
+        "Over $25B": 0.20
+      }
+    },
+    "q6": {
+      "dimension": "Human Oversight",
+      "options": {
+        "Accuracy": 0.25,
+        "Speed": 0.15,
+        "Cultural context": 0.40,
+        "Cost": 0.20
+      }
+    },
+    "q7": {
+      "dimension": "Threat Landscape",
+      "options": {
+        "Less than 1 year": 0.10,
+        "1–3 years": 0.35,
+        "3–5 years": 0.40,
+        "More than 5 years": 0.15
+      }
+    },
+    "q8": {
+      "dimension": "Regulatory Stance",
+      "options": {
+        "Platforms": 0.30,
+        "Governments": 0.25,
+        "AI companies": 0.35,
+        "Civil society": 0.10
+      }
+    }
+  }
+}

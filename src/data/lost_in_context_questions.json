@@ -1,0 +1,82 @@
+[
+  {
+    "id": "lic1",
+    "term": "Rizz",
+    "options": ["They are wealthy", "They have charisma", "They are angry"],
+    "correct_human": "They have charisma",
+    "ai_interpretation": "Possibly related to 'risk' or financial terminology",
+    "ai_was_wrong": true
+  },
+  {
+    "id": "lic2",
+    "term": "No cap",
+    "options": ["Literally no hat", "Telling the truth", "Stop talking"],
+    "correct_human": "Telling the truth",
+    "ai_interpretation": "Instruction to remove headwear",
+    "ai_was_wrong": true
+  },
+  {
+    "id": "lic3",
+    "term": "Slay",
+    "options": ["To kill", "To excel or impress", "To sleep"],
+    "correct_human": "To excel or impress",
+    "ai_interpretation": "Violence-related content requiring review",
+    "ai_was_wrong": true
+  },
+  {
+    "id": "lic4",
+    "term": "Ghosting",
+    "options": ["Haunting someone", "Cutting off contact without explanation", "Editing photos"],
+    "correct_human": "Cutting off contact without explanation",
+    "ai_interpretation": "Paranormal activity report",
+    "ai_was_wrong": true
+  },
+  {
+    "id": "lic5",
+    "term": "Bussin",
+    "options": ["Taking the bus", "Extremely good food", "Starting a fight"],
+    "correct_human": "Extremely good food",
+    "ai_interpretation": "Public transportation reference",
+    "ai_was_wrong": true
+  },
+  {
+    "id": "lic6",
+    "term": "Mid",
+    "options": ["Middle of something", "Mediocre or average", "A music genre"],
+    "correct_human": "Mediocre or average",
+    "ai_interpretation": "Spatial reference to a central position",
+    "ai_was_wrong": true
+  },
+  {
+    "id": "lic7",
+    "term": "Era",
+    "options": ["A historical time period", "A personal phase or identity", "A mistake"],
+    "correct_human": "A personal phase or identity",
+    "ai_interpretation": "Historical epoch categorisation",
+    "ai_was_wrong": true
+  },
+  {
+    "id": "lic8",
+    "term": "Touch grass",
+    "options": ["Garden maintenance", "Go outside and disconnect from the internet", "A sports move"],
+    "correct_human": "Go outside and disconnect from the internet",
+    "ai_interpretation": "Lawn care instruction",
+    "ai_was_wrong": true
+  },
+  {
+    "id": "lic9",
+    "term": "It's giving",
+    "options": ["Donating something", "Giving off a certain vibe or energy", "Providing information"],
+    "correct_human": "Giving off a certain vibe or energy",
+    "ai_interpretation": "Act of charitable donation",
+    "ai_was_wrong": true
+  },
+  {
+    "id": "lic10",
+    "term": "Understood the assignment",
+    "options": ["Completed homework", "Perfectly captured the moment or expectation", "Received a task"],
+    "correct_human": "Perfectly captured the moment or expectation",
+    "ai_interpretation": "Academic task completion",
+    "ai_was_wrong": true
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "id": "q1",
+    "dimension": "AI Adoption",
+    "scenario": "By 2030, what percentage of platform content moderation will be handled by AI?",
+    "options": ["60%", "80%", "95%", "99%"],
+    "insight": "Industry analysts predict AI will handle 80–95% of content moderation by 2030. Leading platforms are already automating 90%+ of detection, but complex edge cases still require human judgment. The remaining human review will focus on appeals, policy interpretation, and cultural nuance.",
+    "industry_lean": "95%"
+  },
+  {
+    "id": "q2",
+    "dimension": "Threat Landscape",
+    "scenario": "Which threat will pose the greatest risk to online platforms by 2030?",
+    "options": ["AI-generated scams", "Manipulation networks", "Synthetic media", "Virtual economy abuse"],
+    "insight": "AI-generated scams are projected to be the dominant threat, with generative AI dramatically lowering the barrier for sophisticated fraud. However, synthetic media and manipulation networks powered by AI are close behind as trust and safety teams report surging incident volumes.",
+    "industry_lean": "AI-generated scams"
+  },
+  {
+    "id": "q3",
+    "dimension": "Human Oversight",
+    "scenario": "In 2030, what will the ideal content moderation model look like?",
+    "options": ["Fully automated", "AI-led, human review", "Human-led, AI assist", "Fully human"],
+    "insight": "The industry consensus favors an AI-led model with strategic human review. Full automation risks cultural blind spots and context failures, while fully human review cannot scale to the billions of daily interactions platforms face. The hybrid model balances speed with accuracy.",
+    "industry_lean": "AI-led, human review"
+  },
+  {
+    "id": "q4",
+    "dimension": "Regulatory Stance",
+    "scenario": "What governance model will be most effective for Trust & Safety by 2030?",
+    "options": ["Self-regulation", "Industry standards", "National regulation", "Global treaty"],
+    "insight": "The EU's Digital Services Act has set a precedent for national/regional regulation, but industry leaders increasingly recognize that cross-border threats require coordinated global responses. Most experts favor a hybrid of industry standards enforced by national regulation.",
+    "industry_lean": "Industry standards"
+  },
+  {
+    "id": "q5",
+    "dimension": "AI Adoption",
+    "scenario": "By 2030, how much will global Trust & Safety technology spending reach annually?",
+    "options": ["Under $5B", "$5B–$15B", "$15B–$25B", "Over $25B"],
+    "insight": "Global Trust & Safety spending is projected to exceed $25B by 2030, driven by rising regulatory requirements, AI moderation tooling, and the expanding attack surface of digital platforms. Investment is accelerating particularly in AI detection and human reviewer support tools.",
+    "industry_lean": "Over $25B"
+  },
+  {
+    "id": "q6",
+    "dimension": "Human Oversight",
+    "scenario": "What will be the most critical human moderator skill by 2030?",
+    "options": ["Accuracy", "Speed", "Cultural context", "Cost"],
+    "insight": "Cultural context is increasingly cited as the defining value-add of human moderators. AI excels at speed and pattern detection, but struggles with nuanced cultural expression, sarcasm, and evolving slang. Human expertise in cultural interpretation will be the premium skill in the moderation workforce.",
+    "industry_lean": "Cultural context"
+  },
+  {
+    "id": "q7",
+    "dimension": "Threat Landscape",
+    "scenario": "How quickly will deepfake detection technology match deepfake creation?",
+    "options": ["Less than 1 year", "1–3 years", "3–5 years", "More than 5 years"],
+    "insight": "Most researchers predict detection will lag creation by 1–3 years in an ongoing cat-and-mouse dynamic. Watermarking and provenance standards (C2PA) offer a parallel path, but adoption depends on platform and device manufacturer cooperation.",
+    "industry_lean": "1–3 years"
+  },
+  {
+    "id": "q8",
+    "dimension": "Regulatory Stance",
+    "scenario": "Who bears the primary responsibility for online safety in 2030?",
+    "options": ["Platforms", "Governments", "AI companies", "Civil society"],
+    "insight": "The regulatory trend is shifting responsibility toward AI companies who build the foundational models that power harmful content generation. While platforms remain the primary enforcement point, AI developers face increasing pressure to build safety into the stack from the start.",
+    "industry_lean": "AI companies"
+  }
+]

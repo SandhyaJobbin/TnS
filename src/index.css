@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #080820;
+  color: #ffffff;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+input, textarea, select {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Kiosk: hide mouse cursor on touchscreen displays */
+@media (pointer: coarse) {
+  * { cursor: none !important; }
+}
+
+/* Portrait orientation support */
+@media (orientation: portrait) {
+  .landscape-row {
+    flex-direction: column !important;
+  }
+}
+
+/* Fluid font sizes */
+:root {
+  --text-base: clamp(0.9rem, 1.5vw, 1.1rem);
+}
