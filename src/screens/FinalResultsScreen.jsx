@@ -1,7 +1,32 @@
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import confetti from 'canvas-confetti'
 import { useSession } from '../hooks/useSession'
+import { useSound } from '../hooks/useSound'
 import { computeTrust2030Score, computeLostInContextScore } from '../utils/scoring'
 import RadarChart from '../components/RadarChart'
+
+function useCountUp(target, duration = 1400) {
+  const [value, setValue] = useState(0)
+  const rafRef = useRef(null)
+
+  useEffect(() => {
+    const start = performance.now()
+    const easeOut = t => 1 - Math.pow(1 - t, 3)
+
+    function tick(now) {
+      const elapsed = now - start
+      const progress = Math.min(elapsed / duration, 1)
+      setValue(Math.round(easeOut(progress) * target))
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick)
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [target, duration])
+
+  return value
+}
 
 export default function FinalResultsScreen() {
   const { answers, shuffledQuestions, selectedGame, navigate, leadCaptureEnabled } = useSession()
@@ -11,6 +36,22 @@ export default function FinalResultsScreen() {
   }
 
   const { alignmentScore, dimensionScores } = computeTrust2030Score(answers, shuffledQuestions)
+  const displayScore = useCountUp(alignmentScore, 1400)
+
+  const playScore = useSound('score-reveal.mp3')
+  useEffect(() => { playScore() }, [])
+
+  useEffect(() => {
+    if (alignmentScore >= 70) {
+      confetti({
+        particleCount: 100,
+        spread: 120,
+        origin: { y: 0.6 },
+        colors: ['#6470d8', '#8b92e8', '#f8fafc'],
+        disableForReducedMotion: true,
+      })
+    }
+  }, [])
 
   const hasDimensions = Object.keys(dimensionScores).length > 0
   const minDimensionCount = hasDimensions
@@ -51,10 +92,10 @@ export default function FinalResultsScreen() {
         >
           <p className="text-white/50 text-sm tracking-widest uppercase mb-2">Your Trust &amp; Safety Outlook</p>
           <div
-            className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-300 to-primary-500"
-            style={{ fontSize: 'clamp(3rem, 8vw, 6rem)' }}
+            className="font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-300 to-primary-500"
+            style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', fontFamily: "'Orbitron', sans-serif" }}
           >
-            {alignmentScore}%
+            {displayScore}%
           </div>
           <p className="text-white font-semibold text-xl mt-1">
             aligned with industry leaders
@@ -104,7 +145,12 @@ export default function FinalResultsScreen() {
           <div className="grid grid-cols-2 gap-3">
             {Object.entries(dimensionScores).map(([dim, score]) => (
               <div key={dim} className="text-center p-3 bg-white/5 rounded-xl">
-                <div className="text-2xl font-bold text-primary-300">{score}%</div>
+                <div
+                  className="font-bold text-primary-300"
+                  style={{ fontSize: 'clamp(1.2rem, 2vw, 1.6rem)', fontFamily: "'Orbitron', sans-serif" }}
+                >
+                  {score}%
+                </div>
                 <div className="text-white/50 text-xs mt-1">{dim}</div>
               </div>
             ))}
@@ -129,6 +175,22 @@ export default function FinalResultsScreen() {
 
 function LostInContextResults({ answers, questions, navigate, leadCaptureEnabled }) {
   const { userScore, aiErrors, userBeatAI, userBeatAIPercent } = computeLostInContextScore(answers, questions)
+  const displayScore = useCountUp(userScore, 800)
+
+  const playScore = useSound('score-reveal.mp3')
+  useEffect(() => { playScore() }, [])
+
+  useEffect(() => {
+    if (userBeatAIPercent >= 60) {
+      confetti({
+        particleCount: 100,
+        spread: 120,
+        origin: { y: 0.6 },
+        colors: ['#6470d8', '#8b92e8', '#f8fafc'],
+        disableForReducedMotion: true,
+      })
+    }
+  }, [])
 
   return (
     <motion.div
@@ -153,9 +215,9 @@ function LostInContextResults({ answers, questions, navigate, leadCaptureEnabled
         >
           <div
             className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-400 to-accent-600"
-            style={{ fontSize: 'clamp(3rem, 8vw, 6rem)' }}
+            style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', fontFamily: "'Orbitron', sans-serif" }}
           >
-            {userScore}/{questions.length}
+            {displayScore}/{questions.length}
           </div>
           <p className="text-white font-semibold text-xl mt-1">correct answers</p>
         </motion.div>
@@ -166,13 +228,18 @@ function LostInContextResults({ answers, questions, navigate, leadCaptureEnabled
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <p className="text-cyan-400 text-3xl font-bold">{userBeatAI} / {aiErrors}</p>
-          <p className="text-white/60 text-sm mt-1">
+          <p
+            className="text-cyan-400 font-bold mb-1"
+            style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontFamily: "'Orbitron', sans-serif" }}
+          >
+            {userBeatAI} / {aiErrors}
+          </p>
+          <p className="text-white/60 text-sm">
             You outperformed AI on <strong className="text-white">{userBeatAI}</strong> out of <strong className="text-white">{aiErrors}</strong> tricky terms
           </p>
           {userBeatAIPercent >= 70 && (
             <p className="text-green-400 text-sm mt-3 font-medium">
-              🏆 You beat the AI — context is your superpower!
+              You beat the AI — context is your superpower!
             </p>
           )}
         </motion.div>

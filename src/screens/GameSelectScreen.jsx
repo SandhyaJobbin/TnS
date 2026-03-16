@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
+import { MagicWand, Robot } from '@phosphor-icons/react'
 import { useSession } from '../hooks/useSession'
+import { useSound } from '../hooks/useSound'
 import { shuffle } from '../utils/scoring'
 import trust2030Questions from '../data/trust2030_questions.json'
 import lostInContextQuestions from '../data/lost_in_context_questions.json'
@@ -10,7 +12,7 @@ const GAMES = [
     title: 'Trust & Safety 2030',
     subtitle: 'Predict the future',
     description: 'Answer 8 questions about where Trust & Safety is headed. See how your predictions compare to industry leaders.',
-    icon: '🔮',
+    icon: <MagicWand size={48} weight="duotone" color="#8b92e8" />,
     color: 'from-primary-500 to-primary-800',
     glow: 'shadow-primary-900/50',
   },
@@ -19,7 +21,7 @@ const GAMES = [
     title: 'Lost in Context',
     subtitle: 'Where AI moderation gets confused',
     description: 'Decode internet slang that trips up AI moderation systems. Can you outperform the algorithm?',
-    icon: '🤖',
+    icon: <Robot size={48} weight="duotone" color="#22d3ee" />,
     color: 'from-accent-600 to-accent-800',
     glow: 'shadow-accent-900/50',
   },
@@ -27,8 +29,10 @@ const GAMES = [
 
 export default function GameSelectScreen() {
   const { selectGame } = useSession()
+  const playTap = useSound('tap.mp3', { volume: 0.3 })
 
   function handleSelect(gameId) {
+    playTap()
     const questions = gameId === 'trust2030'
       ? shuffle(trust2030Questions)
       : shuffle(lostInContextQuestions)
@@ -59,7 +63,7 @@ export default function GameSelectScreen() {
           Pick a game to explore the future of Trust &amp; Safety
         </p>
 
-        <div className="flex flex-col gap-6 @md:flex-row">
+        <div className="flex flex-col gap-6 landscape-row" style={{ flexDirection: 'row' }}>
           {GAMES.map((game, i) => (
             <motion.button
               key={game.id}
@@ -71,7 +75,7 @@ export default function GameSelectScreen() {
               whileHover={{ scale: 1.02, y: -4 }}
               whileTap={{ scale: 0.97 }}
             >
-              <div className="text-5xl mb-4">{game.icon}</div>
+              <div className="mb-4">{game.icon}</div>
               <h2 className="text-white font-bold mb-1" style={{ fontSize: 'clamp(1.2rem, 2vw, 1.6rem)' }}>
                 {game.title}
               </h2>

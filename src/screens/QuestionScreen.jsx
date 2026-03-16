@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useSession } from '../hooks/useSession'
 import { incrementPollAggregate } from '../hooks/useIndexedDB'
+import { useSound } from '../hooks/useSound'
 
 export default function QuestionScreen() {
   const { shuffledQuestions, currentQuestionIndex, submitAnswer, navigate } = useSession()
@@ -11,6 +12,8 @@ export default function QuestionScreen() {
   const [selected, setSelected] = useState(null)
   const [locked, setLocked] = useState(false)
 
+  const playTap = useSound('tap.mp3', { volume: 0.3 })
+
   useEffect(() => {
     setSelected(null)
     setLocked(false)
@@ -18,6 +21,7 @@ export default function QuestionScreen() {
 
   async function handleAnswer(option) {
     if (locked) return
+    playTap()
     setSelected(option)
     setLocked(true)
 
@@ -33,14 +37,14 @@ export default function QuestionScreen() {
 
   return (
     <motion.div
-      className="relative w-full h-full flex flex-col bg-[#080820] px-8 py-8"
+      className="relative w-full h-full flex flex-col bg-trust2030 px-8 py-8"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.35 }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <span className="text-primary-400 text-sm font-semibold tracking-widest uppercase">
           {question.dimension}
         </span>
@@ -49,10 +53,10 @@ export default function QuestionScreen() {
         </span>
       </div>
 
-      {/* Progress bar */}
-      <div className="h-1 w-full bg-white/10 rounded-full mb-8">
+      {/* Progress bar — h-2 for visibility */}
+      <div className="h-2 w-full bg-white/10 rounded-full mb-8">
         <div
-          className="h-1 bg-primary-500 rounded-full transition-all duration-500"
+          className="h-2 bg-primary-400 rounded-full transition-all duration-500"
           style={{ width: `${((currentQuestionIndex + 1) / total) * 100}%` }}
         />
       </div>
@@ -66,7 +70,7 @@ export default function QuestionScreen() {
           {question.scenario}
         </h2>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-3">
           {question.options.map((option, i) => {
             const isSelected = selected === option
             const isOther = selected && !isSelected
@@ -79,16 +83,16 @@ export default function QuestionScreen() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.07 }}
-                className={`w-full text-left rounded-2xl px-8 py-5 text-lg font-medium border-2 transition-all duration-300 ${
+                className={`w-full text-left px-8 py-5 text-lg font-medium border-l-4 rounded-r-xl transition-all duration-200 ${
                   isSelected
-                    ? 'bg-primary-600 border-primary-400 text-white scale-[1.02]'
+                    ? 'border-l-primary-400 bg-primary-900/60 text-white'
                     : isOther
-                    ? 'bg-white/3 border-white/5 text-white/30'
-                    : 'bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-primary-500/50 active:bg-primary-600/20'
+                    ? 'border-l-white/5 bg-white/2 text-white/25'
+                    : 'border-l-white/10 bg-white/3 text-white/70 hover:border-l-primary-400 hover:bg-white/8 hover:text-white'
                 }`}
-                whileTap={!locked ? { scale: 0.98 } : {}}
+                whileTap={!locked ? { scale: 0.99 } : {}}
               >
-                <span className="text-white/40 mr-4 text-sm">
+                <span className="text-white/40 mr-4 text-sm font-display">
                   {String.fromCharCode(65 + i)}
                 </span>
                 {option}

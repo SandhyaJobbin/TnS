@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "animejs": "^4.3.6",
+    "canvas-confetti": "^1.9.4",
     "chart.js": "^4.5.1",
     "framer-motion": "^12.36.0",
     "idb": "^8.0.3",

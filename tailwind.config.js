@@ -3,6 +3,10 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Space Grotesk', 'sans-serif'],
+        display: ['Orbitron', 'sans-serif'],
+      },
       colors: {
         primary: {
           300: '#8b92e8',

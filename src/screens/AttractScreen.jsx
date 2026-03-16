@@ -9,31 +9,31 @@ const SCENES = [
   {
     headline: 'Billions of users.',
     subline: 'Trillions of decisions.',
-    stat: null,
+    stat: 'Global T&S spend projected to exceed $25B by 2030',
     video: `${BASE}videos/scene-global-scale.mp4`,
   },
   {
     headline: 'Every second,',
     subline: 'platforms must decide what stays and what goes.',
-    stat: null,
+    stat: 'AI now handles 80–95% of detection tasks at scale',
     video: `${BASE}videos/scene-pipeline.mp4`,
   },
   {
     headline: 'AI scales moderation.',
     subline: 'Humans define the rules.',
-    stat: null,
+    stat: 'Human oversight remains essential for appeals and context',
     video: `${BASE}videos/scene-ai-human.mp4`,
   },
   {
     headline: 'Scams. Manipulation.',
     subline: 'Synthetic media.',
-    stat: null,
+    stat: 'GenAI has dramatically accelerated fraud and impersonation',
     video: `${BASE}videos/scene-threats.mp4`,
   },
   {
     headline: 'The future of Trust & Safety',
     subline: 'is collaboration.',
-    stat: null,
+    stat: 'Stanford, WEF, and EU DSA all point the same direction',
     video: `${BASE}videos/scene-collaboration.mp4`,
   },
   {
@@ -43,6 +43,13 @@ const SCENES = [
     video: `${BASE}videos/attract-loop-default.mp4`,
   },
 ]
+
+const variants = {
+  odd:   { initial: { opacity: 0, x: -40 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: 40 } },
+  even:  { initial: { opacity: 0, scale: 0.94 }, animate: { opacity: 1, scale: 1 }, exit: { opacity: 0, scale: 1.04 } },
+  final: { initial: { opacity: 0, scale: 0.85 }, animate: { opacity: 1, scale: 1 }, exit: { opacity: 0, scale: 0.9 } },
+}
+const getVariant = (i) => i === 5 ? variants.final : i % 2 === 0 ? variants.even : variants.odd
 
 const STRONG_SHADOW = '0 2px 4px rgba(0,0,0,0.9), 0 4px 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.6)'
 
@@ -142,9 +149,9 @@ export default function AttractScreen() {
         <AnimatePresence mode="wait">
           <motion.div
             key={sceneIndex}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -24 }}
+            initial={getVariant(sceneIndex).initial}
+            animate={getVariant(sceneIndex).animate}
+            exit={getVariant(sceneIndex).exit}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
             className="flex flex-col items-center gap-5 text-center max-w-4xl"
           >
@@ -155,7 +162,7 @@ export default function AttractScreen() {
             >
               <h1
                 className="font-bold leading-tight text-white"
-                style={{ fontSize: 'clamp(2.6rem, 5.5vw, 5.2rem)', textShadow: STRONG_SHADOW }}
+                style={{ fontSize: 'clamp(2.6rem, 5.5vw, 5.2rem)', textShadow: STRONG_SHADOW, fontFamily: "'Orbitron', sans-serif" }}
               >
                 {scene.headline}
               </h1>
@@ -212,7 +219,7 @@ export default function AttractScreen() {
           }}
           transition={{ repeat: Infinity, duration: 2.2 }}
         >
-          Tap to start the game
+          Tap to begin
         </motion.button>
       </div>
     </motion.div>
