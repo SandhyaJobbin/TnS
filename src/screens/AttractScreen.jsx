@@ -1,41 +1,70 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSession } from '../hooks/useSession'
-import ParticleBackground from '../components/ParticleBackground'
 import AdminHotspot from '../components/AdminHotspot'
+
+const BASE = import.meta.env.BASE_URL
 
 const SCENES = [
   {
     headline: 'Billions of users.',
     subline: 'Trillions of decisions.',
     stat: null,
+    video: `${BASE}videos/scene-global-scale.mp4`,
   },
   {
     headline: 'Every second,',
     subline: 'platforms must decide what stays and what goes.',
     stat: null,
+    video: `${BASE}videos/scene-pipeline.mp4`,
   },
   {
     headline: 'AI scales moderation.',
     subline: 'Humans define the rules.',
     stat: null,
+    video: `${BASE}videos/scene-ai-human.mp4`,
   },
   {
     headline: 'Scams. Manipulation.',
     subline: 'Synthetic media.',
     stat: null,
+    video: `${BASE}videos/scene-threats.mp4`,
   },
   {
     headline: 'The future of Trust & Safety',
     subline: 'is collaboration.',
     stat: null,
+    video: `${BASE}videos/scene-collaboration.mp4`,
   },
   {
     headline: 'Predict the Future',
     subline: 'of Trust & Safety.',
     stat: 'What does 2030 look like?',
+    video: `${BASE}videos/attract-loop-default.mp4`,
   },
 ]
+
+function SceneVideo({ src }) {
+  const ref = useRef(null)
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.load()
+      ref.current.play().catch(() => {})
+    }
+  }, [src])
+  return (
+    <video
+      ref={ref}
+      key={src}
+      src={src}
+      autoPlay
+      loop
+      muted
+      playsInline
+      className="absolute inset-0 w-full h-full object-cover"
+    />
+  )
+}
 
 export default function AttractScreen() {
   const { startSession } = useSession()
@@ -58,7 +87,21 @@ export default function AttractScreen() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <ParticleBackground />
+      {/* Video background with crossfade */}
+      <AnimatePresence>
+        <motion.div
+          key={scene.video}
+          className="absolute inset-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.2 }}
+        >
+          <SceneVideo src={scene.video} />
+          {/* Dark overlay so text stays readable */}
+          <div className="absolute inset-0 bg-black/55" />
+        </motion.div>
+      </AnimatePresence>
 
       {/* Logo top-left */}
       <div className="absolute top-8 left-8 z-10">
