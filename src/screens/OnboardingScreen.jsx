@@ -71,11 +71,11 @@ export default function OnboardingScreen() {
       </header>
 
       {/* Main content — upper 60% to avoid virtual keyboard overlap */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-start pt-4 md:pt-6 px-4 md:px-6 pb-4 min-h-0 overflow-y-auto">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start pt-2 md:pt-4 px-4 md:px-6 pb-4 min-h-0 overflow-y-auto">
 
         {/* Title */}
         <motion.div
-          className="w-full max-w-2xl text-center mb-4"
+          className="w-full max-w-2xl text-center mb-2 md:mb-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -88,7 +88,7 @@ export default function OnboardingScreen() {
 
         {/* Form card — dark navy, not purple */}
         <motion.div
-          className="w-full max-w-xl rounded-2xl p-4 md:p-6 lg:p-8 relative overflow-hidden"
+          className="w-full max-w-xl rounded-2xl p-3 md:p-6 lg:p-8 relative overflow-hidden"
           style={{
             background: 'rgba(10,25,47,0.85)',
             border: '1px solid rgba(255,0,60,0.15)',
@@ -102,7 +102,7 @@ export default function OnboardingScreen() {
           {/* Internal card glow */}
           <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'rgba(255,0,60,0.08)', filter: 'blur(40px)' }} />
 
-          <div className="relative z-10 flex flex-col gap-4">
+          <div className="relative z-10 flex flex-col gap-3 md:gap-4">
 
             {/* Full Name */}
             <div className="flex flex-col gap-1.5">
@@ -224,7 +224,7 @@ export default function OnboardingScreen() {
 
         {/* Footer badges */}
         <motion.div
-          className="mt-6 flex flex-wrap justify-center gap-8"
+          className="mt-3 md:mt-6 hidden md:flex flex-wrap justify-center gap-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.4 }}
           transition={{ delay: 0.8 }}

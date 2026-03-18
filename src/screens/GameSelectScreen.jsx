@@ -207,7 +207,7 @@ export default function GameSelectScreen() {
       </header>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-3 md:py-4 overflow-hidden">
+      <main className="flex-1 flex flex-col items-center justify-start px-4 md:px-6 py-3 md:py-4 overflow-y-auto">
         {/* Title */}
         <motion.div
           className="max-w-5xl w-full text-center mb-3 md:mb-4 lg:mb-6"
