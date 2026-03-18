@@ -170,23 +170,25 @@ export default function OnboardingScreen() {
 
             {/* Consent */}
             <label className="flex items-start gap-3 cursor-pointer group mt-1">
-              <div className="relative flex-shrink-0 mt-0.5 -m-2 p-2">
-                <input
-                  type="checkbox"
-                  checked={form.consent}
-                  onChange={e => setForm(f => ({ ...f, consent: e.target.checked }))}
-                  className="w-6 h-6 rounded cursor-pointer outline-none appearance-none transition-all"
-                  style={{
-                    background: form.consent ? '#FF003C' : 'rgba(2,11,24,0.5)',
-                    border: `1px solid ${form.consent ? '#FF003C' : 'rgba(255,0,60,0.3)'}`,
-                    boxShadow: form.consent ? '0 0 10px rgba(255,0,60,0.4)' : 'none',
-                  }}
-                />
-                {form.consent && (
-                  <svg className="absolute inset-0 w-6 h-6 text-white pointer-events-none p-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
+              <div className="flex-shrink-0 mt-0.5 -m-2 p-2">
+                <div className="relative w-6 h-6">
+                  <input
+                    type="checkbox"
+                    checked={form.consent}
+                    onChange={e => setForm(f => ({ ...f, consent: e.target.checked }))}
+                    className="w-6 h-6 rounded cursor-pointer outline-none appearance-none transition-all"
+                    style={{
+                      background: form.consent ? '#FF003C' : 'rgba(2,11,24,0.5)',
+                      border: `1px solid ${form.consent ? '#FF003C' : 'rgba(255,0,60,0.3)'}`,
+                      boxShadow: form.consent ? '0 0 10px rgba(255,0,60,0.4)' : 'none',
+                    }}
+                  />
+                  {form.consent && (
+                    <svg className="absolute inset-0 w-6 h-6 text-white pointer-events-none p-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
               </div>
               <span className="text-slate-400 text-base leading-relaxed group-hover:text-slate-300 transition-colors">
                 I consent to my responses being used by{' '}
