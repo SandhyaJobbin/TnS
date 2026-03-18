@@ -9,7 +9,7 @@ import { useSound } from '../hooks/useSound'
 import { shuffle } from '../utils/scoring'
 import trust2030Questions from '../data/trust2030_questions.json'
 import lostInContextQuestions from '../data/lost_in_context_questions.json'
-import trust2030Video from '../assets/videos/Trust-and-safety-2030.mp4'
+import trust2030Video from '../assets/videos/Trust-And-Safety-2030.mp4'
 import lostInContextVideo from '../assets/videos/Lost-in-context.mp4'
 
 const GAMES = [
