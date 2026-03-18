@@ -4,9 +4,17 @@ import { useSession } from '../hooks/useSession'
 import { usePollAggregation } from '../hooks/usePollAggregation'
 import PollChart from '../components/PollChart'
 
+const FOCUS_AREA_DESCRIPTIONS = {
+  'AI Adoption': 'How AI technology is reshaping the scale and speed of T&S operations',
+  'Regulatory Stance': 'How governments and global policy will shape platform accountability',
+  'Threat Landscape': 'The evolving ecosystem of bad actors, attack vectors, and platform risks that T&S teams face',
+  'Human Oversight': 'The role of human judgment, expertise, and workforce wellbeing in an increasingly automated future',
+}
+
 export default function PollResultScreen() {
   const { shuffledQuestions, currentQuestionIndex, answers, nextQuestion } = useSession()
   const [insightExpanded, setInsightExpanded] = useState(false)
+  const [dimTip, setDimTip] = useState(false)
   const question = shuffledQuestions[currentQuestionIndex]
   const userAnswer = answers[question?.id]
 
@@ -105,12 +113,35 @@ export default function PollResultScreen() {
             transition={{ duration: 0.5 }}
             className="mb-3 md:mb-5"
           >
-            <p
-              className="text-[10px] font-black uppercase tracking-[0.22em] mb-1"
-              style={{ color: '#e53935' }}
-            >
-              {question.dimension}
-            </p>
+            <div className="flex items-center gap-1.5 mb-1 relative">
+              <p
+                className="text-[10px] font-black uppercase tracking-[0.22em]"
+                style={{ color: '#e53935' }}
+              >
+                {question.dimension}
+              </p>
+              <button
+                onPointerDown={e => { e.stopPropagation(); setDimTip(t => !t) }}
+                className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-black leading-none select-none"
+                style={{ background: 'rgba(229,57,53,0.15)', border: '1px solid rgba(229,57,53,0.35)', color: '#e53935' }}
+              >
+                i
+              </button>
+              <AnimatePresence>
+                {dimTip && FOCUS_AREA_DESCRIPTIONS[question.dimension] && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.18 }}
+                    className="absolute top-full left-0 mt-1.5 z-50 max-w-[240px] rounded-xl p-3"
+                    style={{ background: '#131829', border: '1px solid rgba(229,57,53,0.3)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}
+                  >
+                    <p className="text-white/70 text-xs leading-relaxed">{FOCUS_AREA_DESCRIPTIONS[question.dimension]}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             <p className="text-white/55 text-sm leading-snug">{question.scenario}</p>
           </motion.div>
 
@@ -143,6 +174,39 @@ export default function PollResultScreen() {
             </div>
           )}
 
+          {/* Majority verdict — instant executive takeaway */}
+          {Object.keys(percentages).length > 0 && (() => {
+            const top = Object.entries(percentages).sort(([,a],[,b]) => b - a)[0]
+            if (!top) return null
+            const [topLabel, topPct] = top
+            const isUserTop = topLabel === userAnswer
+            return (
+              <motion.div
+                className="mb-3 md:mb-4 rounded-xl px-4 py-3 flex items-center gap-3"
+                style={{
+                  background: 'rgba(229,57,53,0.07)',
+                  border: '1px solid rgba(229,57,53,0.2)',
+                }}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+              >
+                <span className="font-black tabular-nums shrink-0" style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.25rem)', color: '#e53935' }}>
+                  {Math.round(topPct)}%
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5" style={{ color: 'rgba(229,57,53,0.7)' }}>What other executives predicted</p>
+                  <p className="text-white font-bold text-sm leading-tight truncate">{topLabel}</p>
+                </div>
+                {isUserTop && (
+                  <span className="ml-auto shrink-0 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.25)' }}>
+                    You agreed
+                  </span>
+                )}
+              </motion.div>
+            )
+          })()}
+
           {/* Chart */}
           <div className="flex-1 min-h-0 overflow-y-auto pr-1">
             {Object.keys(percentages).length > 0 ? (
@@ -156,32 +220,51 @@ export default function PollResultScreen() {
 
           {/* Stats row — real data only */}
           <div className="grid grid-cols-2 gap-3 mt-3 md:mt-5">
-            {[
-              { label: 'Dimension', value: question.dimension },
-              { label: 'Industry Consensus', value: question.industry_lean },
-            ].map(stat => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.6 }}
-                className="p-3 rounded-xl"
-                style={{
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                }}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+              className="p-3 rounded-xl"
+              style={{
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+              }}
+            >
+              <p
+                className="text-[10px] font-black uppercase tracking-[0.15em] mb-1"
+                style={{ color: 'rgba(229,57,53,0.75)' }}
               >
-                <p
-                  className="text-[10px] font-black uppercase tracking-[0.15em] mb-1"
-                  style={{ color: 'rgba(229,57,53,0.75)' }}
-                >
-                  {stat.label}
+                Focus Area
+              </p>
+              <p className="text-white font-bold text-sm leading-snug">{question.dimension}</p>
+              {FOCUS_AREA_DESCRIPTIONS[question.dimension] && (
+                <p className="text-white/35 text-[10px] leading-snug mt-1">
+                  {FOCUS_AREA_DESCRIPTIONS[question.dimension]}
                 </p>
-                <p className="text-white font-bold text-sm leading-snug">{stat.value}</p>
-              </motion.div>
-            ))}
+              )}
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+              className="p-3 rounded-xl"
+              style={{
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+              }}
+            >
+              <p
+                className="text-[10px] font-black uppercase tracking-[0.15em] mb-1"
+                style={{ color: 'rgba(229,57,53,0.75)' }}
+              >
+                Most Experts Believe
+              </p>
+              <p className="text-white font-bold text-sm leading-snug">{question.industry_lean}</p>
+            </motion.div>
           </div>
         </section>
 
@@ -277,7 +360,7 @@ export default function PollResultScreen() {
               }}
             >
               <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: '#e53935' }}>
-                Next up
+                Next Focus Area
               </p>
               <p className="text-white font-bold text-sm">
                 {isLastQuestion

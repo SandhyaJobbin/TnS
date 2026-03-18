@@ -1,126 +1,44 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Gear,
-  Question,
-} from '@phosphor-icons/react'
+import { Gear } from '@phosphor-icons/react'
 import { useSession } from '../hooks/useSession'
 import { useSound } from '../hooks/useSound'
 import { shuffle } from '../utils/scoring'
+import PinModal from '../components/PinModal'
 import trust2030Questions from '../data/trust2030_questions.json'
 import lostInContextQuestions from '../data/lost_in_context_questions.json'
 import trust2030Video from '../assets/videos/Trust-And-Safety-2030.mp4'
 import lostInContextVideo from '../assets/videos/Lost-in-context.mp4'
 
-const GAMES = [
-  {
-    id: 'trust2030',
-    title: 'Trust & Safety 2030',
-    subtitle: 'Predict the future',
-    description:
-      'What do you think the next 4-5 years will bring for Trust & Safety? Share your predictions in this 90-second challenge.',
-    video: trust2030Video,
-    accent: '#e53935',
-  },
-  {
-    id: 'lostInContext',
-    title: 'Lost in Context',
-    subtitle: 'Where AI moderation gets confused',
-    description: 'Same words. Different vibes. What\'s the context?',
-    video: lostInContextVideo,
-    accent: '#e53935',
-  },
-]
+const HERO = {
+  id: 'lostInContext',
+  title: 'Decode GenZ Lingos',
+  subtitle: 'Think you speak GenZ?',
+  description: 'Same words. Very different meanings. Can AI tell the difference — and can you?',
+  video: lostInContextVideo,
+  accentColor: '#38bdf8',
+  ctaLabel: 'Play Now →',
+}
+
+const SURVEY = {
+  id: 'trust2030',
+  title: 'Trust & Safety Survey',
+  subtitle: 'Share your perspective',
+  description: 'What do you think the next 4–5 years hold for Trust & Safety? Share your predictions in this 90-second challenge.',
+  video: trust2030Video,
+  accentColor: '#e53935',
+  ctaLabel: 'Take Survey →',
+}
 
 const TICKER_MESSAGES = [
   'We\'ll publish the collective industry forecast after the event.',
   'Submit your prediction and receive the industry insights report.',
+  'Optional incentive: Submit your prediction and receive the industry insights report.',
 ]
 
-const PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'admin1234'
-const STATION_ID = import.meta.env.VITE_STATION_ID || 'Alpha-01'
-
-function PinModal({ onClose, onSuccess }) {
-  const [value, setValue] = useState('')
-  const [shake, setShake] = useState(false)
-  const [error, setError] = useState(false)
-
-  function handleSubmit() {
-    if (value === PASSCODE) {
-      onSuccess()
-    } else {
-      setShake(true)
-      setError(true)
-      setTimeout(() => { setShake(false); setError(false); setValue('') }, 700)
-    }
-  }
-
-  function handleKeyDown(e) {
-    if (e.key === 'Enter') handleSubmit()
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: 'rgba(5,5,10,0.85)', backdropFilter: 'blur(20px)' }}
-      onPointerDown={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <motion.div
-        initial={{ scale: 0.92, opacity: 0 }}
-        animate={shake ? { x: [0, -12, 12, -8, 8, 0], scale: 1, opacity: 1 } : { scale: 1, opacity: 1 }}
-        transition={shake ? { duration: 0.4 } : { duration: 0.2 }}
-        className="w-80 rounded-2xl p-8 flex flex-col items-center gap-5"
-        style={{ background: '#0a0e1a', border: '1px solid rgba(229,57,53,0.25)' }}
-      >
-        <p className="text-white font-black text-sm uppercase tracking-[0.2em]">Admin Access</p>
-
-        {/* PIN input */}
-        <input
-          type="password"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          value={value}
-          onChange={e => { setValue(e.target.value.replace(/\D/g, '')); setError(false) }}
-          onKeyDown={handleKeyDown}
-          autoFocus
-          placeholder="Enter PIN"
-          className="w-full text-center text-2xl font-black tracking-[0.4em] rounded-xl px-4 py-3 outline-none transition-all placeholder:text-slate-700 placeholder:text-base placeholder:tracking-widest"
-          style={{
-            background: 'rgba(2,11,24,0.6)',
-            border: `1px solid ${error ? '#e53935' : 'rgba(229,57,53,0.3)'}`,
-            color: error ? '#e53935' : 'white',
-            boxShadow: error ? '0 0 12px rgba(229,57,53,0.3)' : 'none',
-          }}
-        />
-
-        {error && (
-          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#e53935', marginTop: '-8px' }}>
-            Incorrect PIN
-          </p>
-        )}
-
-        <button
-          onPointerDown={handleSubmit}
-          className="w-full py-3 rounded-xl text-white font-black text-sm uppercase tracking-[0.2em] transition-all active:scale-95"
-          style={{ background: '#e53935', boxShadow: '0 0 16px rgba(229,57,53,0.3)' }}
-        >
-          Unlock
-        </button>
-
-        <button
-          onPointerDown={onClose}
-          className="text-xs uppercase tracking-widest font-bold"
-          style={{ color: 'rgba(255,255,255,0.3)' }}
-        >
-          Cancel
-        </button>
-      </motion.div>
-    </motion.div>
-  )
-}
+const STATION_ID = import.meta.env.VITE_STATION_ID || 'booth-07'
+const MONO = "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace"
+const SHADOW = '0 2px 4px rgba(0,0,0,0.9), 0 4px 20px rgba(0,0,0,0.8)'
 
 export default function GameSelectScreen() {
   const { selectGame, goToAdmin } = useSession()
@@ -195,110 +113,202 @@ export default function GameSelectScreen() {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex gap-3"
         >
           <button onPointerDown={handleAdminGear} className="p-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all active:scale-95">
             <Gear size={20} />
-          </button>
-          <button className="p-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all active:scale-95">
-            <Question size={20} />
           </button>
         </motion.div>
       </header>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col items-center justify-start px-4 md:px-6 py-3 md:py-4 overflow-y-auto">
+      <main className="flex-1 flex flex-col items-center justify-start px-4 md:px-6 py-3 md:py-4 overflow-hidden min-h-0">
         {/* Title */}
         <motion.div
-          className="max-w-5xl w-full text-center mb-3 md:mb-4 lg:mb-6"
+          className="max-w-2xl w-full text-center mb-3 md:mb-4 shrink-0"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.4 }}
         >
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-2 leading-[1.1] text-white">
-            Choose your{' '}
-            <span className="text-primary relative inline-block">
-              challenge
-              <motion.span
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute bottom-0 left-0 h-1 bg-primary/30 rounded-full"
-              />
-            </span>
+          <h1
+            className="font-black tracking-tighter text-white mb-1"
+            style={{ fontSize: 'clamp(1.6rem, 4vw, 2.8rem)', lineHeight: 0.9, textShadow: SHADOW }}
+          >
+            Two ways to engage
           </h1>
+          <p style={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>
+            Play the game · Take the survey
+          </p>
         </motion.div>
 
-        {/* Game cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 lg:gap-5 max-w-6xl w-full">
-          {GAMES.map((game, i) => {
-            return (
-              <motion.div
-                key={game.id}
-                onPointerDown={() => handleSelect(game.id)}
-                className="group relative flex flex-col items-center rounded-2xl cursor-pointer overflow-hidden"
-                style={{
-                  background: 'rgba(10, 14, 26, 0.6)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(229,57,53,0.2)',
-                }}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.15 + 0.2, duration: 0.45 }}
-                whileTap={{ scale: 0.98 }}
+        {/* Cards — equal 1×2 stack */}
+        <div className="flex flex-col gap-3 md:gap-4 w-full max-w-2xl flex-1 min-h-0">
+
+          {/* Card 1 — Decode GenZ Lingos */}
+          <motion.div
+            onPointerDown={() => handleSelect(HERO.id)}
+            className="group relative rounded-2xl cursor-pointer overflow-hidden flex-1 min-h-0"
+            style={{
+              border: '2px solid rgba(56,189,248,0.35)',
+              boxShadow: '0 0 32px rgba(56,189,248,0.08)',
+            }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.45 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {/* Video fills entire card */}
+            <video
+              src={HERO.video}
+              autoPlay
+              loop
+              muted
+              playsInline
+              onCanPlayThrough={e => {
+                e.currentTarget.style.filter = 'blur(0px) brightness(1)'
+                e.currentTarget.style.transform = 'scale(1)'
+              }}
+              className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-95 transition-opacity duration-700"
+              style={{
+                filter: 'blur(12px) brightness(0.8)',
+                transform: 'scale(1.05)',
+                transition: 'opacity 0.7s, filter 0.8s ease, transform 0.8s ease',
+              }}
+            />
+
+            {/* Base tint — ensures text legibility across the whole card */}
+            <div className="absolute inset-0 bg-black/55 pointer-events-none" />
+            {/* Gradient scrim — heavier at bottom for content area */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0e1a]/98 via-[#0a0e1a]/60 to-transparent pointer-events-none" />
+
+            {/* Type label — top left, monospace metadata style */}
+            <div
+              className="absolute top-3 left-3"
+              style={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#38bdf8', textShadow: SHADOW }}
+            >
+              Interactive Game
+            </div>
+
+            {/* Bottom content overlay */}
+            <div className="absolute bottom-0 left-0 right-0 px-5 md:px-8 pb-4 text-center">
+              {/* Headline + colored subline — attract pattern */}
+              <h3
+                className="font-black tracking-tighter text-white mb-2"
+                style={{ fontSize: 'clamp(1.3rem, 2.8vw, 1.9rem)', lineHeight: 0.9, textShadow: SHADOW }}
               >
-                {/* Video area */}
-                <div className="w-full aspect-[16/8] md:aspect-[16/7] relative bg-slate-900 overflow-hidden">
-                  <video
-                    src={game.video}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    onCanPlayThrough={e => {
-                      e.currentTarget.style.filter = 'blur(0px) brightness(1)'
-                      e.currentTarget.style.transform = 'scale(1)'
-                    }}
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-700"
-                    style={{
-                      filter: 'blur(12px) brightness(0.8)',
-                      transform: 'scale(1.05)',
-                      transition: 'opacity 0.7s, filter 0.8s ease, transform 0.8s ease',
-                    }}
-                  />
-                  {/* Bottom gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0e1a]/80 via-transparent to-transparent" />
-                </div>
+                {HERO.title}
+                <br />
+                <span style={{ color: '#38bdf8' }}>{HERO.subtitle}</span>
+              </h3>
+              {/* Description — attract stat style */}
+              <p
+                className="font-light mb-3"
+                style={{ fontSize: 'clamp(0.68rem, 1.4vw, 0.82rem)', color: 'rgba(255,255,255,0.7)', textShadow: SHADOW, letterSpacing: '0.01em' }}
+              >
+                {HERO.description}
+              </p>
+              {/* CTA — solid filled with glow */}
+              <span
+                className="inline-block font-black uppercase rounded-lg px-6 py-2 border border-white/10"
+                style={{ background: '#38bdf8', color: '#0a0e1a', fontSize: '11px', letterSpacing: '0.12em', boxShadow: '0 0 18px rgba(56,189,248,0.55)' }}
+              >
+                {HERO.ctaLabel}
+              </span>
+            </div>
+          </motion.div>
 
-                {/* Content */}
-                <div className="text-center relative z-10 px-4 md:px-6 lg:px-8 py-2 md:py-3">
-                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-1 md:mb-2 group-hover:text-primary/90 transition-colors">
-                    {game.title}
-                  </h3>
-                  <p className="text-primary font-bold tracking-widest uppercase text-xs mb-1 md:mb-2">
-                    {game.subtitle}
-                  </p>
-                  <p className="text-white/50 text-xs md:text-sm leading-relaxed max-w-xs mx-auto mb-2 md:mb-3">
-                    {game.description}
-                  </p>
-                  <span
-                    className="inline-block px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-[0.15em]"
-                    style={{ background: 'rgba(229,57,53,0.15)', border: '1px solid rgba(229,57,53,0.35)', color: '#e53935' }}
-                  >
-                    Tap to Play →
-                  </span>
-                </div>
-              </motion.div>
-            )
-          })}
+          {/* Card 2 — Trust & Safety Survey */}
+          <motion.div
+            onPointerDown={() => handleSelect(SURVEY.id)}
+            className="group relative rounded-2xl cursor-pointer overflow-hidden flex-1 min-h-0"
+            style={{
+              border: '2px solid rgba(229,57,53,0.3)',
+              boxShadow: '0 0 32px rgba(229,57,53,0.06)',
+            }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.45 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {/* Video fills entire card */}
+            <video
+              src={SURVEY.video}
+              autoPlay
+              loop
+              muted
+              playsInline
+              onCanPlayThrough={e => {
+                e.currentTarget.style.filter = 'blur(0px) brightness(1)'
+                e.currentTarget.style.transform = 'scale(1)'
+              }}
+              className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-95 transition-opacity duration-700"
+              style={{
+                filter: 'blur(12px) brightness(0.8)',
+                transform: 'scale(1.05)',
+                transition: 'opacity 0.7s, filter 0.8s ease, transform 0.8s ease',
+              }}
+            />
+
+            {/* Base tint — ensures text legibility across the whole card */}
+            <div className="absolute inset-0 bg-black/55 pointer-events-none" />
+            {/* Gradient scrim — heavier at bottom for content area */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0e1a]/98 via-[#0a0e1a]/60 to-transparent pointer-events-none" />
+
+            {/* Type label — top left, monospace metadata style */}
+            <div
+              className="absolute top-3 left-3"
+              style={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#e53935', textShadow: SHADOW }}
+            >
+              Industry Survey
+            </div>
+
+            {/* Bottom content overlay */}
+            <div className="absolute bottom-0 left-0 right-0 px-5 md:px-8 pb-4 text-center">
+              {/* Headline + colored subline — attract pattern */}
+              <h3
+                className="font-black tracking-tighter text-white mb-2"
+                style={{ fontSize: 'clamp(1.3rem, 2.8vw, 1.9rem)', lineHeight: 0.9, textShadow: SHADOW }}
+              >
+                {SURVEY.title}
+                <br />
+                <span style={{ color: '#e53935' }}>{SURVEY.subtitle}</span>
+              </h3>
+              {/* Description — attract stat style */}
+              <p
+                className="font-light mb-3"
+                style={{ fontSize: 'clamp(0.68rem, 1.4vw, 0.82rem)', color: 'rgba(255,255,255,0.7)', textShadow: SHADOW, letterSpacing: '0.01em' }}
+              >
+                {SURVEY.description}
+              </p>
+              {/* CTA — solid filled with glow */}
+              <span
+                className="inline-block font-black uppercase rounded-lg px-6 py-2 border border-white/10"
+                style={{ background: '#e53935', color: '#fff', fontSize: '11px', letterSpacing: '0.12em', boxShadow: '0 0 18px rgba(229,57,53,0.55)' }}
+              >
+                {SURVEY.ctaLabel}
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Admin shortcut */}
+          <motion.div
+            className="flex justify-center shrink-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <button
+              onPointerDown={handleAdminGear}
+              className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/20 hover:text-white/40 transition-colors py-1 px-3"
+            >
+              Admin
+            </button>
+          </motion.div>
         </div>
-
       </main>
 
-      {/* Footer — status pill only */}
+      {/* Footer — status pill */}
       <footer className="px-6 py-2 border-t border-primary/10 bg-[#0a0e1a]/50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto flex items-center justify-end">
+        <div className="max-w-2xl mx-auto flex items-center justify-end">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

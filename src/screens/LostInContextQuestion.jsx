@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { useSession } from '../hooks/useSession'
 import { useSound } from '../hooks/useSound'
+import { usePollAggregation } from '../hooks/usePollAggregation'
 import AnswerFlash from '../components/AnswerFlash'
+import PollChart from '../components/PollChart'
 
 // Numbers (≤12 chars, parseable as float) → 4×1 row; text → 2×2 grid
 function isNumericOptions(options) {
@@ -11,19 +13,175 @@ function isNumericOptions(options) {
 }
 
 function Logo() {
+  const { navigate } = useSession()
   return (
-    <img src={`${import.meta.env.BASE_URL}sutherland-logo.png`} alt="Sutherland" className="h-8 w-auto object-contain" />
+    <button onPointerDown={() => navigate('gameSelect')} className="opacity-90 active:opacity-60 transition-opacity" aria-label="Home">
+      <img src={`${import.meta.env.BASE_URL}sutherland-logo.png`} alt="Sutherland" className="h-8 w-auto object-contain" />
+    </button>
+  )
+}
+
+function LICPollOverlay({ question, percentages, userAnswer, isLastQuestion, alwaysShowPollResults, setAlwaysShowPollResults, onContinue }) {
+  const continueRef = useRef(onContinue)
+  continueRef.current = onContinue
+
+  useEffect(() => {
+    if (alwaysShowPollResults) return
+    const t = setTimeout(() => continueRef.current(), 5000)
+    return () => clearTimeout(t)
+  }, [alwaysShowPollResults])
+
+  const correctPct = percentages[question.correct_human]
+    ? Math.round(percentages[question.correct_human])
+    : null
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', background: 'rgba(0,0,0,0.2)' }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.25 }}
+        className="w-full overflow-hidden"
+        style={{
+          maxWidth: 680,
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          background: 'rgba(10,14,26,0.85)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 24,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        }}
+      >
+        <div className="p-5 md:p-6">
+          {/* Header */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-white">How others decoded it</span>
+            <span
+              className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded animate-pulse"
+              style={{ color: '#e53935', border: '1px solid rgba(229,57,53,0.35)' }}
+            >
+              [LIVE]
+            </span>
+          </div>
+
+          {/* Term */}
+          <p className="text-white/60 text-sm mb-3 leading-snug">
+            How did everyone decode <span className="text-white font-bold">&ldquo;{question.term}&rdquo;</span>?
+          </p>
+
+          {/* Your answer badge */}
+          {userAnswer && (
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-white/35 text-xs">Your answer:</span>
+              <span
+                className="text-xs font-semibold px-3 py-1 rounded-full"
+                style={{ background: 'rgba(229,57,53,0.12)', color: '#ff8099', border: '1px solid rgba(229,57,53,0.25)' }}
+              >
+                {userAnswer}
+              </span>
+              {userAnswer === question.correct_human && (
+                <span
+                  className="text-xs font-semibold px-2 py-1 rounded-full"
+                  style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.2)' }}
+                >
+                  ✓ Correct
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Poll chart */}
+          <div className="mb-3">
+            {Object.keys(percentages).length > 0 ? (
+              <PollChart data={percentages} userAnswer={userAnswer} />
+            ) : (
+              <div className="text-white/20 text-sm py-6 text-center">Loading poll data…</div>
+            )}
+          </div>
+
+          {/* Correct answer + accuracy */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="px-3 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: 'rgba(229,57,53,0.75)' }}>Correct Answer</p>
+              <p className="text-white font-bold text-sm">{question.correct_human}</p>
+            </div>
+            <div className="px-3 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: 'rgba(229,57,53,0.75)' }}>Players Got It Right</p>
+              <p className="text-white font-bold text-sm">{correctPct !== null ? `~${correctPct}%` : '—'}</p>
+            </div>
+          </div>
+
+          {/* Footer: toggle + continue */}
+          <div className="flex items-center justify-between gap-4">
+            <button
+              onPointerDown={() => setAlwaysShowPollResults(!alwaysShowPollResults)}
+              className="flex items-center gap-2 shrink-0"
+            >
+              <div
+                className="relative w-9 h-5 rounded-full transition-colors duration-200"
+                style={{ background: alwaysShowPollResults ? '#e53935' : 'rgba(255,255,255,0.15)' }}
+              >
+                <div
+                  className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"
+                  style={{ transform: alwaysShowPollResults ? 'translateX(1.1rem)' : 'translateX(0.1rem)' }}
+                />
+              </div>
+              <span className="text-xs text-white/45 select-none">Always show results</span>
+            </button>
+            <motion.button
+              onPointerDown={onContinue}
+              className="px-5 py-2.5 rounded-xl text-white font-black text-sm uppercase tracking-wider shrink-0"
+              style={{ background: '#e53935', boxShadow: '0 4px 16px rgba(229,57,53,0.3)' }}
+              whileTap={{ scale: 0.97 }}
+            >
+              {isLastQuestion ? 'See Results →' : 'Continue →'}
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Countdown progress bar */}
+        <div className="h-1" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <AnimatePresence>
+            {!alwaysShowPollResults && (
+              <motion.div
+                key="bar"
+                initial={{ width: '100%' }}
+                animate={{ width: '0%' }}
+                exit={{ width: '0%' }}
+                transition={{ duration: 5, ease: 'linear' }}
+                className="h-full"
+                style={{ background: '#e53935' }}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
 export default function LostInContextQuestion() {
-  const { shuffledQuestions, currentQuestionIndex, submitAnswer, navigate } = useSession()
+  const {
+    shuffledQuestions, currentQuestionIndex, submitAnswer, nextQuestion,
+    alwaysShowPollResults, setAlwaysShowPollResults,
+  } = useSession()
   const question = shuffledQuestions[currentQuestionIndex]
   const total = shuffledQuestions.length
 
   const [selected, setSelected] = useState(null)
   const [submitted, setSubmitted] = useState(false)
   const [showFlash, setShowFlash] = useState(false)
+  const [showPollOverlay, setShowPollOverlay] = useState(false)
+
+  const percentages = usePollAggregation(question?.id)
 
   const playTap     = useSound('tap.mp3', { volume: 0.3 })
   const playCorrect = useSound('correct.mp3')
@@ -34,8 +192,11 @@ export default function LostInContextQuestion() {
     setSelected(null)
     setSubmitted(false)
     setShowFlash(false)
+    setShowPollOverlay(false)
     playTerm()
   }, [currentQuestionIndex])
+
+  const isLastQuestion = currentQuestionIndex >= total - 1
 
   function handleSelect(option) {
     if (submitted) return
@@ -58,8 +219,13 @@ export default function LostInContextQuestion() {
           disableForReducedMotion: true,
         })
       }
-      navigate('licPollResult')
+      setShowPollOverlay(true)
     }, 650)
+  }
+
+  function handleContinue() {
+    setShowPollOverlay(false)
+    nextQuestion()
   }
 
   if (!question) return null
@@ -103,7 +269,7 @@ export default function LostInContextQuestion() {
         <Logo />
         <div className="flex items-center gap-6">
           <span className="text-[10px] font-black uppercase tracking-[0.25em]" style={{ color: '#e53935' }}>
-            Lost In Context V2.4
+            Decode GenZ Lingos
           </span>
         </div>
       </header>
@@ -116,7 +282,7 @@ export default function LostInContextQuestion() {
               Currently Playing
             </p>
             <h2 className="text-lg md:text-2xl font-black tracking-tight text-white">
-              Lost in Context: Round {currentQuestionIndex + 1}
+              Decode GenZ Lingos: Round {currentQuestionIndex + 1}
             </h2>
           </div>
           <div className="text-right">
@@ -301,9 +467,24 @@ export default function LostInContextQuestion() {
         </div>
         <div className="text-right">
           <p className="text-[9px] font-bold uppercase tracking-widest text-white/25">Assigned Moderator</p>
-          <p className="text-xs font-medium text-white/50">Station {import.meta.env.VITE_STATION_ID || 'Alpha-01'}</p>
+          <p className="text-xs font-medium text-white/50">Station {import.meta.env.VITE_STATION_ID || 'booth-07'}</p>
         </div>
       </footer>
+
+      {/* Poll overlay */}
+      <AnimatePresence>
+        {showPollOverlay && (
+          <LICPollOverlay
+            question={question}
+            percentages={percentages}
+            userAnswer={selected}
+            isLastQuestion={isLastQuestion}
+            alwaysShowPollResults={alwaysShowPollResults}
+            setAlwaysShowPollResults={setAlwaysShowPollResults}
+            onContinue={handleContinue}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

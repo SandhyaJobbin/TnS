@@ -54,7 +54,9 @@ export default function EmailCaptureScreen() {
         style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(10,14,26,0.8)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <div className="flex items-center gap-3">
-          <img src={`${import.meta.env.BASE_URL}sutherland-logo.png`} alt="Sutherland" className="h-8 w-auto object-contain" />
+          <button onPointerDown={() => navigate('gameSelect')} className="opacity-90 active:opacity-60 transition-opacity" aria-label="Home">
+            <img src={`${import.meta.env.BASE_URL}sutherland-logo.png`} alt="Sutherland" className="h-8 w-auto object-contain" />
+          </button>
           <div>
             <h2 className="text-white text-sm font-black leading-none uppercase tracking-tight">Trust &amp; Safety Summit</h2>
             <p className="text-[10px] uppercase tracking-[0.2em] font-bold mt-0.5" style={{ color: '#e53935' }}>Industry Report</p>
@@ -167,7 +169,7 @@ export default function EmailCaptureScreen() {
           <button className="text-[10px] font-bold uppercase tracking-widest text-white/50">Privacy Policy</button>
           <button className="text-[10px] font-bold uppercase tracking-widest text-white/50">Methodology</button>
         </div>
-        <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">© 2025 Trust &amp; Safety Summit | {import.meta.env.VITE_STATION_ID || 'Alpha-01'}</p>
+        <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">© 2025 Trust &amp; Safety Summit | {import.meta.env.VITE_STATION_ID || 'booth-07'}</p>
       </footer>
     </motion.div>
   )
