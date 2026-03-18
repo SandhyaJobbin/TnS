@@ -135,11 +135,11 @@ export default function AttractScreen() {
     const startTime = Date.now()
     const progressInterval = setInterval(() => {
       const elapsed = Date.now() - startTime
-      const pct = Math.min(Math.round((elapsed / 2400) * 100), 100)
+      const pct = Math.min(Math.round((elapsed / 900) * 100), 100)
       setLoadProgress(pct)
       if (pct >= 100) clearInterval(progressInterval)
-    }, 50)
-    termTimerRef.current = setTimeout(() => startSession(), 2500)
+    }, 30)
+    termTimerRef.current = setTimeout(() => startSession(), 1000)
   }
 
   const handleAbort = () => {
@@ -381,25 +381,25 @@ export default function AttractScreen() {
 
               <div className="space-y-4" style={{ fontFamily: MONO, fontSize: '13px' }}>
                 <motion.p
-                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 }}
                   className="text-white/80"
                 >
                   {'>'} Loading Sutherland Core v4.2.0...
                 </motion.p>
                 <motion.p
-                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}
+                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
                   className="text-white/80"
                 >
                   {'>'} Establishing secure handshake with global nodes...
                 </motion.p>
                 <motion.p
-                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.9 }}
+                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }}
                   style={{ color: RED }}
                 >
                   {'>'} WARNING: High volume of decisions detected in Sector 7.
                 </motion.p>
                 <motion.div
-                  initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 2, ease: 'easeInOut', delay: 0.4 }}
+                  initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.85, ease: 'easeInOut', delay: 0.1 }}
                   className="h-px w-full origin-left mt-8"
                   style={{ background: RED }}
                 />

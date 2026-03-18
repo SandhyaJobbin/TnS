@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Gear,
@@ -32,33 +32,32 @@ const GAMES = [
   },
 ]
 
+const TICKER_MESSAGES = [
+  'We\'ll publish the collective industry forecast after the event.',
+  'Submit your prediction and receive the industry insights report.',
+]
+
 const PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'admin1234'
 const STATION_ID = import.meta.env.VITE_STATION_ID || 'Alpha-01'
 
 function PinModal({ onClose, onSuccess }) {
-  const [digits, setDigits] = useState([])
+  const [value, setValue] = useState('')
   const [shake, setShake] = useState(false)
+  const [error, setError] = useState(false)
 
-  function pressDigit(d) {
-    if (digits.length >= 4) return
-    const next = [...digits, d]
-    setDigits(next)
-    if (next.length === 4) {
-      const code = next.join('')
-      if (code === PASSCODE) {
-        onSuccess()
-      } else {
-        setShake(true)
-        setTimeout(() => { setShake(false); setDigits([]) }, 600)
-      }
+  function handleSubmit() {
+    if (value === PASSCODE) {
+      onSuccess()
+    } else {
+      setShake(true)
+      setError(true)
+      setTimeout(() => { setShake(false); setError(false); setValue('') }, 700)
     }
   }
 
-  function pressBack() {
-    setDigits(d => d.slice(0, -1))
+  function handleKeyDown(e) {
+    if (e.key === 'Enter') handleSubmit()
   }
-
-  const display = Array.from({ length: 4 }, (_, i) => (digits[i] !== undefined ? '●' : '○'))
 
   return (
     <motion.div
@@ -73,37 +72,43 @@ function PinModal({ onClose, onSuccess }) {
         initial={{ scale: 0.92, opacity: 0 }}
         animate={shake ? { x: [0, -12, 12, -8, 8, 0], scale: 1, opacity: 1 } : { scale: 1, opacity: 1 }}
         transition={shake ? { duration: 0.4 } : { duration: 0.2 }}
-        className="w-80 rounded-2xl p-8 flex flex-col items-center gap-6"
+        className="w-80 rounded-2xl p-8 flex flex-col items-center gap-5"
         style={{ background: '#0a0e1a', border: '1px solid rgba(229,57,53,0.25)' }}
       >
         <p className="text-white font-black text-sm uppercase tracking-[0.2em]">Admin Access</p>
 
-        {/* Dots */}
-        <div className="flex gap-4">
-          {display.map((ch, i) => (
-            <span key={i} className="text-2xl" style={{ color: digits[i] !== undefined ? '#e53935' : 'rgba(255,255,255,0.2)' }}>
-              {ch}
-            </span>
-          ))}
-        </div>
+        {/* PIN input */}
+        <input
+          type="password"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          value={value}
+          onChange={e => { setValue(e.target.value.replace(/\D/g, '')); setError(false) }}
+          onKeyDown={handleKeyDown}
+          autoFocus
+          placeholder="Enter PIN"
+          className="w-full text-center text-2xl font-black tracking-[0.4em] rounded-xl px-4 py-3 outline-none transition-all placeholder:text-slate-700 placeholder:text-base placeholder:tracking-widest"
+          style={{
+            background: 'rgba(2,11,24,0.6)',
+            border: `1px solid ${error ? '#e53935' : 'rgba(229,57,53,0.3)'}`,
+            color: error ? '#e53935' : 'white',
+            boxShadow: error ? '0 0 12px rgba(229,57,53,0.3)' : 'none',
+          }}
+        />
 
-        {/* Keypad */}
-        <div className="grid grid-cols-3 gap-3 w-full">
-          {[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map((k, i) => (
-            k === '' ? <div key={i} /> :
-            <button
-              key={i}
-              onPointerDown={() => k === '⌫' ? pressBack() : pressDigit(String(k))}
-              className="py-4 rounded-xl text-white font-black text-lg transition-all active:scale-95"
-              style={{
-                background: k === '⌫' ? 'rgba(229,57,53,0.1)' : 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-              }}
-            >
-              {k}
-            </button>
-          ))}
-        </div>
+        {error && (
+          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#e53935', marginTop: '-8px' }}>
+            Incorrect PIN
+          </p>
+        )}
+
+        <button
+          onPointerDown={handleSubmit}
+          className="w-full py-3 rounded-xl text-white font-black text-sm uppercase tracking-[0.2em] transition-all active:scale-95"
+          style={{ background: '#e53935', boxShadow: '0 0 16px rgba(229,57,53,0.3)' }}
+        >
+          Unlock
+        </button>
 
         <button
           onPointerDown={onClose}
@@ -121,6 +126,12 @@ export default function GameSelectScreen() {
   const { selectGame, goToAdmin } = useSession()
   const playTap = useSound('tap.mp3', { volume: 0.3 })
   const [showPinModal, setShowPinModal] = useState(false)
+  const [tickerIdx, setTickerIdx] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(() => setTickerIdx(i => (i + 1) % TICKER_MESSAGES.length), 4000)
+    return () => clearInterval(id)
+  }, [])
 
   function handleAdminGear() {
     setShowPinModal(true)
@@ -156,6 +167,30 @@ export default function GameSelectScreen() {
             Trust &amp; Safety Summit
           </h2>
         </motion.div>
+
+        {/* Live feed ticker */}
+        <div className="flex-1 mx-6 overflow-hidden flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <span
+              className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+              style={{ background: '#FF003C', boxShadow: '0 0 6px rgba(255,0,60,0.8)', animation: 'pulse 1.5s cubic-bezier(0.4,0,0.6,1) infinite' }}
+            />
+            <div className="overflow-hidden" style={{ maxWidth: '420px' }}>
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={tickerIdx}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.4 }}
+                  className="text-white text-xs font-medium tracking-wide whitespace-nowrap"
+                >
+                  {TICKER_MESSAGES[tickerIdx]}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
 
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -251,20 +286,6 @@ export default function GameSelectScreen() {
           })}
         </div>
 
-        {/* Below-cards footnote */}
-        <motion.div
-          className="max-w-6xl w-full mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 px-1"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55, duration: 0.4 }}
-        >
-          <p className="text-white/30 text-xs leading-snug">
-            We'll publish the collective industry forecast after the event.
-          </p>
-          <p className="text-white/25 text-xs leading-snug text-right">
-            Submit your prediction and receive the industry insights report.
-          </p>
-        </motion.div>
       </main>
 
       {/* Footer — status pill only */}

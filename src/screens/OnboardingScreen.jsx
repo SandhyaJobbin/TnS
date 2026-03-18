@@ -71,22 +71,19 @@ export default function OnboardingScreen() {
       </header>
 
       {/* Main content — upper 60% to avoid virtual keyboard overlap */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-start pt-10 px-6 py-4 min-h-0">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start pt-6 px-6 pb-4 min-h-0 overflow-y-auto">
 
         {/* Title */}
         <motion.div
-          className="w-full max-w-2xl text-center mb-6"
+          className="w-full max-w-2xl text-center mb-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-slate-100 font-black leading-tight tracking-tight mb-2" style={{ fontSize: 'clamp(1.6rem, 3.5vw, 3rem)' }}>
+          <h1 className="text-slate-100 font-black leading-tight tracking-tight" style={{ fontSize: 'clamp(1.6rem, 3.5vw, 3rem)' }}>
             Tell us who you are in the{' '}
             <span style={{ color: '#FF003C' }}>T&amp;S Ecosystem</span>
           </h1>
-          <p className="text-slate-400 font-medium" style={{ fontSize: 'clamp(0.85rem, 1.2vw, 1rem)' }}>
-            Onboarding for the Trust &amp; Safety Summit Kiosk
-          </p>
         </motion.div>
 
         {/* Form card — dark navy, not purple */}

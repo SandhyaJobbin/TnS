@@ -79,7 +79,7 @@ export default function App() {
 
   const flash = useCallback((fn, toScreen) => {
     setSkeletonScreen(toScreen || null)
-    setTimeout(() => { fn(); setTimeout(() => setSkeletonScreen(null), 120) }, 220)
+    setTimeout(() => { fn(); setTimeout(() => setSkeletonScreen(null), 60) }, 120)
   }, [])
 
   const navigate = useCallback((screen, extra = {}) => {
