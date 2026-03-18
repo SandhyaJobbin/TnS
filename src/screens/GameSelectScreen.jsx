@@ -156,7 +156,7 @@ export default function GameSelectScreen() {
       transition={{ duration: 0.4 }}
     >
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-2 lg:px-20 border-b border-primary/20 backdrop-blur-md sticky top-0 z-50 bg-[#0a0e1a]/80">
+      <header className="flex items-center justify-between px-4 md:px-6 py-2 lg:px-10 xl:px-16 border-b border-primary/20 backdrop-blur-md sticky top-0 z-50 bg-[#0a0e1a]/80">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -207,15 +207,15 @@ export default function GameSelectScreen() {
       </header>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-4 overflow-hidden">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-3 md:py-4 overflow-hidden">
         {/* Title */}
         <motion.div
-          className="max-w-5xl w-full text-center mb-6"
+          className="max-w-5xl w-full text-center mb-3 md:mb-4 lg:mb-6"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.4 }}
         >
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-2 leading-[1.1] text-white">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-2 leading-[1.1] text-white">
             Choose your{' '}
             <span className="text-primary relative inline-block">
               challenge
@@ -230,7 +230,7 @@ export default function GameSelectScreen() {
         </motion.div>
 
         {/* Game cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-6xl w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 lg:gap-5 max-w-6xl w-full">
           {GAMES.map((game, i) => {
             return (
               <motion.div
@@ -249,7 +249,7 @@ export default function GameSelectScreen() {
                 whileTap={{ scale: 0.98 }}
               >
                 {/* Video area */}
-                <div className="w-full aspect-[16/7] relative bg-slate-900 overflow-hidden">
+                <div className="w-full aspect-[16/8] md:aspect-[16/7] relative bg-slate-900 overflow-hidden">
                   <video
                     src={game.video}
                     autoPlay
@@ -264,14 +264,14 @@ export default function GameSelectScreen() {
                 </div>
 
                 {/* Content */}
-                <div className="text-center relative z-10 px-8 py-3">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 group-hover:text-primary/90 transition-colors">
+                <div className="text-center relative z-10 px-4 md:px-6 lg:px-8 py-2 md:py-3">
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-1 md:mb-2 group-hover:text-primary/90 transition-colors">
                     {game.title}
                   </h3>
-                  <p className="text-primary font-bold tracking-widest uppercase text-xs mb-2">
+                  <p className="text-primary font-bold tracking-widest uppercase text-xs mb-1 md:mb-2">
                     {game.subtitle}
                   </p>
-                  <p className="text-white/50 text-sm leading-relaxed max-w-xs mx-auto mb-3">
+                  <p className="text-white/50 text-xs md:text-sm leading-relaxed max-w-xs mx-auto mb-2 md:mb-3">
                     {game.description}
                   </p>
                   <span

@@ -64,7 +64,7 @@ export default function QuestionScreen() {
 
       {/* ── Header ── */}
       <header
-        className="relative z-10 flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 md:py-6 border-b"
+        className="relative z-10 flex items-center justify-between px-4 sm:px-6 md:px-10 py-3 md:py-4 lg:py-6 border-b"
         style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(10,14,26,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <div>
@@ -94,7 +94,7 @@ export default function QuestionScreen() {
       </div>
 
       {/* ── Main content ── */}
-      <div className="relative z-10 flex-1 flex flex-col items-center px-4 sm:px-6 md:px-10 py-4 md:py-5 gap-4 md:gap-5 min-h-0 overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col items-center px-4 sm:px-6 md:px-10 py-3 md:py-4 gap-3 md:gap-4 lg:gap-5 min-h-0 overflow-hidden">
 
         {/* Question section */}
         <div className="flex flex-col items-center text-center w-full max-w-4xl mx-auto shrink-0">
@@ -103,7 +103,7 @@ export default function QuestionScreen() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="px-5 py-1.5 rounded-full mb-4 text-[10px] font-black uppercase tracking-[0.35em]"
+            className="px-5 py-1.5 rounded-full mb-2 md:mb-4 text-[10px] font-black uppercase tracking-[0.35em]"
             style={{ color: '#e53935', background: 'rgba(229,57,53,0.08)', border: '1px solid rgba(229,57,53,0.25)' }}
           >
             Trust &amp; Safety 2030: Predict the Future
@@ -125,7 +125,7 @@ export default function QuestionScreen() {
         {/* ── Options grid ── */}
         <motion.div
           key={`grid-${question.id}`}
-          className={`flex-1 min-h-0 w-full max-w-5xl mx-auto ${gridClass}`}
+          className={`flex-1 min-h-0 w-full max-w-5xl mx-auto pb-2 md:pb-0 ${gridClass}`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
@@ -143,7 +143,7 @@ export default function QuestionScreen() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + i * 0.08 }}
                 whileTap={!locked ? { scale: 0.97 } : {}}
-                className="relative group flex flex-col items-center justify-center rounded-2xl transition-all duration-300 overflow-hidden min-h-[100px] max-h-[280px] p-4 md:p-6"
+                className="relative group flex flex-col items-center justify-center rounded-2xl transition-all duration-300 overflow-hidden min-h-[72px] md:min-h-[100px] max-h-[220px] md:max-h-[280px] p-3 md:p-4 lg:p-6"
                 style={{
                   background: isSelected
                     ? 'rgba(10,14,26,0.95)'

@@ -97,7 +97,7 @@ export default function LostInContextQuestion() {
 
       {/* ── HEADER ── */}
       <header
-        className="relative z-10 flex items-center justify-between px-4 md:px-10 py-3 md:py-5 border-b shrink-0"
+        className="relative z-10 flex items-center justify-between px-4 md:px-10 py-2 md:py-3 lg:py-5 border-b shrink-0"
         style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(10,14,26,0.8)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <Logo />
@@ -109,7 +109,7 @@ export default function LostInContextQuestion() {
       </header>
 
       {/* ── SCENARIO + PROGRESS ── */}
-      <div className="relative z-10 px-4 md:px-10 pt-4 md:pt-6 pb-3 md:pb-4 shrink-0">
+      <div className="relative z-10 px-4 md:px-10 pt-3 md:pt-4 lg:pt-6 pb-2 md:pb-3 lg:pb-4 shrink-0">
         <div className="flex items-end justify-between mb-3">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-1" style={{ color: '#e53935' }}>
@@ -141,7 +141,7 @@ export default function LostInContextQuestion() {
       </div>
 
       {/* ── MAIN CONTENT ── */}
-      <div className="relative z-10 flex-1 flex flex-col min-h-0 px-4 md:px-10 pb-3 md:pb-4 overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col min-h-0 px-4 md:px-10 pb-2 md:pb-3 lg:pb-4 overflow-hidden">
         <motion.div
           className="flex-1 flex flex-col min-h-0"
           initial={{ opacity: 0, y: 16 }}
@@ -149,12 +149,12 @@ export default function LostInContextQuestion() {
           transition={{ duration: 0.3 }}
         >
           {/* Question text */}
-          <div className="text-center mb-6 shrink-0">
+          <div className="text-center mb-3 md:mb-5 shrink-0">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="inline-block px-4 py-1.5 rounded-full mb-4 text-[10px] font-black uppercase tracking-[0.3em]"
+              className="inline-block px-4 py-1.5 rounded-full mb-2 md:mb-4 text-[10px] font-black uppercase tracking-[0.3em]"
               style={{ color: '#e53935', background: 'rgba(229,57,53,0.08)', border: '1px solid rgba(229,57,53,0.25)' }}
             >
               Dual Meaning Detected
@@ -205,7 +205,7 @@ export default function LostInContextQuestion() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.25 + i * 0.07 }}
                   whileTap={!submitted ? { scale: 0.97 } : {}}
-                  className="relative group flex flex-col items-center justify-center rounded-2xl transition-all duration-300 overflow-hidden p-6"
+                  className="relative group flex flex-col items-center justify-center rounded-2xl transition-all duration-300 overflow-hidden p-3 md:p-5 lg:p-6"
                   style={{
                     background: isSelected
                       ? 'rgba(10,14,26,0.95)'
@@ -279,7 +279,7 @@ export default function LostInContextQuestion() {
 
       {/* ── FOOTER ── */}
       <footer
-        className="relative z-10 flex items-center justify-between px-4 md:px-10 py-3 md:py-5 border-t shrink-0"
+        className="relative z-10 flex items-center justify-between px-4 md:px-10 py-2 md:py-3 lg:py-5 border-t shrink-0"
         style={{
           borderColor: 'rgba(255,255,255,0.05)',
           background: 'rgba(0,0,0,0.25)',

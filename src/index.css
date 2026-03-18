@@ -196,6 +196,32 @@ input, textarea, select {
   }
 }
 
+/* ── Landscape tablet / short-screen adaptations ──
+   Targets iPad/Samsung Tab landscape where height ≤ 820px.
+   Tighten vertical spacing so nothing gets clipped. */
+@media (max-height: 820px) and (orientation: landscape) {
+  /* Reduce scan-line animation speed so it doesn't feel janky at shorter heights */
+  .scan-line, .scan-line-cyan {
+    animation-duration: 6s;
+  }
+}
+
+/* Very short landscape screens (e.g. iPad mini landscape ~744px) */
+@media (max-height: 760px) and (orientation: landscape) {
+  /* Reduce background grid size for tighter visual density */
+  .bg-grid, .data-grid, .data-grid-cyan,
+  .bg-trust2030, .bg-lost-in-context {
+    background-size: 28px 28px;
+  }
+}
+
+/* ── Safe area insets for notched iPads ── */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .kiosk-footer {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  }
+}
+
 /* ── Skeleton shimmer ── */
 @keyframes shimmer {
   0%   { background-position: -200% center; }

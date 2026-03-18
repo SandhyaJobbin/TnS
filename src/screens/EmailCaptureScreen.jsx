@@ -50,7 +50,7 @@ export default function EmailCaptureScreen() {
 
       {/* Header */}
       <header
-        className="relative z-10 w-full flex items-center justify-between px-8 py-5 border-b"
+        className="relative z-10 w-full flex items-center justify-between px-4 md:px-8 py-3 md:py-5 border-b"
         style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(10,14,26,0.8)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <div className="flex items-center gap-3">
@@ -65,12 +65,12 @@ export default function EmailCaptureScreen() {
       </header>
 
       {/* Main — upper 60% to avoid virtual keyboard overlap */}
-      <div className="relative z-10 flex flex-col items-center justify-start flex-1 pt-10 px-8 py-6">
+      <div className="relative z-10 flex flex-col items-center justify-start flex-1 pt-6 md:pt-10 px-4 md:px-8 py-4 md:py-6 overflow-y-auto">
         <div className="w-full max-w-lg">
 
           {/* Badge + heading */}
           <motion.div
-            className="text-center mb-8"
+            className="text-center mb-5 md:mb-8"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}

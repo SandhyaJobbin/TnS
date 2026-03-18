@@ -155,7 +155,7 @@ export default function FinalResultsScreen() {
 
         {/* Radar chart */}
         <motion.div
-          className="w-full max-w-xs mb-4"
+          className="w-full max-w-xs md:max-w-sm mb-3 md:mb-4"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.25, type: 'spring', damping: 14, stiffness: 100 }}

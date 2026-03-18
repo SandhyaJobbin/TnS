@@ -91,14 +91,14 @@ export default function LostInContextPollResult() {
       <main className="relative z-10 flex-1 flex overflow-hidden">
 
         {/* Left: Chart */}
-        <section className="flex-1 flex flex-col px-10 py-7 border-r" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+        <section className="flex-1 flex flex-col px-4 sm:px-6 md:px-8 lg:px-10 py-4 md:py-5 lg:py-7 border-r" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
 
           {/* Term + question context */}
           <motion.div
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-5"
+            className="mb-3 md:mb-5"
           >
             <p
               className="text-[10px] font-black uppercase tracking-[0.22em] mb-1"
@@ -113,7 +113,7 @@ export default function LostInContextPollResult() {
 
           {/* Your answer badge */}
           {userAnswer && (
-            <div className="flex flex-wrap items-center gap-2 mb-5">
+            <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-5">
               <span className="text-white/35 text-xs">Your answer:</span>
               <span
                 className="text-xs font-semibold px-3 py-1 rounded-full"
@@ -140,7 +140,7 @@ export default function LostInContextPollResult() {
           </div>
 
           {/* Stats row */}
-          <div className="grid grid-cols-2 gap-3 mt-5">
+          <div className="grid grid-cols-2 gap-3 mt-3 md:mt-5">
             {[
               {
                 label: 'Correct Answer',
@@ -178,7 +178,7 @@ export default function LostInContextPollResult() {
 
         {/* Right: Trivia + Action */}
         <section
-          className="w-72 flex flex-col px-7 py-7 shrink-0"
+          className="w-48 sm:w-56 md:w-64 lg:w-72 flex flex-col px-3 sm:px-4 md:px-5 lg:px-7 py-4 md:py-5 lg:py-7 shrink-0 overflow-y-auto"
           style={{ background: 'rgba(229,57,53,0.02)' }}
         >
           <div className="flex-1 flex flex-col gap-5">

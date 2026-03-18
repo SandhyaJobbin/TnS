@@ -44,7 +44,7 @@ export default function OnboardingScreen() {
       <div className="scan-line" />
 
       {/* Header */}
-      <header className="relative z-10 flex-shrink-0 flex items-center justify-between px-6 py-3 lg:px-10"
+      <header className="relative z-10 flex-shrink-0 flex items-center justify-between px-4 md:px-6 py-2 md:py-3 lg:px-10"
         style={{ borderBottom: '1px solid rgba(255,0,60,0.1)', background: 'rgba(2,11,24,0.3)', backdropFilter: 'blur(12px)' }}>
         <div className="flex items-center gap-3">
           <img src={`${import.meta.env.BASE_URL}sutherland-logo.png`} alt="Sutherland" className="h-8 w-auto object-contain" />
@@ -71,7 +71,7 @@ export default function OnboardingScreen() {
       </header>
 
       {/* Main content — upper 60% to avoid virtual keyboard overlap */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-start pt-6 px-6 pb-4 min-h-0 overflow-y-auto">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start pt-4 md:pt-6 px-4 md:px-6 pb-4 min-h-0 overflow-y-auto">
 
         {/* Title */}
         <motion.div
@@ -88,7 +88,7 @@ export default function OnboardingScreen() {
 
         {/* Form card — dark navy, not purple */}
         <motion.div
-          className="w-full max-w-xl rounded-2xl p-6 lg:p-8 relative overflow-hidden"
+          className="w-full max-w-xl rounded-2xl p-4 md:p-6 lg:p-8 relative overflow-hidden"
           style={{
             background: 'rgba(10,25,47,0.85)',
             border: '1px solid rgba(255,0,60,0.15)',
