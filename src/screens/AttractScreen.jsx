@@ -86,38 +86,49 @@ function MetricCard({ label, value, unit, last }) {
   )
 }
 
-function SceneVideo({ src }) {
-  const ref = useRef(null)
-  const [ready, setReady] = useState(false)
+function VideoPool({ scenes, activeIndex }) {
+  const refs = useRef([])
+  const [readyMap, setReadyMap] = useState({})
+
   useEffect(() => {
-    setReady(false)
-    if (ref.current) {
-      ref.current.load()
-      ref.current.play().catch(() => {})
-    }
-  }, [src])
+    refs.current.forEach((el, i) => {
+      if (!el) return
+      if (i === activeIndex) {
+        el.play().catch(() => {})
+      } else {
+        el.pause()
+      }
+    })
+  }, [activeIndex])
+
   return (
-    <video
-      ref={ref}
-      src={src}
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="auto"
-      onCanPlayThrough={() => setReady(true)}
-      className="absolute inset-0 w-full h-full object-cover"
-      style={{
-        filter: ready ? 'blur(0px)' : 'blur(12px)',
-        transform: ready ? 'scale(1)' : 'scale(1.05)',
-        transition: 'filter 0.8s ease, transform 0.8s ease',
-      }}
-    />
+    <>
+      {scenes.map((scene, i) => (
+        <video
+          key={scene.video}
+          ref={el => { refs.current[i] = el }}
+          src={scene.video}
+          loop
+          muted
+          playsInline
+          preload="auto"
+          onCanPlayThrough={() => setReadyMap(m => ({ ...m, [i]: true }))}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            opacity: i === activeIndex ? 1 : 0,
+            transition: 'opacity 1.2s ease',
+            filter: readyMap[i] ? 'blur(0px)' : 'blur(12px)',
+            transform: readyMap[i] ? 'scale(1)' : 'scale(1.05)',
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
+    </>
   )
 }
 
 export default function AttractScreen() {
-  const { startSession } = useSession()
+  const { startSession, navigate } = useSession()
   const [sceneIndex, setSceneIndex] = useState(0)
   const [systemTime, setSystemTime] = useState(new Date().toLocaleTimeString())
   const [showTerminal, setShowTerminal] = useState(false)
@@ -167,19 +178,10 @@ export default function AttractScreen() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* ── Video layer ── */}
-      <AnimatePresence>
-        <motion.div
-          key={scene.video}
-          className="absolute inset-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2 }}
-        >
-          <SceneVideo src={scene.video} />
-        </motion.div>
-      </AnimatePresence>
+      {/* ── Video layer — all videos stay mounted; only active one is visible ── */}
+      <div className="absolute inset-0">
+        <VideoPool scenes={SCENES} activeIndex={sceneIndex} />
+      </div>
 
       {/* ── Overlay layers — light so video breathes through ── */}
       {/* Light film */}
@@ -221,8 +223,8 @@ export default function AttractScreen() {
 
       {/* ── Header bar ── */}
       <header className="relative z-20 w-full px-4 md:px-8 py-3 md:py-5 flex justify-between items-center">
-        {/* Logo */}
-        <div className="flex items-center gap-3">
+        {/* Logo — tap is a staff shortcut to game select */}
+        <div className="flex items-center gap-3 cursor-pointer" onPointerDown={() => navigate('gameSelect')}>
           <div
             className="p-1.5 rounded-lg"
             style={{ background: 'rgba(255,255,255,0.95)', border: `1px solid rgba(255,0,68,0.30)`, boxShadow: `0 0 12px rgba(255,0,68,0.25)` }}

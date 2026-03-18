@@ -1,42 +1,51 @@
 [
   {
     "id": "lic1",
+    "term": "Rizz",
+    "options": ["Being rich", "Having charisma or charm", "Feeling angry", "A type of music"],
+    "correct_human": "Having charisma or charm",
+    "ai_interpretation": "Unrecognised slang — possible misspelling of 'ruse' or foreign language content, flagged for review",
+    "ai_was_wrong": true,
+    "trivia": "Short for 'charisma,' rizz is Gen Z's word for natural charm — especially the ability to attract others effortlessly. 'He's got rizz' is the highest social compliment. AI sees gibberish and flags it for the language review queue."
+  },
+  {
+    "id": "lic2",
+    "term": "No Cap",
+    "options": ["Not wearing a hat", "That is a lie", "I am not lying / I am serious", "A missing accessory"],
+    "correct_human": "I am not lying / I am serious",
+    "ai_interpretation": "Statement about headwear — possible dress code violation report",
+    "ai_was_wrong": true,
+    "trivia": "'No cap' means 'no lie' — the speaker is being completely honest. The opposite, 'cap,' means a lie or exaggeration. AI trained on standard English reads a hat policy complaint and routes it to the uniform moderation team."
+  },
+  {
+    "id": "lic3",
     "term": "Sneaky link",
-    "options": ["A hidden URL", "A secret romantic partner", "A Wi-Fi exploit", "A social media trick"],
+    "options": ["A hidden URL", "A secret romantic partner", "A Wi-Fi exploit", "A slow internet connection"],
     "correct_human": "A secret romantic partner",
     "ai_interpretation": "A concealed hyperlink or suspicious URL requiring security review",
     "ai_was_wrong": true,
     "trivia": "Gen Z's term for someone you're secretly dating or meeting up with — the kind of situationship that never makes it to your Instagram story. AI moderation systems routinely flag it as a cybersecurity threat and route it to the phishing team."
   },
   {
-    "id": "lic2",
-    "term": "Pressed",
-    "options": ["A laundry instruction", "Anxious or upset about something", "Under physical pressure", "A printing method"],
-    "correct_human": "Anxious or upset about something",
-    "ai_interpretation": "Garment care instruction — apply heat to remove creases",
-    "ai_was_wrong": true,
-    "trivia": "'Why are you so pressed?' is Gen Z's way of calling out someone who's disproportionately bothered by something small. Heavily used in US high schools and UK colleges alike. AI reliably sees a dry-cleaning label."
-  },
-  {
-    "id": "lic3",
-    "term": "Periodt",
-    "options": ["A punctuation mark", "A grammar error", "Emphasis — end of discussion", "A medical term"],
-    "correct_human": "Emphasis — end of discussion",
-    "ai_interpretation": "A typographical variant of a full stop or possible misspelling",
-    "ai_was_wrong": true,
-    "trivia": "Evolved from AAVE 'period' meaning 'and that's final.' The extra T is intentional — it amplifies the emphasis. The word that ends all arguments in US and UK school group chats. AI sends it to the grammar-correction queue."
-  },
-  {
     "id": "lic4",
-    "term": "W",
-    "options": ["The 23rd letter", "A compass direction", "A win or victory", "A grade"],
-    "correct_human": "A win or victory",
-    "ai_interpretation": "An alphabetical character or compass direction indicator",
+    "term": "Bussin'",
+    "options": ["Broken or damaged", "Extremely good (usually food)", "Very loud", "Getting on a bus"],
+    "correct_human": "Extremely good (usually food)",
+    "ai_interpretation": "Transportation reference — possible content related to public transit or vehicles",
     "ai_was_wrong": true,
-    "trivia": "Compressed from 'win,' used symmetrically with L (loss). 'That's a W' and 'you took an L' are now universal Gen Z scorecards for everything from exam results to relationship drama. A single letter carries full social weight — and AI sees the alphabet."
+    "trivia": "Originally AAVE for delicious food, 'bussin'' has expanded to mean anything excellent. 'That track is bussin'' is top-tier praise. AI consistently reads transportation and routes the post to the travel content category."
   },
   {
     "id": "lic5",
+    "term": "Slay",
+    "options": ["To harm someone", "To do something very well", "To be exhausted", "To perform badly"],
+    "correct_human": "To do something very well",
+    "ai_interpretation": "Violent action — flagged for potential harm content, escalated for human review",
+    "ai_was_wrong": true,
+    "trivia": "'Slay' means to perform brilliantly or look incredible. 'She slayed that presentation' is a compliment. AI trained on literal language sees a potential violence flag every single time and escalates it for urgent human review — missing the runway entirely."
+  },
+  {
+    "id": "lic6",
     "term": "NPC",
     "options": ["A gaming character", "A network protocol", "Someone with no original thoughts", "A type of processor"],
     "correct_human": "Someone with no original thoughts",
@@ -45,16 +54,16 @@
     "trivia": "AI gets the gaming definition exactly right — and completely misses the point. Gen Z now uses NPC to call out people who move through life on autopilot, no original opinions, just following scripts. The irony: an AI flagging NPC content without grasping it's describing an AI."
   },
   {
-    "id": "lic6",
-    "term": "Sleep on",
-    "options": ["To physically rest", "To ignore someone", "To underestimate or overlook", "A sleep disorder"],
-    "correct_human": "To underestimate or overlook",
-    "ai_interpretation": "Physical act of sleeping on a surface — possible fatigue or wellness context",
+    "id": "lic7",
+    "term": "Salty",
+    "options": ["Needing water", "Bitter or upset about something", "Funny and sarcastic", "Full of energy"],
+    "correct_human": "Bitter or upset about something",
+    "ai_interpretation": "Sodium content descriptor — possibly food-related post, no action required",
     "ai_was_wrong": true,
-    "trivia": "'Don't sleep on this' means don't overlook it — it's better than you think. Used across the US and UK to champion underrated music, people, or ideas. Gen Z deploys it as genuine high praise. AI consistently reads a mattress."
+    "trivia": "'Why are you so salty?' means why are you so bitter or resentful — usually over something minor. Widely used across US and UK platforms. AI reads a food review and moves on, completely missing the interpersonal drama unfolding in the comments."
   },
   {
-    "id": "lic7",
+    "id": "lic8",
     "term": "Bare",
     "options": ["Without clothing", "Empty or exposed", "A lot of, or very", "An animal"],
     "correct_human": "A lot of, or very",
@@ -63,30 +72,21 @@
     "trivia": "Standard across UK schools from London to Manchester. 'Bare people showed up,' 'that's bare expensive' — one of the most versatile words in British Gen Z vocabulary. AI trained on standard English consistently raises a nudity flag."
   },
   {
-    "id": "lic8",
-    "term": "Clapped",
-    "options": ["Received applause", "Made a loud sound", "Broken or unattractive", "Finished something"],
-    "correct_human": "Broken or unattractive",
-    "ai_interpretation": "A form of applause — positive audience reaction, sentiment: favourable",
+    "id": "lic9",
+    "term": "Bet",
+    "options": ["A wager of money", "Yes / I agree / Challenge accepted", "No way", "A sports term"],
+    "correct_human": "Yes / I agree / Challenge accepted",
+    "ai_interpretation": "Gambling reference — possible content related to betting or wagering, flagged for review",
     "ai_was_wrong": true,
-    "trivia": "In UK school corridors 'clapped' is the last thing you want to hear. 'That phone is clapped' means it's falling apart. Said about a situation, it means a mess. AI reads a standing ovation every single time."
+    "trivia": "'Bet' is Gen Z's all-purpose affirmative — it means 'yes,' 'agreed,' 'watch me do it.' 'You think you can finish first? Bet.' AI sees gambling content in every single use and flags it for the responsible gaming team."
   },
   {
-    "id": "lic9",
+    "id": "lic10",
     "term": "Wagwan",
     "options": ["A vehicle type", "A foreign language flag", "A traditional dish", "What's going on?"],
     "correct_human": "What's going on?",
     "ai_interpretation": "Unrecognised character sequence — possible non-English content, flagged for review",
     "ai_was_wrong": true,
     "trivia": "Jamaican Patois for 'what is going on?' — completely absorbed into British school culture across every city and background. The default hallway greeting for UK Gen Z. AI trained predominantly on American English flags it as unrecognised foreign text."
-  },
-  {
-    "id": "lic10",
-    "term": "Innit",
-    "options": ["A grammar mistake", "Located inside something", "A filler for agreement or emphasis", "A contraction of 'in it'"],
-    "correct_human": "A filler for agreement or emphasis",
-    "ai_interpretation": "Non-standard contraction — grammatically incorrect usage, recommend correction",
-    "ai_was_wrong": true,
-    "trivia": "Compressed from 'isn't it,' innit has long outgrown its literal meaning. It ends sentences, seeks agreement, fills pauses — 'that's wild, innit?' It's as fundamental to UK Gen Z speech as 'you know?' or 'right?' and appears in school conversations thousands of times a day."
   }
 ]

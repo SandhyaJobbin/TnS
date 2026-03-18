@@ -23,7 +23,7 @@ function Background() {
 }
 
 export default function ThankYouScreen() {
-  const { sessionId, playerInfo, selectedGame, answers, shuffledQuestions, resetSession } = useSession()
+  const { sessionId, playerInfo, selectedGame, answers, shuffledQuestions, resetSession, navigate } = useSession()
   const [countdown, setCountdown] = useState(AUTO_RESET_SECONDS)
   const [saved, setSaved] = useState(false)
 
@@ -78,7 +78,9 @@ export default function ThankYouScreen() {
         style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(10,14,26,0.8)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <div className="flex items-center gap-3">
-          <img src={`${import.meta.env.BASE_URL}sutherland-logo.png`} alt="Sutherland" className="h-8 w-auto object-contain" />
+          <button onPointerDown={() => navigate('gameSelect')} className="opacity-90 active:opacity-60 transition-opacity" aria-label="Home">
+            <img src={`${import.meta.env.BASE_URL}sutherland-logo.png`} alt="Sutherland" className="h-8 w-auto object-contain" />
+          </button>
           <div>
             <h2 className="text-white text-sm font-black leading-none uppercase tracking-tight">Trust &amp; Safety Summit</h2>
             <p className="text-[10px] uppercase tracking-[0.2em] font-bold mt-0.5" style={{ color: '#e53935' }}>Session Complete</p>

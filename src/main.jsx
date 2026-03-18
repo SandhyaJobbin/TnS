@@ -1,9 +1,10 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import { preloadAssets } from './utils/preloadAssets.js'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 
-// Kick off background downloads for all game videos immediately on page load
-preloadAssets()
-
-createRoot(document.getElementById('root')).render(<App />)
+createRoot(document.getElementById('root')).render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+)

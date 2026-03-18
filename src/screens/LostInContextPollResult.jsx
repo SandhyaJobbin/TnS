@@ -104,7 +104,7 @@ export default function LostInContextPollResult() {
               className="text-[10px] font-black uppercase tracking-[0.22em] mb-1"
               style={{ color: '#e53935' }}
             >
-              Lost In Context
+              Decode GenZ Lingos
             </p>
             <p className="text-white/55 text-sm leading-snug">
               How did everyone decode <span className="text-white font-bold">&ldquo;{question.term}&rdquo;</span>?

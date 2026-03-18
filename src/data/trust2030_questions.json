@@ -2,73 +2,73 @@
   {
     "id": "q1",
     "dimension": "AI Adoption",
-    "scenario": "By 2030, platforms will review 100 billion interactions daily. What percentage will be moderated by AI?",
+    "scenario": "By 2030 platforms will review 100 billion interactions daily. What percentage will be moderated by AI?",
     "options": ["60%", "80%", "95%", "99%"],
-    "insight": "AI will scale moderation — humans will define the rules. Volume will be too massive for human review. AI will handle detection, triage, and enforcement for the vast majority of cases, while humans focus on edge cases, appeals, and cultural nuance.",
+    "insight": "AI will scale moderation. Humans will define the rules. Volume will be too massive for human review. AI will handle detection, triage, and enforcement for most cases, while humans focus on edge cases, appeals, and policy nuance.",
     "industry_lean": "95%"
   },
   {
     "id": "q2",
     "dimension": "Regulatory Stance",
-    "scenario": "Online identity will evolve dramatically. Which future is most likely by 2030?",
-    "options": ["Fully anonymous internet", "Verified digital identity", "AI agent verification", "Multiple identity layers"],
-    "insight": "Identity will become a trust signal — not a single requirement. The future internet will support verified real identities, pseudonymous accounts, and AI agents acting on behalf of users. Trust systems will depend on layered identity and reputation signals.",
-    "industry_lean": "Multiple identity layers"
+    "scenario": "Online identity will evolve dramatically. Which future is most likely?",
+    "options": ["Fully anonymous internet survives", "Verified digital identity becomes standard", "AI agents require identity verification", "Multiple identity layers (real, pseudonymous, AI)"],
+    "insight": "Identity will become a trust signal — not a single requirement. The future internet likely supports verified real identities, pseudonymous accounts, and AI agents acting on behalf of users. Trust systems will depend on identity layers and reputation signals.",
+    "industry_lean": "Multiple identity layers (real, pseudonymous, AI)"
   },
   {
     "id": "q3",
     "dimension": "Threat Landscape",
     "scenario": "Bad actors will increasingly deploy AI-powered attacks. What becomes the dominant defense?",
-    "options": ["AI detecting AI abuse", "Human investigations", "Community governance", "Platform design"],
-    "insight": "The future of T&S will be an AI vs AI arms race. Bad actors are already using generative AI for scams, deepfakes, and automation. Defense will increasingly rely on AI models that can detect adversarial patterns faster than humans can.",
+    "options": ["AI detecting AI abuse", "Human-led investigations", "Community governance model", "Platform design that prevents abuse"],
+    "insight": "The future of T&S will be an AI vs AI arms race. Bad actors are already using generative AI for scams, deepfakes, and automation. Defense will rely on AI models detecting patterns faster than humans can.",
     "industry_lean": "AI detecting AI abuse"
   },
   {
     "id": "q4",
     "dimension": "Regulatory Stance",
-    "scenario": "Governments are rapidly expanding platform accountability. Which regulatory future is most likely?",
-    "options": ["Global standards", "Region-specific rules", "Platform self-regulation", "Independent safety audits"],
-    "insight": "Trust & Safety will become as much regulatory infrastructure as operational. We already see fragmentation: EU Digital Services regulations, US sector-based rules, and APAC national frameworks — platforms will operate under regional compliance regimes, not a single global standard.",
-    "industry_lean": "Region-specific rules"
+    "scenario": "Governments are rapidly expanding platform accountability. Which future is most likely?",
+    "options": ["Global regulatory standards", "Region-specific rulebooks", "Platform self-regulation frameworks", "Independent safety audits for platforms"],
+    "insight": "Trust & Safety will become as much regulatory infrastructure as operational. We already see fragmentation: EU Digital Services regulations, US sector-based rules, APAC national frameworks — platforms will operate under regional compliance regimes rather than one global standard.",
+    "industry_lean": "Region-specific rulebooks"
   },
   {
     "id": "q5",
     "dimension": "Threat Landscape",
     "scenario": "In 2030, the largest Trust & Safety threat will be:",
-    "options": ["AI-powered scams", "Manipulation networks", "Synthetic media", "Virtual economy abuse"],
-    "insight": "The next wave of platform abuse will be financially motivated. Fraud scales fastest with AI — voice cloning, deepfake impersonation, automated phishing networks, and social engineering bots all make AI-powered fraud the most attractive vector for attackers.",
-    "industry_lean": "AI-powered scams"
+    "options": ["AI-powered scams and fraud", "Coordinated manipulation networks", "Synthetic media and misinformation", "Exploitation of virtual economies"],
+    "insight": "The next wave of platform abuse will be financially motivated. Fraud scales fastest with AI — voice cloning scams, deepfake impersonation, automated phishing networks, and social engineering bots all make fraud the most attractive vector for attackers.",
+    "industry_lean": "AI-powered scams and fraud"
   },
   {
     "id": "q6",
     "dimension": "AI Adoption",
-    "scenario": "Which area will see the largest Trust & Safety investment by 2030?",
-    "options": ["Proactive harm detection", "AI safety & alignment", "Creator accountability", "Child safety tech", "Identity verification", "Platform transparency"],
-    "insight": "AI safety will become core Trust & Safety infrastructure. With generative AI creating content at scale, platforms will invest heavily in safe AI deployment, model guardrails, and misuse detection — making AI safety the defining investment of the decade.",
-    "industry_lean": "AI safety & alignment"
+    "scenario": "Which area will see the largest Trust & Safety investment?",
+    "options": ["Proactive harm detection", "AI safety & model alignment", "Creator accountability", "Child safety technology", "Identity verification", "Platform transparency tools"],
+    "insight": "AI safety will become core Trust & Safety infrastructure. With generative AI creating content at scale, platforms will invest heavily in safe AI deployment, model guardrails, and misuse detection.",
+    "industry_lean": "AI safety & model alignment"
   },
   {
     "id": "q7",
     "dimension": "Human Oversight",
     "scenario": "Which Trust & Safety metric will matter most by 2030?",
-    "options": ["Speed of response", "Harm prevention rate", "User trust scores", "Regulatory compliance", "Community health", "Safety-by-design"],
-    "insight": "The best harm is the harm that never happens. The industry will move from reactive moderation to proactive prevention — platforms that measure harm prevented, not just harm actioned, will set the benchmark for the field.",
+    "options": ["Speed of response", "Harm prevention rate", "User trust scores", "Regulatory compliance", "Community health metrics", "Safety-by-design adoption"],
+    "insight": "The best harm is the harm that never happens. The industry will move from reactive moderation to proactive prevention — platforms that measure harm prevented, not just harm actioned, will set the benchmark.",
     "industry_lean": "Harm prevention rate"
   },
   {
     "id": "q8",
     "dimension": "Human Oversight",
-    "scenario": "Which product design shift will define safer platforms by 2030?",
-    "options": ["Friction before posting", "Reputation systems", "Safer defaults", "Community moderation", "Real-time detection", "Age-appropriate design"],
-    "insight": "Safety will increasingly be designed into the product. The most effective safety models will be built directly into product architecture — not layered on as moderation after the fact — making safer defaults the foundational design principle.",
+    "scenario": "Which product design shift will define safer platforms?",
+    "options": ["Friction before posting", "Reputation systems", "Safer defaults", "Community-led moderation", "Real-time toxicity detection", "Age-appropriate design"],
+    "insight": "Safety will increasingly be designed into the product. The most effective safety models will be built directly into product design, rather than relying only on moderation.",
     "industry_lean": "Safer defaults"
   },
   {
     "id": "q9",
     "dimension": "Human Oversight",
     "scenario": "By 2030, human moderators will handle the most complex and harmful edge cases. What will define the future of workforce wellbeing?",
-    "options": ["AI content filtering", "Psychological support", "Shorter sessions", "Specialist moderators", "AI copilots"],
-    "insight": "AI will become the frontline shield for human moderator wellbeing. The biggest shift will be AI acting as a protective filter so humans only review the most necessary edge cases — dramatically reducing exposure to traumatic content and redefining the moderator role.",
-    "industry_lean": "AI content filtering"
+    "options": ["AI filtering to reduce exposure to severe content", "Real-time psychological support and wellness monitoring", "Shorter moderation sessions with automated rotation", "Specialized expert moderators for high-risk categories", "AI copilots assisting moderators in decision-making"],
+    "insight": "AI will become the frontline shield for human moderator wellbeing. The biggest shift will be AI acting as a protective filter so humans only review the most necessary edge cases — dramatically reducing exposure to traumatic content.",
+    "industry_lean": "AI filtering to reduce exposure to severe content"
   }
 ]
