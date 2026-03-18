@@ -104,6 +104,7 @@ function SceneVideo({ src }) {
       loop
       muted
       playsInline
+      preload="auto"
       onCanPlayThrough={() => setReady(true)}
       className="absolute inset-0 w-full h-full object-cover"
       style={{

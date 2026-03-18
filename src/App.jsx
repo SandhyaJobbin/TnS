@@ -1,4 +1,4 @@
-import { createContext, useState, useRef, useEffect, useCallback } from 'react'
+import { createContext, useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { v4 as uuidv4 } from 'uuid'
 import { addLog } from './hooks/useIndexedDB'
@@ -17,6 +17,35 @@ import ThankYouScreen from './screens/ThankYouScreen'
 import AdminPanel from './admin/AdminPanel'
 import GameIntroScreen from './screens/GameIntroScreen'
 import SkeletonScreen from './components/SkeletonScreen'
+
+// Attract-screen videos live in /public/videos/ so Vite doesn't bundle them.
+// <link rel="preload" as="video"> is NOT reliably supported in Chrome/Safari.
+// The only cross-browser way to warm the media buffer is hidden <video preload="auto"> elements.
+const PUBLIC_VIDEO_SRCS = [
+  'videos/attract-loop-default.mp4',
+  'videos/scene-global-scale.mp4',
+  'videos/scene-pipeline.mp4',
+  'videos/scene-ai-human.mp4',
+  'videos/scene-threats.mp4',
+  'videos/scene-collaboration.mp4',
+]
+
+function VideoPreloader() {
+  const base = import.meta.env.BASE_URL
+  return (
+    <div aria-hidden="true" style={{ position: 'absolute', width: 1, height: 1, opacity: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+      {PUBLIC_VIDEO_SRCS.map(src => (
+        <video
+          key={src}
+          src={`${base}${src}`}
+          preload="auto"
+          muted
+          playsInline
+        />
+      ))}
+    </div>
+  )
+}
 
 export const AppContext = createContext(null)
 
@@ -159,6 +188,8 @@ export default function App() {
   return (
     <AppContext.Provider value={ctx}>
       <div className="relative w-full h-full overflow-hidden bg-[#0a0e1a]">
+        {/* Hidden preloader — warms media buffer for all attract-screen videos immediately */}
+        <VideoPreloader />
         <AnimatePresence mode="wait">
           {screen === 'attract' && <AttractScreen key="attract" />}
           {screen === 'onboarding' && <OnboardingScreen key="onboarding" />}
