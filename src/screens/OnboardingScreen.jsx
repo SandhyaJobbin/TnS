@@ -106,7 +106,7 @@ export default function OnboardingScreen() {
 
             {/* Full Name */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-slate-300 font-bold tracking-[0.2em] uppercase" style={{ fontSize: '10px' }}>Full Name</label>
+              <label className="text-slate-300 font-bold tracking-[0.2em] uppercase text-[11px] md:text-xs">Full Name</label>
               <div className="relative">
                 <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="rgba(255,0,60,0.6)" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -124,7 +124,7 @@ export default function OnboardingScreen() {
 
             {/* Company */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-slate-300 font-bold tracking-[0.2em] uppercase" style={{ fontSize: '10px' }}>Company</label>
+              <label className="text-slate-300 font-bold tracking-[0.2em] uppercase text-[11px] md:text-xs">Company</label>
               <div className="relative">
                 <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="rgba(255,0,60,0.6)" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -142,7 +142,7 @@ export default function OnboardingScreen() {
 
             {/* Role */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-slate-300 font-bold tracking-[0.2em] uppercase" style={{ fontSize: '10px' }}>Role</label>
+              <label className="text-slate-300 font-bold tracking-[0.2em] uppercase text-[11px] md:text-xs">Role</label>
               <div className="relative">
                 <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="rgba(255,0,60,0.6)" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -170,12 +170,12 @@ export default function OnboardingScreen() {
 
             {/* Consent */}
             <label className="flex items-start gap-3 cursor-pointer group mt-1">
-              <div className="relative flex-shrink-0 mt-0.5">
+              <div className="relative flex-shrink-0 mt-0.5 -m-2 p-2">
                 <input
                   type="checkbox"
                   checked={form.consent}
                   onChange={e => setForm(f => ({ ...f, consent: e.target.checked }))}
-                  className="w-5 h-5 rounded cursor-pointer outline-none appearance-none transition-all"
+                  className="w-6 h-6 rounded cursor-pointer outline-none appearance-none transition-all"
                   style={{
                     background: form.consent ? '#FF003C' : 'rgba(2,11,24,0.5)',
                     border: `1px solid ${form.consent ? '#FF003C' : 'rgba(255,0,60,0.3)'}`,
@@ -183,7 +183,7 @@ export default function OnboardingScreen() {
                   }}
                 />
                 {form.consent && (
-                  <svg className="absolute inset-0 w-5 h-5 text-white pointer-events-none p-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <svg className="absolute inset-0 w-6 h-6 text-white pointer-events-none p-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 )}

@@ -107,7 +107,7 @@ export default function FinalResultsScreen() {
 
       {/* Header */}
       <header
-        className="relative z-10 w-full flex items-center justify-between px-8 py-5 border-b"
+        className="relative z-10 w-full flex items-center justify-between px-4 md:px-8 py-3 md:py-5 border-b"
         style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(10,14,26,0.8)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <div className="flex items-center gap-3">
@@ -130,7 +130,7 @@ export default function FinalResultsScreen() {
         </div>
       </header>
 
-      <div className="relative z-10 flex flex-col items-center px-8 py-6 flex-1 overflow-y-auto">
+      <div className="relative z-10 flex flex-col items-center px-4 md:px-8 py-4 md:py-6 flex-1 overflow-y-auto">
 
         {/* Title */}
         <motion.div
@@ -261,7 +261,7 @@ export default function FinalResultsScreen() {
 
       {/* Footer */}
       <footer
-        className="relative z-10 flex items-center justify-between px-8 py-4 border-t"
+        className="relative z-10 flex items-center justify-between px-4 md:px-8 py-3 md:py-4 border-t"
         style={{ borderColor: 'rgba(255,255,255,0.05)', opacity: 0.4 }}
       >
         <div className="flex gap-6">
@@ -310,7 +310,7 @@ function LostInContextResults({ answers, questions, navigate, leadCaptureEnabled
 
       {/* Header */}
       <header
-        className="relative z-10 w-full flex items-center justify-between px-8 py-5 border-b"
+        className="relative z-10 w-full flex items-center justify-between px-4 md:px-8 py-3 md:py-5 border-b"
         style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(10,14,26,0.8)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <div className="flex items-center gap-3">
@@ -325,7 +325,7 @@ function LostInContextResults({ answers, questions, navigate, leadCaptureEnabled
         </div>
       </header>
 
-      <div className="relative z-10 flex flex-col items-center px-8 py-6 flex-1 overflow-y-auto">
+      <div className="relative z-10 flex flex-col items-center px-4 md:px-8 py-4 md:py-6 flex-1 overflow-y-auto">
 
         {/* Title + Score */}
         <motion.div
@@ -456,7 +456,7 @@ function LostInContextResults({ answers, questions, navigate, leadCaptureEnabled
 
       {/* Footer */}
       <footer
-        className="relative z-10 flex items-center justify-between px-8 py-4 border-t"
+        className="relative z-10 flex items-center justify-between px-4 md:px-8 py-3 md:py-4 border-t"
         style={{ borderColor: 'rgba(255,255,255,0.05)', opacity: 0.4 }}
       >
         <div className="flex gap-6">

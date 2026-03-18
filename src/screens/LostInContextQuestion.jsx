@@ -67,7 +67,7 @@ export default function LostInContextQuestion() {
   const isCorrect = selected === question.correct_human
   const progress = ((currentQuestionIndex + 1) / total) * 100
   const numeric = isNumericOptions(question.options)
-  const gridCols = numeric ? 'grid-cols-4' : 'grid-cols-2'
+  const gridCols = numeric ? 'grid-cols-2 tablet:grid-cols-4' : 'grid-cols-2'
 
   return (
     <motion.div
@@ -97,7 +97,7 @@ export default function LostInContextQuestion() {
 
       {/* ── HEADER ── */}
       <header
-        className="relative z-10 flex items-center justify-between px-10 py-5 border-b shrink-0"
+        className="relative z-10 flex items-center justify-between px-4 md:px-10 py-3 md:py-5 border-b shrink-0"
         style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(10,14,26,0.8)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <Logo />
@@ -109,13 +109,13 @@ export default function LostInContextQuestion() {
       </header>
 
       {/* ── SCENARIO + PROGRESS ── */}
-      <div className="relative z-10 px-10 pt-6 pb-4 shrink-0">
+      <div className="relative z-10 px-4 md:px-10 pt-4 md:pt-6 pb-3 md:pb-4 shrink-0">
         <div className="flex items-end justify-between mb-3">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-1" style={{ color: '#e53935' }}>
               Currently Playing
             </p>
-            <h2 className="text-2xl font-black tracking-tight text-white">
+            <h2 className="text-lg md:text-2xl font-black tracking-tight text-white">
               Lost in Context: Round {currentQuestionIndex + 1}
             </h2>
           </div>
@@ -141,7 +141,7 @@ export default function LostInContextQuestion() {
       </div>
 
       {/* ── MAIN CONTENT ── */}
-      <div className="relative z-10 flex-1 flex flex-col min-h-0 px-10 pb-4 overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col min-h-0 px-4 md:px-10 pb-3 md:pb-4 overflow-hidden">
         <motion.div
           className="flex-1 flex flex-col min-h-0"
           initial={{ opacity: 0, y: 16 }}
@@ -279,7 +279,7 @@ export default function LostInContextQuestion() {
 
       {/* ── FOOTER ── */}
       <footer
-        className="relative z-10 flex items-center justify-between px-10 py-5 border-t shrink-0"
+        className="relative z-10 flex items-center justify-between px-4 md:px-10 py-3 md:py-5 border-t shrink-0"
         style={{
           borderColor: 'rgba(255,255,255,0.05)',
           background: 'rgba(0,0,0,0.25)',

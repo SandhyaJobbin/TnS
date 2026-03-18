@@ -179,6 +179,23 @@ input, textarea, select {
   background-size: 40px 40px;
 }
 
+/* ── Tablet & touch device adaptations ── */
+
+/* Ensure options grid buttons always have adequate touch targets */
+@media (pointer: coarse) {
+  button, [role="button"] {
+    min-height: 44px;
+  }
+}
+
+/* Scale background grid on tablets for better visual balance */
+@media (max-width: 1024px) {
+  .bg-grid, .data-grid, .data-grid-cyan,
+  .bg-trust2030, .bg-lost-in-context {
+    background-size: 32px 32px;
+  }
+}
+
 /* ── Skeleton shimmer ── */
 @keyframes shimmer {
   0%   { background-position: -200% center; }

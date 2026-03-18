@@ -175,7 +175,7 @@ export default function GameSelectScreen() {
               className="w-1.5 h-1.5 rounded-full flex-shrink-0"
               style={{ background: '#FF003C', boxShadow: '0 0 6px rgba(255,0,60,0.8)', animation: 'pulse 1.5s cubic-bezier(0.4,0,0.6,1) infinite' }}
             />
-            <div className="overflow-hidden" style={{ maxWidth: '420px' }}>
+            <div className="overflow-hidden max-w-[280px] sm:max-w-xs md:max-w-[420px]">
               <AnimatePresence mode="wait">
                 <motion.p
                   key={tickerIdx}

@@ -44,8 +44,8 @@ export default function QuestionScreen() {
   const progress = ((currentQuestionIndex + 1) / total) * 100
   const numeric = isNumericOptions(question.options)
   const gridClass = numeric
-    ? 'grid grid-cols-4 gap-5'
-    : 'grid grid-cols-2 gap-5'
+    ? 'grid grid-cols-2 tablet:grid-cols-4 gap-3 md:gap-5'
+    : 'grid grid-cols-2 gap-3 md:gap-5'
 
   return (
     <motion.div
@@ -64,17 +64,17 @@ export default function QuestionScreen() {
 
       {/* ── Header ── */}
       <header
-        className="relative z-10 flex items-center justify-between px-10 py-6 border-b"
+        className="relative z-10 flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 md:py-6 border-b"
         style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(10,14,26,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <div>
-          <h2 className="text-white font-black text-3xl tracking-tight leading-none">
+          <h2 className="text-white font-black text-xl md:text-3xl tracking-tight leading-none">
             Scenario: {question.dimension}
           </h2>
         </div>
         <div className="text-right">
           <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Mission Progress</p>
-          <p className="text-white font-black text-2xl leading-none">
+          <p className="text-white font-black text-lg md:text-2xl leading-none">
             {String(currentQuestionIndex + 1).padStart(2, '0')}
             <span style={{ color: '#e53935' }}>/</span>
             {String(total).padStart(2, '0')}
@@ -94,7 +94,7 @@ export default function QuestionScreen() {
       </div>
 
       {/* ── Main content ── */}
-      <div className="relative z-10 flex-1 flex flex-col items-center px-10 py-5 gap-5 min-h-0 overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col items-center px-4 sm:px-6 md:px-10 py-4 md:py-5 gap-4 md:gap-5 min-h-0 overflow-hidden">
 
         {/* Question section */}
         <div className="flex flex-col items-center text-center w-full max-w-4xl mx-auto shrink-0">
@@ -143,7 +143,7 @@ export default function QuestionScreen() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + i * 0.08 }}
                 whileTap={!locked ? { scale: 0.97 } : {}}
-                className="relative group flex flex-col items-center justify-center rounded-2xl transition-all duration-300 overflow-hidden min-h-[120px] max-h-[280px] p-6"
+                className="relative group flex flex-col items-center justify-center rounded-2xl transition-all duration-300 overflow-hidden min-h-[100px] max-h-[280px] p-4 md:p-6"
                 style={{
                   background: isSelected
                     ? 'rgba(10,14,26,0.95)'

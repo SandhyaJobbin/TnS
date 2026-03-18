@@ -211,7 +211,7 @@ export default function AttractScreen() {
       </div>
 
       {/* ── Header bar ── */}
-      <header className="relative z-20 w-full px-8 py-5 flex justify-between items-center">
+      <header className="relative z-20 w-full px-4 md:px-8 py-3 md:py-5 flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div
@@ -253,7 +253,7 @@ export default function AttractScreen() {
       <AdminHotspot />
 
       {/* ── Main headline ── */}
-      <div className="flex-1 flex flex-col items-center justify-center z-20 px-12">
+      <div className="flex-1 flex flex-col items-center justify-center z-20 px-6 md:px-12">
         <AnimatePresence mode="wait">
           <motion.div
             key={sceneIndex}
@@ -266,7 +266,7 @@ export default function AttractScreen() {
             <div className="flex flex-col items-center gap-3 text-center">
               <h1
                 className="font-black tracking-tighter text-white"
-                style={{ fontSize: 'clamp(3.5rem, 7vw, 7rem)', lineHeight: 0.88, textShadow: SHADOW }}
+                style={{ fontSize: 'clamp(2.4rem, 7vw, 7rem)', lineHeight: 0.88, textShadow: SHADOW }}
               >
                 {scene.headline}
                 <br />
@@ -286,7 +286,7 @@ export default function AttractScreen() {
       </div>
 
       {/* ── Bottom zone ── */}
-      <div className="relative z-20 flex flex-col items-center gap-4 pb-8 px-8">
+      <div className="relative z-20 flex flex-col items-center gap-3 md:gap-4 pb-4 md:pb-8 px-4 md:px-8">
         {/* Tagline */}
         <p
           className="text-center"
@@ -322,7 +322,7 @@ export default function AttractScreen() {
           />
           <motion.button
             onPointerDown={handleStart}
-            className="relative text-white font-black rounded-xl px-16 py-5 text-xl uppercase tracking-[0.12em] border border-white/10"
+            className="relative text-white font-black rounded-xl px-8 md:px-16 py-4 md:py-5 text-base md:text-xl uppercase tracking-[0.12em] border border-white/10"
             style={{ background: RED }}
             whileTap={{ scale: 0.97 }}
             animate={{
