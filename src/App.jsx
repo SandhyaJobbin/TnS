@@ -1,4 +1,4 @@
-import { createContext, useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { createContext, useState, useRef, useEffect, useCallback } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { v4 as uuidv4 } from 'uuid'
 import { addLog } from './hooks/useIndexedDB'
