@@ -14,9 +14,9 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #080820;
+  background: #0a0e1a;
   color: #ffffff;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -39,21 +39,160 @@ input, textarea, select {
 
 /* Fluid font sizes */
 :root {
-  --text-base: clamp(0.9rem, 1.5vw, 1.1rem);
+  --text-base: clamp(0.95rem, 1.5vw, 1.1rem);
 }
 
-/* Trust 2030 — geometric grid suggesting a command-room */
-.bg-trust2030 {
-  background-color: #080820;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%231e2060' stroke-width='0.5'%3E%3Cpath d='M0 0h60v60H0z'/%3E%3Cpath d='M30 0v60M0 30h60'/%3E%3C/g%3E%3C/svg%3E");
+/* ── Background utilities ── */
+
+/* White grid — command center style (attract screen) */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
-/* Lost in Context — scanline/terminal feel */
+/* Red data grid (Trust 2030 + general) */
+.data-grid {
+  background-image:
+    linear-gradient(to right, rgba(222, 27, 84, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(222, 27, 84, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Cyan data grid (Lost in Context) */
+.data-grid-cyan {
+  background-image:
+    linear-gradient(to right, rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── Scan line animation ── */
+.scan-line {
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(222, 27, 84, 0.18), transparent);
+  position: absolute;
+  left: 0;
+  pointer-events: none;
+  z-index: 2;
+  animation: scan-anim 8s linear infinite;
+}
+
+.scan-line-cyan {
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.15), transparent);
+  position: absolute;
+  left: 0;
+  pointer-events: none;
+  z-index: 2;
+  animation: scan-anim 8s linear infinite;
+}
+
+@keyframes scan-anim {
+  0%   { top: 0%; }
+  100% { top: 100%; }
+}
+
+/* ── Glass card ── */
+.glass-card {
+  background: rgba(38, 35, 93, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(222, 27, 84, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.glass-card-cyan {
+  background: rgba(38, 35, 93, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 243, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Glow helpers ── */
+.glow-primary {
+  box-shadow: 0 0 20px rgba(222, 27, 84, 0.5), 0 0 40px rgba(222, 27, 84, 0.15);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.5), 0 0 40px rgba(0, 243, 255, 0.15);
+}
+
+/* ── Scanning beam on game cards ── */
+.scanning-beam {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanning-beam::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.scanning-beam-red::after {
+  background: linear-gradient(to right, transparent, #DE1B54, transparent);
+  box-shadow: 0 0 15px #DE1B54;
+  animation: scan-beam 3s linear infinite;
+}
+
+.scanning-beam-cyan::after {
+  background: linear-gradient(to right, transparent, #00f3ff, transparent);
+  box-shadow: 0 0 15px #00f3ff;
+  animation: scan-beam 3s linear infinite;
+}
+
+@keyframes scan-beam {
+  0%   { transform: translateY(0);    opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(500px); opacity: 0; }
+}
+
+/* ── Game screen backgrounds ── */
+
+/* Trust 2030 — red geometric grid */
+.bg-trust2030 {
+  background-color: #26235D;
+  background-image:
+    linear-gradient(to right, rgba(222, 27, 84, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(222, 27, 84, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Lost in Context — cyan scanline terminal */
 .bg-lost-in-context {
-  background-color: #080820;
-  background-image: repeating-linear-gradient(
-    0deg, transparent, transparent 2px,
-    rgba(6, 182, 212, 0.02) 2px, rgba(6, 182, 212, 0.02) 4px
+  background-color: #26235D;
+  background-image:
+    linear-gradient(to right, rgba(0, 243, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 243, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.sk {
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.05) 25%,
+    rgba(255,255,255,0.13) 50%,
+    rgba(255,255,255,0.05) 75%
   );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
 }

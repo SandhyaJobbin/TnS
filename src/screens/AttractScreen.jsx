@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Globe, Lock, Shield, Terminal } from '@phosphor-icons/react'
 import { useSession } from '../hooks/useSession'
 import AdminHotspot from '../components/AdminHotspot'
 
 const BASE = import.meta.env.BASE_URL
+const RED = '#FF0044'
+const DARK_BG = '#05050A'
+const MONO = "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace"
 
 const SCENES = [
   {
@@ -51,7 +55,36 @@ const variants = {
 }
 const getVariant = (i) => i === 5 ? variants.final : i % 2 === 0 ? variants.even : variants.odd
 
-const STRONG_SHADOW = '0 2px 4px rgba(0,0,0,0.9), 0 4px 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.6)'
+const SHADOW = '0 2px 4px rgba(0,0,0,0.9), 0 4px 20px rgba(0,0,0,0.8)'
+
+const FLOATING_ICONS = [
+  { Icon: Globe, size: 32, top: '20%', left: '10%' },
+  { Icon: Lock,  size: 24, top: '35%', left: '45%' },
+  { Icon: Globe, size: 28, top: '55%', left: '80%' },
+  { Icon: Lock,  size: 20, top: '70%', left: '25%' },
+  { Icon: Globe, size: 36, top: '15%', left: '70%' },
+  { Icon: Lock,  size: 28, top: '65%', left: '58%' },
+]
+
+
+function MetricCard({ label, value, unit, last }) {
+  return (
+    <div
+      className="flex flex-col items-center px-10"
+      style={{ borderRight: last ? 'none' : '1px solid rgba(255,255,255,0.05)' }}
+    >
+      <span
+        style={{ fontSize: '10px', fontFamily: MONO, letterSpacing: '0.15em', textTransform: 'uppercase', color: RED, marginBottom: '6px' }}
+      >
+        {label}
+      </span>
+      <div className="flex items-baseline gap-1">
+        <span className="text-white font-bold" style={{ fontSize: '1.4rem', letterSpacing: '-0.02em' }}>{value}</span>
+        {unit && <span style={{ fontSize: '11px', opacity: 0.4, fontFamily: MONO }}>{unit}</span>}
+      </div>
+    </div>
+  )
+}
 
 function SceneVideo({ src }) {
   const ref = useRef(null)
@@ -77,6 +110,10 @@ function SceneVideo({ src }) {
 export default function AttractScreen() {
   const { startSession } = useSession()
   const [sceneIndex, setSceneIndex] = useState(0)
+  const [systemTime, setSystemTime] = useState(new Date().toLocaleTimeString())
+  const [showTerminal, setShowTerminal] = useState(false)
+  const [loadProgress, setLoadProgress] = useState(0)
+  const termTimerRef = useRef(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -85,11 +122,37 @@ export default function AttractScreen() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    const timer = setInterval(() => setSystemTime(new Date().toLocaleTimeString()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => () => clearTimeout(termTimerRef.current), [])
+
+  const handleStart = () => {
+    setLoadProgress(0)
+    setShowTerminal(true)
+    const startTime = Date.now()
+    const progressInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime
+      const pct = Math.min(Math.round((elapsed / 2400) * 100), 100)
+      setLoadProgress(pct)
+      if (pct >= 100) clearInterval(progressInterval)
+    }, 50)
+    termTimerRef.current = setTimeout(() => startSession(), 2500)
+  }
+
+  const handleAbort = () => {
+    clearTimeout(termTimerRef.current)
+    setShowTerminal(false)
+  }
+
   const scene = SCENES[sceneIndex]
 
   return (
     <motion.div
       className="relative w-full h-full flex flex-col overflow-hidden"
+      style={{ background: DARK_BG }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -109,42 +172,87 @@ export default function AttractScreen() {
         </motion.div>
       </AnimatePresence>
 
-      {/* ── Overlay layers ── */}
-      {/* Base tint */}
-      <div className="absolute inset-0 bg-black/40 z-10" />
-      {/* Vignette: dark edges */}
+      {/* ── Overlay layers — light so video breathes through ── */}
+      {/* Light film */}
+      <div className="absolute inset-0 bg-black/25 z-10" />
+      {/* Soft vignette */}
       <div
         className="absolute inset-0 z-10 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.65) 100%)',
-        }}
+        style={{ background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.45) 100%)' }}
       />
-      {/* Bottom band: solid dark for CTA */}
+      {/* White grid — very faint */}
+      <div className="absolute inset-0 z-10 pointer-events-none bg-grid opacity-25" />
+      {/* Subtle red radial bloom */}
+      <div
+        className="absolute inset-0 z-10 pointer-events-none"
+        style={{ background: `radial-gradient(ellipse at 50% 50%, rgba(255,0,68,0.04) 0%, transparent 65%)` }}
+      />
+      {/* Bottom gradient — enough to keep CTA readable */}
       <div
         className="absolute bottom-0 left-0 right-0 z-10"
-        style={{ height: '38%', background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.92) 55%, rgba(0,0,0,0.98) 100%)' }}
+        style={{ height: '42%', background: `linear-gradient(to bottom, transparent 0%, rgba(5,5,10,0.88) 55%, rgba(5,5,10,0.98) 100%)` }}
       />
 
-      {/* ── Logo top-left ── */}
-      <div className="absolute top-8 left-8 z-20">
-        <div
-          className="text-white text-sm font-semibold tracking-widest uppercase"
-          style={{ textShadow: STRONG_SHADOW }}
-        >
-          Sutherland
-        </div>
-        <div
-          className="text-white/70 text-xs tracking-wider mt-0.5"
-          style={{ textShadow: STRONG_SHADOW }}
-        >
-          Trust &amp; Safety Summit
-        </div>
+
+      {/* ── Floating icons ── */}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 15 }}>
+        {FLOATING_ICONS.map(({ Icon, size, top, left }, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-white/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0.08, 0.22, 0.08], y: [0, -18, 0], x: [0, 8, 0] }}
+            transition={{ duration: 5 + i, repeat: Infinity, delay: i * 0.6 }}
+            style={{ top, left }}
+          >
+            <Icon size={size} weight="thin" />
+          </motion.div>
+        ))}
       </div>
 
-      {/* ── Admin hotspot top-right ── */}
+      {/* ── Header bar ── */}
+      <header className="relative z-20 w-full px-8 py-5 flex justify-between items-center">
+        {/* Logo */}
+        <div className="flex items-center gap-3">
+          <div
+            className="p-1.5 rounded-lg"
+            style={{ background: 'rgba(255,255,255,0.95)', border: `1px solid rgba(255,0,68,0.30)`, boxShadow: `0 0 12px rgba(255,0,68,0.25)` }}
+          >
+            <img src={`${BASE}sutherland-logo.png`} alt="Sutherland" className="w-6 h-6 object-contain" />
+          </div>
+          <div>
+            <div className="text-white text-sm font-bold tracking-widest uppercase" style={{ textShadow: SHADOW }}>Sutherland</div>
+            <div className="text-white/50 text-xs tracking-wide" style={{ textShadow: SHADOW }}>Trust &amp; Safety Summit</div>
+          </div>
+        </div>
+
+        {/* Center badge */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-sm"
+          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)' }}
+        >
+          <Shield size={12} weight="fill" style={{ color: RED }} />
+          <span style={{ fontSize: '10px', fontFamily: MONO, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+            Trust &amp; Safety Summit 2025
+          </span>
+        </div>
+
+        {/* System online */}
+        <div className="flex items-center gap-2" style={{ color: `rgba(255,0,68,0.8)` }}>
+          <span style={{ fontSize: '10px', fontFamily: MONO, fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase' }}>
+            System Online
+          </span>
+          <span
+            className="w-2 h-2 rounded-full"
+            style={{ background: RED, animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite', boxShadow: `0 0 8px ${RED}` }}
+          />
+        </div>
+      </header>
+
+      {/* ── Admin hotspot ── */}
       <AdminHotspot />
 
-      {/* ── Main headline — center of screen ── */}
+      {/* ── Main headline ── */}
       <div className="flex-1 flex flex-col items-center justify-center z-20 px-12">
         <AnimatePresence mode="wait">
           <motion.div
@@ -153,29 +261,21 @@ export default function AttractScreen() {
             animate={getVariant(sceneIndex).animate}
             exit={getVariant(sceneIndex).exit}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
-            className="flex flex-col items-center gap-5 text-center max-w-4xl"
+            className="flex flex-col items-center gap-4 text-center max-w-4xl"
           >
-            {/* Frosted backdrop card */}
-            <div
-              className="px-12 py-8 rounded-3xl flex flex-col items-center gap-4"
-              style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)' }}
-            >
+            <div className="flex flex-col items-center gap-3 text-center">
               <h1
-                className="font-bold leading-tight text-white"
-                style={{ fontSize: 'clamp(2.6rem, 5.5vw, 5.2rem)', textShadow: STRONG_SHADOW, fontFamily: "'Orbitron', sans-serif" }}
+                className="font-black tracking-tighter text-white"
+                style={{ fontSize: 'clamp(3.5rem, 7vw, 7rem)', lineHeight: 0.88, textShadow: SHADOW }}
               >
                 {scene.headline}
+                <br />
+                <span style={{ color: RED }}>{scene.subline}</span>
               </h1>
-              <p
-                className="text-white/90 font-light"
-                style={{ fontSize: 'clamp(1.2rem, 2.4vw, 2rem)', textShadow: STRONG_SHADOW }}
-              >
-                {scene.subline}
-              </p>
               {scene.stat && (
                 <p
-                  className="font-semibold mt-1"
-                  style={{ fontSize: 'clamp(1rem, 1.8vw, 1.5rem)', color: '#c4b5fd', textShadow: STRONG_SHADOW }}
+                  className="font-light mt-3"
+                  style={{ fontSize: 'clamp(1rem, 1.8vw, 1.4rem)', color: 'rgba(255,255,255,0.7)', textShadow: SHADOW, letterSpacing: '0.01em' }}
                 >
                   {scene.stat}
                 </p>
@@ -185,43 +285,133 @@ export default function AttractScreen() {
         </AnimatePresence>
       </div>
 
-      {/* ── Bottom zone: dots + CTA ── */}
-      <div className="relative z-20 flex flex-col items-center gap-6 pb-14">
+      {/* ── Bottom zone ── */}
+      <div className="relative z-20 flex flex-col items-center gap-4 pb-8 px-8">
+        {/* Tagline */}
+        <p
+          className="text-center"
+          style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)' }}
+        >
+          95% of content decisions powered by AI &mdash; humans define what&rsquo;s right
+        </p>
+
         {/* Scene progress dots */}
         <div className="flex gap-2">
           {SCENES.map((_, i) => (
             <div
               key={i}
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                i === sceneIndex ? 'w-8 bg-white' : 'w-2 bg-white/35'
-              }`}
+              className="h-1.5 rounded-full transition-all duration-500"
+              style={{
+                width: i === sceneIndex ? '2rem' : '0.5rem',
+                background: i === sceneIndex ? RED : 'rgba(255,255,255,0.25)',
+                boxShadow: i === sceneIndex ? `0 0 8px rgba(255,0,68,0.7)` : 'none',
+              }}
             />
           ))}
         </div>
 
         {/* CTA button */}
-        <motion.button
-          onPointerDown={startSession}
-          className="text-white font-bold rounded-2xl px-16 py-6 text-2xl border border-white/20"
-          style={{
-            background: 'rgba(124,58,237,0.85)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            boxShadow: '0 0 0 1px rgba(167,139,250,0.3), 0 8px 32px rgba(109,40,217,0.6)',
-          }}
-          whileTap={{ scale: 0.97 }}
-          animate={{
-            boxShadow: [
-              '0 0 0 1px rgba(167,139,250,0.3), 0 8px 32px rgba(109,40,217,0.5)',
-              '0 0 0 1px rgba(167,139,250,0.5), 0 8px 48px rgba(109,40,217,0.9)',
-              '0 0 0 1px rgba(167,139,250,0.3), 0 8px 32px rgba(109,40,217,0.5)',
-            ],
-          }}
-          transition={{ repeat: Infinity, duration: 2.2 }}
+        <motion.div
+          className="relative"
+          whileTap={{ scale: 1 }}
+          onPointerDown={() => {}}
         >
-          Tap to begin
-        </motion.button>
+          <div
+            className="absolute -inset-4 rounded-full"
+            style={{ background: `rgba(255,0,68,0.20)`, filter: 'blur(24px)', opacity: 0.3 }}
+          />
+          <motion.button
+            onPointerDown={handleStart}
+            className="relative text-white font-black rounded-xl px-16 py-5 text-xl uppercase tracking-[0.12em] border border-white/10"
+            style={{ background: RED }}
+            whileTap={{ scale: 0.97 }}
+            animate={{
+              boxShadow: [
+                '0 0 20px rgba(255,0,68,0.4), 0 4px 24px rgba(255,0,68,0.3)',
+                '0 0 40px rgba(255,0,68,0.7), 0 4px 40px rgba(255,0,68,0.5)',
+                '0 0 20px rgba(255,0,68,0.4), 0 4px 24px rgba(255,0,68,0.3)',
+              ],
+            }}
+            transition={{ repeat: Infinity, duration: 2.2 }}
+          >
+            Tap to Begin
+          </motion.button>
+        </motion.div>
+
+        {/* Footer status bar */}
+        <div className="flex justify-between items-center w-full max-w-xl px-2 opacity-30">
+          <div className="flex items-center gap-1.5">
+            <Terminal size={12} />
+            <span style={{ fontSize: '10px', fontFamily: MONO, letterSpacing: '0.15em', textTransform: 'uppercase' }}>Terminal Active</span>
+          </div>
+          <span style={{ fontSize: '10px', fontFamily: MONO, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+            {systemTime}
+          </span>
+        </div>
       </div>
+
+      {/* ── Terminal overlay ── */}
+      <AnimatePresence>
+        {showTerminal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 flex flex-col items-center justify-center p-12"
+            style={{ zIndex: 50, background: 'rgba(5,5,10,0.95)', backdropFilter: 'blur(20px)' }}
+          >
+            <div className="w-full max-w-2xl">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ background: RED, animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite' }}
+                  />
+                  <span style={{ color: RED, fontFamily: MONO, fontSize: '13px', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+                    Initializing Neural Link...
+                  </span>
+                </div>
+                <button
+                  onClick={handleAbort}
+                  style={{ color: 'rgba(255,255,255,0.4)', fontFamily: MONO, fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  [ Abort ]
+                </button>
+              </div>
+
+              <div className="space-y-4" style={{ fontFamily: MONO, fontSize: '13px' }}>
+                <motion.p
+                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+                  className="text-white/80"
+                >
+                  {'>'} Loading Sutherland Core v4.2.0...
+                </motion.p>
+                <motion.p
+                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}
+                  className="text-white/80"
+                >
+                  {'>'} Establishing secure handshake with global nodes...
+                </motion.p>
+                <motion.p
+                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.9 }}
+                  style={{ color: RED }}
+                >
+                  {'>'} WARNING: High volume of decisions detected in Sector 7.
+                </motion.p>
+                <motion.div
+                  initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 2, ease: 'easeInOut', delay: 0.4 }}
+                  className="h-px w-full origin-left mt-8"
+                  style={{ background: RED }}
+                />
+                <div className="flex justify-between opacity-40 mt-2" style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+                  <span>Syncing Data</span>
+                  <span>{loadProgress}% Complete</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

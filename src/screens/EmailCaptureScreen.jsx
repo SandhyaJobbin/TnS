@@ -4,6 +4,21 @@ import { useSession } from '../hooks/useSession'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+function Background() {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+      />
+      <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 rounded-full opacity-10"
+        style={{ background: '#e53935', filter: 'blur(120px)' }} />
+      <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full opacity-8"
+        style={{ background: '#1a0a2e', filter: 'blur(120px)' }} />
+    </div>
+  )
+}
+
 export default function EmailCaptureScreen() {
   const { navigate, playerInfo, setPlayerInfo } = useSession()
   const [email, setEmail] = useState('')
@@ -24,58 +39,136 @@ export default function EmailCaptureScreen() {
 
   return (
     <motion.div
-      className="relative w-full h-full flex flex-col items-center justify-center px-8 bg-[#080820]"
+      className="relative w-full h-full flex flex-col overflow-hidden"
+      style={{ background: '#0a0e1a' }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary-900/15 blur-3xl rounded-full" />
-      </div>
+      <Background />
 
-      <div className="relative z-10 w-full max-w-lg">
-        <div className="text-4xl mb-6 text-center">📬</div>
-        <h1
-          className="text-white font-bold text-center mb-3"
-          style={{ fontSize: 'clamp(1.6rem, 3vw, 2.4rem)' }}
-        >
-          Get your full report
-        </h1>
-        <p className="text-white/50 text-center mb-10 leading-relaxed">
-          Enter your email and we'll send you a personalised Trust &amp; Safety outlook based on your predictions.
-        </p>
-
-        <div className="mb-2">
-          <input
-            type="email"
-            value={email}
-            onChange={e => { setEmail(e.target.value); setError('') }}
-            placeholder="your@email.com"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-white/30 text-lg focus:outline-none focus:border-primary-500 transition"
-          />
-          {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
+      {/* Header */}
+      <header
+        className="relative z-10 w-full flex items-center justify-between px-8 py-5 border-b"
+        style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(10,14,26,0.8)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
+      >
+        <div className="flex items-center gap-3">
+          <img src={`${import.meta.env.BASE_URL}sutherland-logo.png`} alt="Sutherland" className="h-8 w-auto object-contain" />
+          <div>
+            <h2 className="text-white text-sm font-black leading-none uppercase tracking-tight">Trust &amp; Safety Summit</h2>
+            <p className="text-[10px] uppercase tracking-[0.2em] font-bold mt-0.5" style={{ color: '#e53935' }}>Industry Report</p>
+          </div>
         </div>
+        <div className="text-right">
+        </div>
+      </header>
 
-        <p className="text-white/30 text-xs mb-8 leading-relaxed">
-          Your data is collected in accordance with the consent you gave at the start. We will not share your email with third parties.
-        </p>
+      {/* Main — upper 60% to avoid virtual keyboard overlap */}
+      <div className="relative z-10 flex flex-col items-center justify-start flex-1 pt-10 px-8 py-6">
+        <div className="w-full max-w-lg">
 
-        <motion.button
-          onPointerDown={handleSubmit}
-          className="w-full py-5 rounded-2xl bg-primary-600 text-white font-bold text-xl shadow-lg shadow-primary-900/40 active:bg-primary-700 mb-4"
-          whileTap={{ scale: 0.98 }}
-        >
-          Send me the report
-        </motion.button>
+          {/* Badge + heading */}
+          <motion.div
+            className="text-center mb-8"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <span
+              className="inline-block px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-4"
+              style={{ background: 'rgba(229,57,53,0.1)', border: '1px solid rgba(229,57,53,0.25)', color: '#e53935' }}
+            >
+              One Last Step
+            </span>
+            <h1 className="text-white font-black leading-tight mb-2" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
+              Get Your Full Report
+            </h1>
+            <p className="text-white/40 leading-relaxed text-sm max-w-sm mx-auto">
+              Enter your email and we&apos;ll send you a personalised Trust &amp; Safety outlook based on your predictions.
+            </p>
+          </motion.div>
 
-        <button
-          onPointerDown={handleSkip}
-          className="w-full py-4 rounded-2xl text-white/40 text-lg font-medium hover:text-white/60 transition"
-        >
-          Skip — continue without email
-        </button>
+          {/* Form card */}
+          <motion.div
+            className="rounded-2xl p-7"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex flex-col gap-1.5 mb-5">
+              <label className="text-white/40 font-bold tracking-[0.2em] uppercase" style={{ fontSize: '10px' }}>
+                Email Address
+              </label>
+              <div className="relative">
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="rgba(229,57,53,0.6)" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => { setEmail(e.target.value); setError('') }}
+                  placeholder="your@email.com"
+                  className="w-full pl-12 pr-4 py-4 rounded-xl text-white text-base outline-none transition-all placeholder:text-white/20"
+                  style={{
+                    background: 'rgba(10,14,26,0.6)',
+                    border: error ? '1px solid rgba(229,57,53,0.6)' : '1px solid rgba(255,255,255,0.1)',
+                  }}
+                />
+              </div>
+              {error && (
+                <p className="text-sm font-medium mt-1" style={{ color: '#ff8099' }}>{error}</p>
+              )}
+            </div>
+
+            <p className="text-white/20 text-xs mb-6 leading-relaxed">
+              Your data is collected in accordance with the consent you gave at the start. We will not share your email with third parties.
+            </p>
+
+            <motion.button
+              onPointerDown={handleSubmit}
+              className="w-full py-4 rounded-xl text-white font-black text-base uppercase tracking-[0.12em] flex items-center justify-center gap-2 mb-3"
+              style={{
+                background: '#e53935',
+                boxShadow: '0 4px 24px rgba(229,57,53,0.35)',
+                border: '1px solid rgba(255,255,255,0.1)',
+              }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Send me the report
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </motion.button>
+
+            <button
+              onPointerDown={handleSkip}
+              className="w-full py-4 rounded-xl text-sm font-bold text-center transition-colors uppercase tracking-[0.12em]"
+              style={{
+                color: 'rgba(255,255,255,0.5)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'transparent',
+              }}
+            >
+              Skip — continue without email
+            </button>
+          </motion.div>
+
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer
+        className="relative z-10 flex items-center justify-between px-8 py-4 border-t"
+        style={{ borderColor: 'rgba(255,255,255,0.05)', opacity: 0.4 }}
+      >
+        <div className="flex gap-6">
+          <button className="text-[10px] font-bold uppercase tracking-widest text-white/50">Privacy Policy</button>
+          <button className="text-[10px] font-bold uppercase tracking-widest text-white/50">Methodology</button>
+        </div>
+        <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">© 2025 Trust &amp; Safety Summit | {import.meta.env.VITE_STATION_ID || 'Alpha-01'}</p>
+      </footer>
     </motion.div>
   )
 }

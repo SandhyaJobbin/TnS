@@ -6,99 +6,322 @@ import PollChart from '../components/PollChart'
 
 export default function PollResultScreen() {
   const { shuffledQuestions, currentQuestionIndex, answers, nextQuestion } = useSession()
+  const [insightExpanded, setInsightExpanded] = useState(false)
   const question = shuffledQuestions[currentQuestionIndex]
   const userAnswer = answers[question?.id]
-  const [showInsight, setShowInsight] = useState(false)
 
   const percentages = usePollAggregation(question?.id)
   const isLastQuestion = currentQuestionIndex >= shuffledQuestions.length - 1
 
   if (!question) return null
 
+  const progress = ((currentQuestionIndex + 1) / shuffledQuestions.length) * 100
+
+  // Split insight into headline + body (first sentence vs rest)
+  const insightFull = question.insight || ''
+  const dotIdx = insightFull.indexOf('. ')
+  const insightTitle = dotIdx > 0 ? insightFull.slice(0, dotIdx + 1) : insightFull
+  const insightBody = dotIdx > 0 ? insightFull.slice(dotIdx + 2) : ''
+
+  const userAligned = userAnswer === question.industry_lean
+
   return (
     <motion.div
-      className="relative w-full h-full flex flex-col bg-[#080820] px-8 py-8"
+      className="relative w-full h-full flex flex-col overflow-hidden"
+      style={{ background: '#0a0e1a' }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.35 }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <span className="text-primary-400 text-sm font-semibold tracking-widest uppercase">
-          {question.dimension}
-        </span>
-        <span className="text-white/40 text-sm">
-          Question {currentQuestionIndex + 1} / {shuffledQuestions.length}
-        </span>
-      </div>
+      {/* Background dot grid */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-10"
+        style={{
+          backgroundImage: 'radial-gradient(rgba(229,57,53,0.6) 0.5px, transparent 0.5px)',
+          backgroundSize: '24px 24px',
+        }}
+      />
 
-      {/* Title */}
-      <h2
-        className="text-white font-bold mb-2"
-        style={{ fontSize: 'clamp(1.1rem, 2vw, 1.6rem)' }}
+      {/* Red orbs */}
+      <div className="absolute -top-28 -right-20 w-80 h-80 rounded-full pointer-events-none" style={{ background: '#e53935', filter: 'blur(100px)', opacity: 0.08 }} />
+      <div className="absolute -bottom-28 -left-20 w-64 h-64 rounded-full pointer-events-none" style={{ background: '#e53935', filter: 'blur(80px)', opacity: 0.06 }} />
+
+      {/* Scan line */}
+      <div className="scan-line" />
+
+      {/* ── Header ── */}
+      <header
+        className="relative z-10 flex items-center justify-between px-8 py-4 border-b"
+        style={{
+          borderColor: 'rgba(255,255,255,0.05)',
+          background: 'rgba(10,14,26,0.85)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        }}
       >
-        What leaders here predicted
-      </h2>
-      <p className="text-white/40 text-sm mb-6">{question.scenario}</p>
-
-      {/* Your answer badge */}
-      {userAnswer && (
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-white/50 text-sm">Your answer:</span>
-          <span className="bg-primary-600/30 text-primary-300 text-sm font-medium px-3 py-1 rounded-full border border-primary-500/30">
-            {userAnswer}
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-black uppercase tracking-[0.2em] text-white">
+            Live Consensus
           </span>
-          {userAnswer === question.industry_lean && (
-            <span className="bg-green-600/20 text-green-400 text-xs font-medium px-2 py-1 rounded-full border border-green-500/20">
-              ✓ Aligned with industry
-            </span>
-          )}
+          <span
+            className="text-[10px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded animate-pulse"
+            style={{ color: '#e53935', border: '1px solid rgba(229,57,53,0.35)' }}
+          >
+            [LIVE FEED]
+          </span>
         </div>
-      )}
+        <div className="text-right">
+          <p className="text-white/30 text-[10px] uppercase tracking-widest">Question</p>
+          <p className="text-white font-black text-sm leading-none">
+            {currentQuestionIndex + 1}
+            <span style={{ color: '#e53935' }}>/</span>
+            {shuffledQuestions.length}
+          </p>
+        </div>
+      </header>
 
-      {/* Chart */}
-      <div className="flex-1 min-h-0 flex flex-col">
-        {Object.keys(percentages).length > 0 ? (
-          <PollChart data={percentages} userAnswer={userAnswer} />
-        ) : (
-          <div className="flex items-center justify-center flex-1 text-white/30">
-            Loading poll data...
-          </div>
-        )}
+      {/* Progress bar */}
+      <div className="relative z-10 h-0.5 w-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
+        <motion.div
+          className="h-full"
+          style={{ background: '#e53935', boxShadow: '0 0 10px rgba(229,57,53,0.6)' }}
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        />
       </div>
 
-      {/* Insight */}
-      <div className="mt-4">
-        <button
-          onPointerDown={() => setShowInsight(v => !v)}
-          className="text-primary-400 text-sm underline underline-offset-2 mb-2"
-        >
-          {showInsight ? 'Hide' : 'See why'} →
-        </button>
+      {/* ── Main two-column layout ── */}
+      <main className="relative z-10 flex-1 flex overflow-hidden">
 
-        <AnimatePresence>
-          {showInsight && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="bg-white/5 rounded-2xl px-5 py-4 text-white/70 text-sm leading-relaxed border border-white/10 mb-4"
+        {/* Left: Chart */}
+        <section className="flex-1 flex flex-col px-10 py-7 border-r" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+
+          {/* Question context */}
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-5"
+          >
+            <p
+              className="text-[10px] font-black uppercase tracking-[0.22em] mb-1"
+              style={{ color: '#e53935' }}
             >
-              {question.insight}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+              {question.dimension}
+            </p>
+            <p className="text-white/55 text-sm leading-snug">{question.scenario}</p>
+          </motion.div>
 
-      {/* Next button */}
-      <motion.button
-        onPointerDown={nextQuestion}
-        className="w-full py-5 rounded-2xl bg-primary-600 text-white font-bold text-xl shadow-lg shadow-primary-900/40 active:bg-primary-700"
-        whileTap={{ scale: 0.98 }}
-      >
-        {isLastQuestion ? 'See Your Results' : 'Next Question'}
-      </motion.button>
+          {/* Your answer badge */}
+          {userAnswer && (
+            <div className="flex flex-wrap items-center gap-2 mb-5">
+              <span className="text-white/35 text-xs">Your answer:</span>
+              <span
+                className="text-xs font-semibold px-3 py-1 rounded-full"
+                style={{
+                  background: 'rgba(229,57,53,0.12)',
+                  color: '#ff8099',
+                  border: '1px solid rgba(229,57,53,0.25)',
+                }}
+              >
+                {userAnswer}
+              </span>
+              {userAligned && (
+                <span
+                  className="text-xs font-semibold px-2 py-1 rounded-full"
+                  style={{
+                    background: 'rgba(16,185,129,0.12)',
+                    color: '#4ade80',
+                    border: '1px solid rgba(16,185,129,0.2)',
+                  }}
+                >
+                  ✓ Aligned with industry
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Chart */}
+          <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+            {Object.keys(percentages).length > 0 ? (
+              <PollChart data={percentages} userAnswer={userAnswer} />
+            ) : (
+              <div className="flex items-center justify-center h-full text-white/20 text-sm">
+                Loading poll data…
+              </div>
+            )}
+          </div>
+
+          {/* Stats row — real data only */}
+          <div className="grid grid-cols-2 gap-3 mt-5">
+            {[
+              { label: 'Dimension', value: question.dimension },
+              { label: 'Industry Consensus', value: question.industry_lean },
+            ].map(stat => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.6 }}
+                className="p-3 rounded-xl"
+                style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                }}
+              >
+                <p
+                  className="text-[10px] font-black uppercase tracking-[0.15em] mb-1"
+                  style={{ color: 'rgba(229,57,53,0.75)' }}
+                >
+                  {stat.label}
+                </p>
+                <p className="text-white font-bold text-sm leading-snug">{stat.value}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Right: Insight + Action */}
+        <section
+          className="w-72 flex flex-col px-7 py-7 shrink-0"
+          style={{ background: 'rgba(229,57,53,0.02)' }}
+        >
+          <div className="flex-1 flex flex-col gap-5">
+
+            {/* KEY INSIGHT badge */}
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-widest self-start"
+              style={{ background: '#e53935', color: 'white' }}
+            >
+              {/* Trending-up icon */}
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              Key Insight
+            </motion.div>
+
+            {/* Insight headline */}
+            <motion.h3
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.1 }}
+              className="text-white font-bold text-base leading-snug"
+            >
+              {insightTitle}
+            </motion.h3>
+
+            {/* SEE WHY THIS MATTERS */}
+            {insightBody && (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                onPointerDown={() => setInsightExpanded(e => !e)}
+                className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest pb-1.5 text-left"
+                style={{
+                  color: '#e53935',
+                  borderBottom: '1px solid rgba(229,57,53,0.25)',
+                  width: 'fit-content',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: '1px solid rgba(229,57,53,0.25)',
+                  cursor: 'pointer',
+                  paddingBottom: '6px',
+                }}
+              >
+                See why this matters
+                <motion.svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                  animate={{ rotate: insightExpanded ? 90 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </motion.svg>
+              </motion.button>
+            )}
+            <AnimatePresence>
+              {insightExpanded && insightBody && (
+                <motion.p
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="text-sm leading-relaxed overflow-hidden"
+                  style={{ color: 'rgba(255,255,255,0.45)' }}
+                >
+                  {insightBody}
+                </motion.p>
+              )}
+            </AnimatePresence>
+
+            {/* NEXT UP card */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-auto rounded-2xl p-5 relative overflow-hidden"
+              style={{
+                background: '#0a0e1a',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: '#e53935' }}>
+                Next up
+              </p>
+              <p className="text-white font-bold text-sm">
+                {isLastQuestion
+                  ? 'Final Results'
+                  : shuffledQuestions[currentQuestionIndex + 1]?.dimension || 'Final Results'}
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Progress pills */}
+          <div className="flex flex-wrap gap-1.5 mt-5 mb-4">
+            {shuffledQuestions.map((_, i) => (
+              <div
+                key={i}
+                className="h-1 rounded-full transition-all duration-300"
+                style={{
+                  width: i === currentQuestionIndex ? '2rem' : '0.625rem',
+                  background: i <= currentQuestionIndex ? '#e53935' : 'rgba(255,255,255,0.1)',
+                  boxShadow: i === currentQuestionIndex ? '0 0 8px rgba(229,57,53,0.6)' : 'none',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Next button */}
+          <motion.button
+            onPointerDown={nextQuestion}
+            className="w-full py-4 rounded-xl text-white font-black text-sm flex items-center justify-between px-5 uppercase tracking-[0.15em]"
+            style={{
+              background: '#e53935',
+              boxShadow: '0 4px 24px rgba(229,57,53,0.35)',
+              border: '1px solid rgba(255,255,255,0.08)',
+            }}
+            whileTap={{ scale: 0.97 }}
+            whileHover={{ background: '#ef5350' }}
+          >
+            <span>{isLastQuestion ? 'See Results' : 'Next Question'}</span>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </motion.button>
+        </section>
+      </main>
+
     </motion.div>
   )
 }

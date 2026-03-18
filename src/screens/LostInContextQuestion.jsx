@@ -5,13 +5,24 @@ import { useSession } from '../hooks/useSession'
 import { useSound } from '../hooks/useSound'
 import AnswerFlash from '../components/AnswerFlash'
 
+// Numbers (≤12 chars, parseable as float) → 4×1 row; text → 2×2 grid
+function isNumericOptions(options) {
+  return options.every(o => !isNaN(parseFloat(o.trim())) && isFinite(o.trim()))
+}
+
+function Logo() {
+  return (
+    <img src={`${import.meta.env.BASE_URL}sutherland-logo.png`} alt="Sutherland" className="h-8 w-auto object-contain" />
+  )
+}
+
 export default function LostInContextQuestion() {
-  const { shuffledQuestions, currentQuestionIndex, submitAnswer, nextQuestion } = useSession()
+  const { shuffledQuestions, currentQuestionIndex, submitAnswer, navigate } = useSession()
   const question = shuffledQuestions[currentQuestionIndex]
   const total = shuffledQuestions.length
 
-  const [phase, setPhase] = useState('question') // 'question' | 'reveal'
   const [selected, setSelected] = useState(null)
+  const [submitted, setSubmitted] = useState(false)
   const [showFlash, setShowFlash] = useState(false)
 
   const playTap     = useSound('tap.mp3', { volume: 0.3 })
@@ -19,173 +30,280 @@ export default function LostInContextQuestion() {
   const playWrong   = useSound('wrong.mp3')
   const playTerm    = useSound('term-reveal.mp3', { volume: 0.5 })
 
-  // Play term-reveal sound whenever a new term appears
   useEffect(() => {
-    setPhase('question')
     setSelected(null)
+    setSubmitted(false)
     setShowFlash(false)
     playTerm()
   }, [currentQuestionIndex])
 
-  function handleAnswer(option) {
-    if (phase !== 'question') return
+  function handleSelect(option) {
+    if (submitted) return
     playTap()
     setSelected(option)
+    setSubmitted(true)
     submitAnswer(question.id, option)
 
     setTimeout(() => {
       const correct = option === question.correct_human
       correct ? playCorrect() : playWrong()
       setShowFlash(true)
-      setTimeout(() => setShowFlash(false), 600)
-      setPhase('reveal')
-    }, 800)
-  }
-
-  function handleNext() {
-    playTap()
-    nextQuestion()
+      setTimeout(() => setShowFlash(false), 500)
+      if (correct) {
+        confetti({
+          particleCount: 60,
+          spread: 70,
+          origin: { y: 0.5 },
+          colors: ['#e53935', '#ff8099', '#ff4d6b', '#ffffff'],
+          disableForReducedMotion: true,
+        })
+      }
+      navigate('licPollResult')
+    }, 650)
   }
 
   if (!question) return null
 
   const isCorrect = selected === question.correct_human
-  const isLastQuestion = currentQuestionIndex >= total - 1
-
-  // Confetti on correct reveal
-  useEffect(() => {
-    if (phase === 'reveal' && isCorrect) {
-      confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { y: 0.5 },
-        colors: ['#6470d8', '#8b92e8', '#ffffff', '#4ade80'],
-        disableForReducedMotion: true,
-      })
-    }
-  }, [phase, isCorrect])
+  const progress = ((currentQuestionIndex + 1) / total) * 100
+  const numeric = isNumericOptions(question.options)
+  const gridCols = numeric ? 'grid-cols-4' : 'grid-cols-2'
 
   return (
     <motion.div
-      className="relative w-full h-full flex flex-col bg-lost-in-context px-8 py-8"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.35 }}
+      className="relative w-full h-full flex flex-col overflow-hidden"
+      style={{ background: '#0a0e1a' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
     >
       <AnswerFlash show={showFlash} correct={isCorrect} />
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-cyan-400 text-sm font-semibold tracking-widest uppercase">
-          Lost in Context
-        </span>
-        <span className="text-white/40 text-sm">
-          {currentQuestionIndex + 1} / {total}
-        </span>
-      </div>
+      {/* Dot grid background */}
+      <div
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(#e53935 0.5px, transparent 0.5px)',
+          backgroundSize: '28px 28px',
+        }}
+      />
 
-      {/* Progress bar — h-2 */}
-      <div className="h-2 w-full bg-white/10 rounded-full mb-8">
-        <div
-          className="h-2 bg-cyan-500 rounded-full transition-all duration-500"
-          style={{ width: `${((currentQuestionIndex + 1) / total) * 100}%` }}
-        />
-      </div>
+      {/* Glow orbs */}
+      <div className="absolute -top-32 -right-20 w-80 h-80 rounded-full opacity-10 pointer-events-none"
+        style={{ background: '#e53935', filter: 'blur(100px)' }} />
+      <div className="absolute -bottom-32 -left-20 w-64 h-64 rounded-full opacity-6 pointer-events-none"
+        style={{ background: '#e53935', filter: 'blur(90px)' }} />
 
-      <AnimatePresence mode="wait">
-        {phase === 'question' && (
-          <motion.div
-            key="question"
-            className="flex-1 flex flex-col justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-          >
-            <p className="text-white/40 text-sm mb-3">What does this term mean?</p>
-            <h2
-              className="font-display text-white font-bold mb-10 leading-tight"
-              style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', fontFamily: "'Orbitron', monospace" }}
-            >
-              "{question.term}"
+      {/* ── HEADER ── */}
+      <header
+        className="relative z-10 flex items-center justify-between px-10 py-5 border-b shrink-0"
+        style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(10,14,26,0.8)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
+      >
+        <Logo />
+        <div className="flex items-center gap-6">
+          <span className="text-[10px] font-black uppercase tracking-[0.25em]" style={{ color: '#e53935' }}>
+            Lost In Context V2.4
+          </span>
+        </div>
+      </header>
+
+      {/* ── SCENARIO + PROGRESS ── */}
+      <div className="relative z-10 px-10 pt-6 pb-4 shrink-0">
+        <div className="flex items-end justify-between mb-3">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-1" style={{ color: '#e53935' }}>
+              Currently Playing
+            </p>
+            <h2 className="text-2xl font-black tracking-tight text-white">
+              Lost in Context: Round {currentQuestionIndex + 1}
             </h2>
+          </div>
+          <div className="text-right">
+            <p className="text-white/30 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Mission Progress</p>
+            <p className="text-xl font-black text-white">
+              {String(currentQuestionIndex + 1).padStart(2, '0')}
+              <span style={{ color: '#e53935' }}>/</span>
+              {String(total).padStart(2, '0')}
+            </p>
+          </div>
+        </div>
+        {/* Progress bar */}
+        <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+          <motion.div
+            className="h-full rounded-full"
+            style={{ background: '#e53935', boxShadow: '0 0 14px rgba(229,57,53,0.7)' }}
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          />
+        </div>
+      </div>
 
-            <div className="flex flex-col gap-3">
-              {question.options.map((option, i) => (
+      {/* ── MAIN CONTENT ── */}
+      <div className="relative z-10 flex-1 flex flex-col min-h-0 px-10 pb-4 overflow-hidden">
+        <motion.div
+          className="flex-1 flex flex-col min-h-0"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Question text */}
+          <div className="text-center mb-6 shrink-0">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="inline-block px-4 py-1.5 rounded-full mb-4 text-[10px] font-black uppercase tracking-[0.3em]"
+              style={{ color: '#e53935', background: 'rgba(229,57,53,0.08)', border: '1px solid rgba(229,57,53,0.25)' }}
+            >
+              Dual Meaning Detected
+            </motion.div>
+
+            <motion.h3
+              key={question.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="text-white font-black leading-tight mb-3"
+              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)' }}
+            >
+              What does <span style={{ color: '#e53935' }}>&ldquo;{question.term}&rdquo;</span> mean?
+            </motion.h3>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.15 }}
+              className="text-white/40 text-sm max-w-xl mx-auto leading-relaxed"
+            >
+              This word means something very different in Gen Z culture.{' '}
+              <span className="text-white/60 underline decoration-[#e53935]/40 underline-offset-4">
+                Pick the meaning that's actually in use — not the dictionary definition.
+              </span>
+            </motion.p>
+          </div>
+
+          {/* Options grid */}
+          <motion.div
+            className={`flex-1 min-h-0 grid ${gridCols} gap-5 max-w-5xl mx-auto w-full`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            {question.options.map((option, i) => {
+              const isSelected = selected === option
+              const isDimmed = selected && !isSelected
+              const label = String.fromCharCode(65 + i)
+
+              return (
                 <motion.button
                   key={option}
-                  onPointerDown={() => handleAnswer(option)}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.07 }}
-                  className={`w-full text-left px-8 py-5 text-lg font-mono border rounded-lg transition-all duration-200 ${
-                    selected === option
-                      ? 'border-cyan-400 bg-cyan-900/40 text-white'
-                      : selected
-                      ? 'border-cyan-900/10 bg-cyan-950/10 text-white/25'
-                      : 'border-cyan-900/30 bg-cyan-950/20 text-white/80 hover:border-cyan-500/50 hover:bg-cyan-950/40'
-                  }`}
-                  whileTap={!selected ? { scale: 0.98 } : {}}
+                  onPointerDown={() => handleSelect(option)}
+                  disabled={submitted}
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.25 + i * 0.07 }}
+                  whileTap={!submitted ? { scale: 0.97 } : {}}
+                  className="relative group flex flex-col items-center justify-center rounded-2xl transition-all duration-300 overflow-hidden p-6"
+                  style={{
+                    background: isSelected
+                      ? 'rgba(10,14,26,0.95)'
+                      : 'rgba(255,255,255,0.025)',
+                    border: isSelected
+                      ? '2px solid #e53935'
+                      : '1px solid rgba(255,255,255,0.08)',
+                    boxShadow: isSelected
+                      ? '0 0 40px rgba(229,57,53,0.25), inset 0 0 60px rgba(229,57,53,0.04)'
+                      : 'none',
+                    opacity: isDimmed ? 0.35 : 1,
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                  }}
                 >
-                  <span className="text-white/40 mr-4 text-sm">{String.fromCharCode(65 + i)}</span>
-                  {option}
+                  {/* Letter badge */}
+                  <div
+                    className="absolute top-5 left-5 w-8 h-8 rounded flex items-center justify-center text-xs font-black transition-all duration-300"
+                    style={{
+                      background: isSelected ? '#e53935' : 'transparent',
+                      border: isSelected ? 'none' : '1px solid rgba(255,255,255,0.12)',
+                      color: isSelected ? 'white' : 'rgba(255,255,255,0.25)',
+                    }}
+                  >
+                    {label}
+                  </div>
+
+                  {/* Option text */}
+                  <span
+                    className="font-black text-center leading-tight transition-colors duration-200 px-2"
+                    style={{
+                      fontSize: numeric
+                        ? 'clamp(2rem, 4vw, 3rem)'
+                        : 'clamp(1rem, 2vw, 1.5rem)',
+                      color: isSelected ? 'white' : 'rgba(255,255,255,0.75)',
+                    }}
+                  >
+                    {option}
+                  </span>
+
+                  {/* Decorative line */}
+                  <div
+                    className="mt-5 h-1 rounded-full transition-all duration-500"
+                    style={{
+                      width: isSelected ? '3.5rem' : '1.5rem',
+                      background: isSelected ? '#e53935' : 'rgba(255,255,255,0.08)',
+                    }}
+                  />
+
+                  {/* Checkmark */}
+                  <AnimatePresence>
+                    {isSelected && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.4 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.4 }}
+                        className="absolute bottom-5 right-5"
+                      >
+                        <svg className="w-7 h-7" viewBox="0 0 24 24" fill="#e53935">
+                          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 14.414l-4.207-4.207 1.414-1.414L11 13.586l5.793-5.793 1.414 1.414L11 16.414z" />
+                        </svg>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.button>
-              ))}
-            </div>
+              )
+            })}
           </motion.div>
-        )}
+        </motion.div>
+      </div>
 
-        {phase === 'reveal' && (
-          <motion.div
-            key="reveal"
-            className="flex-1 flex flex-col justify-center gap-5"
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
-          >
-            {/* User result */}
-            <div className={`rounded-2xl px-6 py-5 border-2 ${
-              isCorrect
-                ? 'bg-green-900/30 border-green-500/40'
-                : 'bg-red-900/30 border-red-500/40'
-            }`}>
-              <div className="flex items-center gap-3 mb-2">
-                <span className={`text-2xl font-bold ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                  {isCorrect ? '✓' : '✗'}
-                </span>
-                <span className={`font-semibold text-sm ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                  {isCorrect ? 'You got it right!' : 'Not quite'}
-                </span>
-              </div>
-              <p className="text-white/50 text-xs mb-1">You answered:</p>
-              <p className="text-white font-medium">{selected}</p>
-            </div>
-
-            {/* Correct meaning */}
-            <div className="rounded-2xl px-6 py-5 bg-white/5 border-2 border-white/10">
-              <p className="text-white/50 text-xs mb-1 uppercase tracking-widest">Actual meaning</p>
-              <p className="text-white font-semibold text-lg">"{question.term}" = {question.correct_human}</p>
-            </div>
-
-            {/* AI interpretation */}
-            <div className="rounded-2xl px-6 py-5 bg-red-900/20 border-2 border-red-500/20">
-              <p className="text-red-400 text-xs mb-1 uppercase tracking-widest">AI interpreted it as:</p>
-              <p className="text-white/70 font-medium">"{question.ai_interpretation}"</p>
-              {question.ai_was_wrong && (
-                <p className="text-red-400 text-xs mt-2 font-medium">AI got this wrong — context matters</p>
-              )}
-            </div>
-
-            <motion.button
-              onPointerDown={handleNext}
-              className="w-full py-5 rounded-2xl bg-gradient-to-r from-accent-600 to-accent-800 text-white font-bold text-xl shadow-lg active:opacity-90 mt-2"
-              whileTap={{ scale: 0.98 }}
-            >
-              {isLastQuestion ? 'See Your Score' : 'Next Term'}
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ── FOOTER ── */}
+      <footer
+        className="relative z-10 flex items-center justify-between px-10 py-5 border-t shrink-0"
+        style={{
+          borderColor: 'rgba(255,255,255,0.05)',
+          background: 'rgba(0,0,0,0.25)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        }}
+      >
+        <div className="flex gap-10">
+          <div className="flex items-center gap-2.5">
+            <div className="w-2 h-2 rounded-full bg-emerald-400" style={{ boxShadow: '0 0 8px rgba(52,211,153,0.7)' }} />
+            <span className="text-[10px] font-black uppercase tracking-widest text-white/35">System Online</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <svg className="w-3.5 h-3.5" style={{ color: '#e53935' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+            </svg>
+            <span className="text-[10px] font-black uppercase tracking-widest text-white/35">Global Lab Connection</span>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-white/25">Assigned Moderator</p>
+          <p className="text-xs font-medium text-white/50">Station {import.meta.env.VITE_STATION_ID || 'Alpha-01'}</p>
+        </div>
+      </footer>
     </motion.div>
   )
 }

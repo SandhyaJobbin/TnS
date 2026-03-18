@@ -4,31 +4,37 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Space Grotesk', 'sans-serif'],
-        display: ['Orbitron', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+        display: ['Inter', 'sans-serif'],
+        mono: ['ui-monospace', 'Menlo', 'Monaco', 'monospace'],
       },
       colors: {
         primary: {
-          300: '#8b92e8',
-          400: '#6470d8',
-          500: '#4050c4',
-          600: '#191970', // midnight blue
-          700: '#13156a',
-          800: '#0d0f50',
-          900: '#07083a',
+          DEFAULT: '#FF003C',
+          50:  '#fff0f3',
+          100: '#ffe0e7',
+          200: '#ffc2cf',
+          300: '#ff8099',
+          400: '#ff4d6b',
+          500: '#FF1F4B',
+          600: '#FF003C',
+          700: '#cc0030',
+          800: '#990024',
+          900: '#4d0012',
+          950: '#2a000a',
         },
         accent: {
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626', // human red
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#450a0a',
+          DEFAULT: '#00f3ff',
+          300: '#80f9ff',
+          400: '#00f3ff',
+          500: '#00d4e0',
+          600: '#00a8b5',
+          700: '#007a85',
+          800: '#004f57',
+          900: '#002a2e',
         },
       },
     },
   },
   plugins: [],
 }
-

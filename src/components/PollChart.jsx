@@ -1,81 +1,57 @@
-import { useEffect, useRef } from 'react'
-import Chart from 'chart.js/auto'
+import { motion } from 'framer-motion'
 
 export default function PollChart({ data, userAnswer }) {
-  const canvasRef = useRef(null)
-  const chartRef = useRef(null)
+  if (!data || Object.keys(data).length === 0) return null
 
-  useEffect(() => {
-    if (!canvasRef.current || !data) return
+  const entries = Object.entries(data)
+  const maxVal = Math.max(...entries.map(([, v]) => v), 1)
 
-    const labels = Object.keys(data)
-    const values = Object.values(data).map(v => Math.round(v))
-    const backgroundColors = labels.map(label =>
-      label === userAnswer
-        ? 'rgba(124, 58, 237, 0.9)'
-        : 'rgba(255, 255, 255, 0.15)'
-    )
-    const borderColors = labels.map(label =>
-      label === userAnswer
-        ? 'rgba(167, 139, 250, 1)'
-        : 'rgba(255, 255, 255, 0.1)'
-    )
+  return (
+    <div className="flex flex-col gap-5 w-full">
+      {entries.map(([label, value], idx) => {
+        const isUser = label === userAnswer
+        const pct = Math.round(value)
 
-    if (chartRef.current) {
-      chartRef.current.destroy()
-    }
+        return (
+          <div key={label} className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <span
+                className="text-sm font-bold tracking-wide"
+                style={{ color: isUser ? '#fff' : 'rgba(255,255,255,0.55)' }}
+              >
+                {label}
+              </span>
+              <motion.span
+                className="text-2xl font-black tabular-nums"
+                style={{ color: isUser ? '#e53935' : 'rgba(255,255,255,0.35)' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 + idx * 0.1 }}
+              >
+                {pct}%
+              </motion.span>
+            </div>
 
-    chartRef.current = new Chart(canvasRef.current, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Responses (%)',
-          data: values,
-          backgroundColor: backgroundColors,
-          borderColor: borderColors,
-          borderWidth: 2,
-          borderRadius: 8,
-        }]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: {
-          duration: 600,
-          easing: 'easeInOutQuart'
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => ` ${ctx.raw}%`
-            }
-          }
-        },
-        scales: {
-          x: {
-            min: 0,
-            max: 100,
-            grid: { color: 'rgba(255,255,255,0.05)' },
-            ticks: {
-              color: 'rgba(255,255,255,0.4)',
-              callback: v => `${v}%`
-            }
-          },
-          y: {
-            grid: { display: false },
-            ticks: { color: 'rgba(255,255,255,0.7)', font: { size: 14 } }
-          }
-        }
-      }
-    })
-
-    return () => {
-      if (chartRef.current) chartRef.current.destroy()
-    }
-  }, [data, userAnswer])
-
-  return <canvas ref={canvasRef} className="w-full" style={{ height: '220px' }} />
+            <div
+              className="h-3.5 rounded-full overflow-hidden relative"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              <motion.div
+                className="h-full rounded-full"
+                style={{
+                  background: isUser
+                    ? 'linear-gradient(90deg, #c62828, #e53935)'
+                    : 'rgba(255,255,255,0.12)',
+                  boxShadow: isUser ? '0 0 16px rgba(229,57,53,0.45)' : 'none',
+                }}
+                initial={{ width: 0 }}
+                animate={{ width: `${(pct / maxVal) * 100}%` }}
+                transition={{ duration: 1, ease: 'circOut', delay: 0.2 + idx * 0.08 }}
+              />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
 }

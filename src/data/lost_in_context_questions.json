@@ -1,82 +1,92 @@
 [
   {
     "id": "lic1",
-    "term": "Rizz",
-    "options": ["They are wealthy", "They have charisma", "They are angry"],
-    "correct_human": "They have charisma",
-    "ai_interpretation": "Possibly related to 'risk' or financial terminology",
-    "ai_was_wrong": true
+    "term": "Sneaky link",
+    "options": ["A hidden URL", "A secret romantic partner", "A Wi-Fi exploit", "A social media trick"],
+    "correct_human": "A secret romantic partner",
+    "ai_interpretation": "A concealed hyperlink or suspicious URL requiring security review",
+    "ai_was_wrong": true,
+    "trivia": "Gen Z's term for someone you're secretly dating or meeting up with — the kind of situationship that never makes it to your Instagram story. AI moderation systems routinely flag it as a cybersecurity threat and route it to the phishing team."
   },
   {
     "id": "lic2",
-    "term": "No cap",
-    "options": ["Literally no hat", "Telling the truth", "Stop talking"],
-    "correct_human": "Telling the truth",
-    "ai_interpretation": "Instruction to remove headwear",
-    "ai_was_wrong": true
+    "term": "Pressed",
+    "options": ["A laundry instruction", "Anxious or upset about something", "Under physical pressure", "A printing method"],
+    "correct_human": "Anxious or upset about something",
+    "ai_interpretation": "Garment care instruction — apply heat to remove creases",
+    "ai_was_wrong": true,
+    "trivia": "'Why are you so pressed?' is Gen Z's way of calling out someone who's disproportionately bothered by something small. Heavily used in US high schools and UK colleges alike. AI reliably sees a dry-cleaning label."
   },
   {
     "id": "lic3",
-    "term": "Slay",
-    "options": ["To kill", "To excel or impress", "To sleep"],
-    "correct_human": "To excel or impress",
-    "ai_interpretation": "Violence-related content requiring review",
-    "ai_was_wrong": true
+    "term": "Periodt",
+    "options": ["A punctuation mark", "A grammar error", "Emphasis — end of discussion", "A medical term"],
+    "correct_human": "Emphasis — end of discussion",
+    "ai_interpretation": "A typographical variant of a full stop or possible misspelling",
+    "ai_was_wrong": true,
+    "trivia": "Evolved from AAVE 'period' meaning 'and that's final.' The extra T is intentional — it amplifies the emphasis. The word that ends all arguments in US and UK school group chats. AI sends it to the grammar-correction queue."
   },
   {
     "id": "lic4",
-    "term": "Ghosting",
-    "options": ["Haunting someone", "Cutting off contact without explanation", "Editing photos"],
-    "correct_human": "Cutting off contact without explanation",
-    "ai_interpretation": "Paranormal activity report",
-    "ai_was_wrong": true
+    "term": "W",
+    "options": ["The 23rd letter", "A compass direction", "A win or victory", "A grade"],
+    "correct_human": "A win or victory",
+    "ai_interpretation": "An alphabetical character or compass direction indicator",
+    "ai_was_wrong": true,
+    "trivia": "Compressed from 'win,' used symmetrically with L (loss). 'That's a W' and 'you took an L' are now universal Gen Z scorecards for everything from exam results to relationship drama. A single letter carries full social weight — and AI sees the alphabet."
   },
   {
     "id": "lic5",
-    "term": "Bussin",
-    "options": ["Taking the bus", "Extremely good food", "Starting a fight"],
-    "correct_human": "Extremely good food",
-    "ai_interpretation": "Public transportation reference",
-    "ai_was_wrong": true
+    "term": "NPC",
+    "options": ["A gaming character", "A network protocol", "Someone with no original thoughts", "A type of processor"],
+    "correct_human": "Someone with no original thoughts",
+    "ai_interpretation": "Non-Player Character — a software-controlled game entity",
+    "ai_was_wrong": true,
+    "trivia": "AI gets the gaming definition exactly right — and completely misses the point. Gen Z now uses NPC to call out people who move through life on autopilot, no original opinions, just following scripts. The irony: an AI flagging NPC content without grasping it's describing an AI."
   },
   {
     "id": "lic6",
-    "term": "Mid",
-    "options": ["Middle of something", "Mediocre or average", "A music genre"],
-    "correct_human": "Mediocre or average",
-    "ai_interpretation": "Spatial reference to a central position",
-    "ai_was_wrong": true
+    "term": "Sleep on",
+    "options": ["To physically rest", "To ignore someone", "To underestimate or overlook", "A sleep disorder"],
+    "correct_human": "To underestimate or overlook",
+    "ai_interpretation": "Physical act of sleeping on a surface — possible fatigue or wellness context",
+    "ai_was_wrong": true,
+    "trivia": "'Don't sleep on this' means don't overlook it — it's better than you think. Used across the US and UK to champion underrated music, people, or ideas. Gen Z deploys it as genuine high praise. AI consistently reads a mattress."
   },
   {
     "id": "lic7",
-    "term": "Era",
-    "options": ["A historical time period", "A personal phase or identity", "A mistake"],
-    "correct_human": "A personal phase or identity",
-    "ai_interpretation": "Historical epoch categorisation",
-    "ai_was_wrong": true
+    "term": "Bare",
+    "options": ["Without clothing", "Empty or exposed", "A lot of, or very", "An animal"],
+    "correct_human": "A lot of, or very",
+    "ai_interpretation": "Uncovered or exposed — likely a nudity-related content flag",
+    "ai_was_wrong": true,
+    "trivia": "Standard across UK schools from London to Manchester. 'Bare people showed up,' 'that's bare expensive' — one of the most versatile words in British Gen Z vocabulary. AI trained on standard English consistently raises a nudity flag."
   },
   {
     "id": "lic8",
-    "term": "Touch grass",
-    "options": ["Garden maintenance", "Go outside and disconnect from the internet", "A sports move"],
-    "correct_human": "Go outside and disconnect from the internet",
-    "ai_interpretation": "Lawn care instruction",
-    "ai_was_wrong": true
+    "term": "Clapped",
+    "options": ["Received applause", "Made a loud sound", "Broken or unattractive", "Finished something"],
+    "correct_human": "Broken or unattractive",
+    "ai_interpretation": "A form of applause — positive audience reaction, sentiment: favourable",
+    "ai_was_wrong": true,
+    "trivia": "In UK school corridors 'clapped' is the last thing you want to hear. 'That phone is clapped' means it's falling apart. Said about a situation, it means a mess. AI reads a standing ovation every single time."
   },
   {
     "id": "lic9",
-    "term": "It's giving",
-    "options": ["Donating something", "Giving off a certain vibe or energy", "Providing information"],
-    "correct_human": "Giving off a certain vibe or energy",
-    "ai_interpretation": "Act of charitable donation",
-    "ai_was_wrong": true
+    "term": "Wagwan",
+    "options": ["A vehicle type", "A foreign language flag", "A traditional dish", "What's going on?"],
+    "correct_human": "What's going on?",
+    "ai_interpretation": "Unrecognised character sequence — possible non-English content, flagged for review",
+    "ai_was_wrong": true,
+    "trivia": "Jamaican Patois for 'what is going on?' — completely absorbed into British school culture across every city and background. The default hallway greeting for UK Gen Z. AI trained predominantly on American English flags it as unrecognised foreign text."
   },
   {
     "id": "lic10",
-    "term": "Understood the assignment",
-    "options": ["Completed homework", "Perfectly captured the moment or expectation", "Received a task"],
-    "correct_human": "Perfectly captured the moment or expectation",
-    "ai_interpretation": "Academic task completion",
-    "ai_was_wrong": true
+    "term": "Innit",
+    "options": ["A grammar mistake", "Located inside something", "A filler for agreement or emphasis", "A contraction of 'in it'"],
+    "correct_human": "A filler for agreement or emphasis",
+    "ai_interpretation": "Non-standard contraction — grammatically incorrect usage, recommend correction",
+    "ai_was_wrong": true,
+    "trivia": "Compressed from 'isn't it,' innit has long outgrown its literal meaning. It ends sentences, seeks agreement, fills pauses — 'that's wild, innit?' It's as fundamental to UK Gen Z speech as 'you know?' or 'right?' and appears in school conversations thousands of times a day."
   }
 ]

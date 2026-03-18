@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useSession } from '../hooks/useSession'
-
 import {
   getAllSessions,
   getSyncQueue,
@@ -13,35 +12,144 @@ import {
 } from '../hooks/useIndexedDB'
 import { processSyncQueue } from '../utils/api'
 
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+function timeAgo(ts) {
+  const diff = Date.now() - ts
+  if (diff < 60_000) return 'Just now'
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`
+  return `${Math.floor(diff / 86_400_000)}d ago`
+}
+
+function shortId(sessionId, index) {
+  if (!sessionId) return `#KS-${String(index + 1).padStart(4, '0')}`
+  const num = parseInt(sessionId.replace(/-/g, '').slice(-4), 16) % 10000
+  return `#KS-${String(num).padStart(4, '0')}`
+}
+
+function computeTrend(sessions, field) {
+  const now = Date.now()
+  const DAY = 86_400_000
+  const today = sessions.filter(s => now - s.timestamp < DAY)
+  const yesterday = sessions.filter(s => now - s.timestamp >= DAY && now - s.timestamp < 2 * DAY)
+  const todayVal = field === 'leads'
+    ? today.filter(s => s.playerInfo?.email).length
+    : today.length
+  const yestVal = field === 'leads'
+    ? yesterday.filter(s => s.playerInfo?.email).length
+    : yesterday.length
+  if (yestVal === 0) return null
+  const pct = Math.round(((todayVal - yestVal) / yestVal) * 100)
+  return pct
+}
+
+function sessionResult(s) {
+  if (!s.game_played) return '—'
+  if (s.game_played === 'trust2030') return 'Trust 2030'
+  if (s.game_played === 'lostInContext') return 'Lost in Context'
+  return s.game_played
+}
+
+function sessionStatus(s) {
+  return s.playerInfo?.email ? 'captured' : 'completed'
+}
+
+// ── sub-components ────────────────────────────────────────────────────────────
+
+function StatCard({ label, value, icon, trend, valueColor }) {
+  const up = trend !== null && trend >= 0
+  return (
+    <div className="bg-[#131929] border border-white/8 rounded-2xl p-5 flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] uppercase tracking-widest text-white/40 font-medium">{label}</span>
+        <span className="text-xl opacity-60">{icon}</span>
+      </div>
+      <div className="flex items-end gap-3">
+        <span className={`text-3xl font-bold leading-none ${valueColor || 'text-white'}`}>{value}</span>
+        {trend !== null && (
+          <span className={`text-xs font-semibold pb-0.5 ${up ? 'text-emerald-400' : 'text-red-400'}`}>
+            {up ? '↑' : '↓'}{Math.abs(trend)}%
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function StatusBadge({ status }) {
+  const map = {
+    captured: 'bg-teal-500/15 text-teal-300 border-teal-500/30',
+    completed: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
+    abandoned: 'bg-white/5 text-white/30 border-white/10',
+  }
+  return (
+    <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border ${map[status] || map.abandoned}`}>
+      {status}
+    </span>
+  )
+}
+
+function NavItem({ label, icon, active, onClick }) {
+  return (
+    <button
+      onPointerDown={onClick}
+      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+        active
+          ? 'bg-red-500/20 text-red-400 border border-red-500/20'
+          : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+      }`}
+    >
+      <span className="text-base">{icon}</span>
+      {label}
+    </button>
+  )
+}
+
+// ── main component ────────────────────────────────────────────────────────────
+
 export default function AdminPanel() {
   const { exitAdmin, leadCaptureEnabled, setLeadCaptureEnabled } = useSession()
-  const [tab, setTab] = useState('stats')
-  const [stats, setStats] = useState({ total: 0, trust2030: 0, lostInContext: 0, syncPending: 0 })
+  const [nav, setNav] = useState('dashboard')
   const [sessions, setSessions] = useState([])
   const [logs, setLogs] = useState([])
-  const [resetPhase, setResetPhase] = useState(0) // 0=idle, 1=confirm, 2=done
+  const [syncPending, setSyncPending] = useState(0)
+  const [lastSync, setLastSync] = useState(null)
+  const [resetPhase, setResetPhase] = useState(0) // 0=idle,1=confirm,2=done
+  const [hardResetPhase, setHardResetPhase] = useState(0)
   const [syncing, setSyncing] = useState(false)
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const [actionMenu, setActionMenu] = useState(null)
 
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  async function loadData() {
-    const allSessions = await getAllSessions()
-    const queue = await getSyncQueue()
-    const allLogs = await getLogs()
+  const loadData = useCallback(async () => {
+    const [allSessions, queue, allLogs] = await Promise.all([
+      getAllSessions(),
+      getSyncQueue(),
+      getLogs(),
+    ])
+    // sort newest first
+    allSessions.sort((a, b) => b.timestamp - a.timestamp)
     setSessions(allSessions)
     setLogs(allLogs.reverse())
-    setStats({
-      total: allSessions.length,
-      trust2030: allSessions.filter(s => s.game_played === 'trust2030').length,
-      lostInContext: allSessions.filter(s => s.game_played === 'lostInContext').length,
-      syncPending: queue.length,
-    })
-  }
+    setSyncPending(queue.length)
+    // last sync = most recent log with type 'sync_success'
+    const syncLog = allLogs.find(l => l.type === 'sync_success')
+    setLastSync(syncLog ? syncLog.timestamp : null)
+  }, [])
 
+  useEffect(() => { loadData() }, [loadData])
+
+  // ── computed stats ──────────────────────────────────────────────────────────
+  const totalPlays = sessions.length
+  const leadsCount = sessions.filter(s => s.playerInfo?.email).length
+  const completionRate = totalPlays === 0 ? 0 : Math.round((leadsCount / totalPlays) * 100)
+  const trust2030Count = sessions.filter(s => s.game_played === 'trust2030').length
+  const licCount = sessions.filter(s => s.game_played === 'lostInContext').length
+  const trendPlays = computeTrend(sessions, 'plays')
+  const trendLeads = computeTrend(sessions, 'leads')
+
+  // ── actions ─────────────────────────────────────────────────────────────────
   async function handleForceSync() {
     setSyncing(true)
     await processSyncQueue()
@@ -51,22 +159,27 @@ export default function AdminPanel() {
 
   async function handleResetPoll() {
     if (resetPhase === 0) { setResetPhase(1); return }
-    await clearAllSessions()
     await clearAllPollAggregates()
-    await clearSyncQueue()
     setResetPhase(2)
     await loadData()
     setTimeout(() => setResetPhase(0), 3000)
   }
 
+  async function handleHardReset() {
+    if (hardResetPhase === 0) { setHardResetPhase(1); return }
+    await clearAllSessions()
+    await clearAllPollAggregates()
+    await clearSyncQueue()
+    setHardResetPhase(2)
+    setTimeout(() => window.location.reload(), 1500)
+  }
+
   function downloadCSV() {
     let filtered = sessions
     if (dateFrom) filtered = filtered.filter(s => s.timestamp >= new Date(dateFrom).getTime())
-    if (dateTo) filtered = filtered.filter(s => s.timestamp <= new Date(dateTo).getTime() + 86400000)
-
+    if (dateTo) filtered = filtered.filter(s => s.timestamp <= new Date(dateTo).getTime() + 86_400_000)
     if (filtered.length === 0) { alert('No sessions match the selected date range.'); return }
-
-    const headers = ['sessionId', 'timestamp', 'game_played', 'name', 'company', 'role', 'email', 'consent', 'answers']
+    const headers = ['sessionId', 'timestamp', 'game_played', 'name', 'company', 'role', 'email', 'consent', 'status', 'answers']
     const rows = filtered.map(s => [
       s.sessionId,
       new Date(s.timestamp).toISOString(),
@@ -76,9 +189,9 @@ export default function AdminPanel() {
       s.playerInfo?.role || '',
       s.playerInfo?.email || '',
       s.playerInfo?.consent ? 'yes' : 'no',
+      sessionStatus(s),
       JSON.stringify(s.answers),
     ])
-
     const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
@@ -93,221 +206,466 @@ export default function AdminPanel() {
     const file = e.target.files[0]
     if (!file) return
     await storeMediaBlob(file.name, file)
-    alert(`Media "${file.name}" stored successfully.`)
+    alert(`"${file.name}" stored successfully.`)
   }
 
-  const TABS = [
-    { id: 'stats', label: 'Stats' },
-    { id: 'data', label: 'Data' },
-    { id: 'media', label: 'Media' },
-    { id: 'logs', label: 'Logs' },
-  ]
+  // ── sidebar ──────────────────────────────────────────────────────────────────
 
-  return (
-    <motion.div
-      className="w-full h-full flex flex-col bg-[#060618] text-white overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between px-8 py-4 border-b border-white/10 bg-[#090930]">
-        <div>
-          <h1 className="text-lg font-bold">Admin Panel</h1>
-          <p className="text-white/40 text-xs">Trust &amp; Safety Kiosk</p>
+  const sidebar = (
+    <div className="w-56 flex-shrink-0 flex flex-col bg-[#0c1020] border-r border-white/8 h-full">
+      {/* logo */}
+      <div className="px-5 py-5 border-b border-white/8">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-red-500 flex items-center justify-center text-white text-xs font-black">T</div>
+          <span className="text-sm font-bold text-white">Trust & Safety</span>
         </div>
+      </div>
+
+      {/* nav */}
+      <div className="px-3 py-4 flex-1 flex flex-col gap-1">
+        <p className="text-[10px] uppercase tracking-widest text-white/25 px-1 mb-2">Navigation</p>
+        <NavItem label="Dashboard" icon="⊞" active={nav === 'dashboard'} onClick={() => setNav('dashboard')} />
+        <NavItem label="Analytics" icon="⬡" active={nav === 'analytics'} onClick={() => setNav('analytics')} />
+        <NavItem label="Leads" icon="◷" active={nav === 'leads'} onClick={() => setNav('leads')} />
+        <NavItem label="Kiosk Logs" icon="▤" active={nav === 'logs'} onClick={() => setNav('logs')} />
+        <NavItem label="Media" icon="⬡" active={nav === 'media'} onClick={() => setNav('media')} />
+
+        <p className="text-[10px] uppercase tracking-widest text-white/25 px-1 mt-5 mb-2">Kiosk Controls</p>
         <button
           onPointerDown={exitAdmin}
-          className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-5 py-2 text-sm text-white/70 active:bg-white/15"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-white/60 bg-white/5 border border-white/8 hover:bg-white/10 transition-all"
         >
-          Exit Admin
+          <span className="text-base">▶</span> Toggle Attract
+        </button>
+        <button
+          onPointerDown={handleResetPoll}
+          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all mt-1 ${
+            resetPhase === 1
+              ? 'bg-red-500/30 border border-red-500/40 text-red-300'
+              : resetPhase === 2
+              ? 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-400'
+              : 'text-red-400/70 bg-red-500/10 border border-red-500/15 hover:bg-red-500/20'
+          }`}
+        >
+          <span className="text-base">↺</span>
+          {resetPhase === 0 && 'Reset Poll Data'}
+          {resetPhase === 1 && 'Confirm Reset?'}
+          {resetPhase === 2 && '✓ Poll Cleared'}
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-white/10 px-8">
-        {TABS.map(t => (
+      {/* system status */}
+      <div className="px-4 py-4 border-t border-white/8">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-2 h-2 rounded-full bg-emerald-400" />
+          <span className="text-[11px] uppercase tracking-widest text-white/30">System Status</span>
+        </div>
+        <p className="text-xs font-semibold text-white/60">v2.5.0 Stable</p>
+        <p className="text-[11px] text-white/30 mt-0.5">
+          {lastSync ? `Last sync: ${timeAgo(lastSync)}` : `Sync pending: ${syncPending}`}
+        </p>
+      </div>
+    </div>
+  )
+
+  // ── dashboard view ────────────────────────────────────────────────────────────
+
+  const dashboardView = (
+    <div className="flex-1 overflow-y-auto">
+      {/* header */}
+      <div className="flex items-center justify-between px-8 py-5 border-b border-white/8">
+        <div>
+          <h1 className="text-xl font-bold text-white">Kiosk Performance Overview</h1>
+          <p className="text-white/40 text-sm mt-0.5">Real-time engagement metrics and capture data.</p>
+        </div>
+        <div className="flex items-center gap-3">
           <button
-            key={t.id}
-            onPointerDown={() => setTab(t.id)}
-            className={`px-5 py-3 text-sm font-medium transition ${
-              tab === t.id ? 'text-primary-400 border-b-2 border-primary-500' : 'text-white/40 hover:text-white/70'
-            }`}
+            onPointerDown={loadData}
+            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/50 text-sm hover:bg-white/10"
           >
-            {t.label}
+            ↺ Refresh
           </button>
-        ))}
+          <button
+            onPointerDown={downloadCSV}
+            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 active:bg-red-700"
+          >
+            ↓ Download CSV
+          </button>
+          <button
+            onPointerDown={exitAdmin}
+            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/50 text-sm hover:bg-white/10"
+          >
+            Exit ✕
+          </button>
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="px-8 py-6 space-y-6">
+        {/* stat cards */}
+        <div className="grid grid-cols-4 gap-4">
+          <StatCard label="Total Plays" value={totalPlays.toLocaleString()} icon="👆" trend={trendPlays} valueColor="text-white" />
+          <StatCard label="Leads Captured" value={leadsCount.toLocaleString()} icon="👤" trend={trendLeads} valueColor="text-white" />
+          <StatCard label="Trust 2030" value={trust2030Count.toLocaleString()} icon="🕐" trend={null} valueColor="text-red-300" />
+          <StatCard label="Completion Rate" value={`${completionRate}%`} icon="✓" trend={null} valueColor="text-emerald-300" />
+        </div>
 
-        {tab === 'stats' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: 'Total plays', value: stats.total, color: 'text-primary-300' },
-                { label: 'Trust 2030', value: stats.trust2030, color: 'text-primary-300' },
-                { label: 'Lost in Context', value: stats.lostInContext, color: 'text-cyan-300' },
-                { label: 'Sync pending', value: stats.syncPending, color: stats.syncPending > 0 ? 'text-yellow-400' : 'text-green-400' },
-              ].map(item => (
-                <div key={item.label} className="bg-white/5 rounded-2xl p-5 border border-white/10">
-                  <p className="text-white/50 text-xs mb-1">{item.label}</p>
-                  <p className={`text-3xl font-bold ${item.color}`}>{item.value}</p>
-                </div>
-              ))}
-            </div>
+        {/* recent entries */}
+        <div className="bg-[#131929] border border-white/8 rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
+            <h2 className="font-semibold text-white text-sm">Recent Kiosk Entries</h2>
+            <button
+              onPointerDown={() => setNav('leads')}
+              className="text-xs text-white/40 border border-white/10 px-3 py-1.5 rounded-lg hover:text-white/70 hover:bg-white/5"
+            >
+              View All
+            </button>
+          </div>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/5">
+                {['TIMESTAMP', 'USER ID', 'EMAIL', 'RESULT', 'STATUS', 'ACTIONS'].map(h => (
+                  <th key={h} className="text-left text-[10px] uppercase tracking-widest text-white/25 font-medium px-6 py-3">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {sessions.slice(0, 8).map((s, i) => {
+                const status = sessionStatus(s)
+                return (
+                  <tr key={s.sessionId} className="border-b border-white/5 hover:bg-white/3 transition-colors">
+                    <td className="px-6 py-3.5 text-white/50">{timeAgo(s.timestamp)}</td>
+                    <td className="px-6 py-3.5">
+                      <span className="text-red-400 font-mono text-xs">{shortId(s.sessionId, i)}</span>
+                    </td>
+                    <td className="px-6 py-3.5 text-white/60">{s.playerInfo?.email || '—'}</td>
+                    <td className="px-6 py-3.5 text-white/70">{sessionResult(s)}</td>
+                    <td className="px-6 py-3.5"><StatusBadge status={status} /></td>
+                    <td className="px-6 py-3.5">
+                      <div className="relative">
+                        <button
+                          onPointerDown={() => setActionMenu(actionMenu === s.sessionId ? null : s.sessionId)}
+                          className="text-white/30 hover:text-white/70 px-2 py-1 rounded-lg hover:bg-white/5"
+                        >
+                          ⋮
+                        </button>
+                        <AnimatePresence>
+                          {actionMenu === s.sessionId && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -4 }}
+                              className="absolute right-0 top-8 bg-[#1e2640] border border-white/10 rounded-xl shadow-xl z-10 min-w-[140px] overflow-hidden"
+                            >
+                              <button
+                                onPointerDown={() => { setActionMenu(null) }}
+                                className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:bg-white/5 hover:text-white"
+                              >
+                                View Details
+                              </button>
+                              <button
+                                onPointerDown={() => { navigator.clipboard?.writeText(s.sessionId); setActionMenu(null) }}
+                                className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:bg-white/5 hover:text-white border-t border-white/5"
+                              >
+                                Copy ID
+                              </button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+              {sessions.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-white/25 text-sm">
+                    No sessions recorded yet. Complete a game to see entries here.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
+        {/* bottom row */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* diagnostic tools */}
+          <div className="bg-[#131929] border border-white/8 rounded-2xl p-6">
+            <h3 className="font-semibold text-white mb-1">Diagnostic Tools</h3>
+            <p className="text-white/40 text-sm mb-5">
+              Run maintenance routines or reset the current kiosk state. Resetting poll data is permanent.
+            </p>
             <div className="flex gap-3">
+              <button
+                onPointerDown={() => window.location.reload()}
+                className="px-5 py-2.5 rounded-xl bg-white/8 border border-white/10 text-white/70 text-sm font-medium hover:bg-white/12"
+              >
+                Refresh Device
+              </button>
               <button
                 onPointerDown={handleForceSync}
                 disabled={syncing}
-                className="flex-1 py-3 rounded-xl bg-primary-600/20 border border-primary-500/30 text-primary-300 text-sm font-medium hover:bg-primary-600/30 active:bg-primary-600/40 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-red-500/15 border border-red-500/25 text-red-400 text-sm font-medium hover:bg-red-500/25 disabled:opacity-50"
               >
-                {syncing ? 'Syncing...' : 'Force Sync to Sheets'}
+                {syncing ? 'Syncing…' : 'Force Sync'}
               </button>
-              <button
-                onPointerDown={loadData}
-                className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10"
-              >
-                Refresh
-              </button>
-            </div>
-
-            {/* Attract Mode + Lead Capture */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onPointerDown={exitAdmin}
-                className="py-3 rounded-xl bg-white/5 border border-white/10 text-white/70 text-sm font-medium hover:bg-white/10 active:bg-white/15"
-              >
-                Switch to Attract Mode
-              </button>
-              <button
-                onPointerDown={() => setLeadCaptureEnabled(!leadCaptureEnabled)}
-                className={`py-3 rounded-xl border text-sm font-medium transition ${
-                  leadCaptureEnabled
-                    ? 'bg-green-600/20 border-green-500/30 text-green-300 hover:bg-green-600/30'
-                    : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10'
-                }`}
-              >
-                Lead Capture: {leadCaptureEnabled ? 'ON' : 'OFF'}
-              </button>
-            </div>
-
-            {/* Reset Poll */}
-            <div className="bg-red-900/20 rounded-2xl p-5 border border-red-500/20">
-              <h3 className="text-red-400 font-semibold mb-2">Reset All Poll Data</h3>
-              {resetPhase === 0 && (
-                <p className="text-white/50 text-sm mb-4">This will permanently delete all local session data and reset poll charts. This cannot be undone.</p>
-              )}
-              {resetPhase === 1 && (
-                <p className="text-yellow-400 text-sm mb-4 font-medium">⚠️ Are you absolutely sure? This deletes ALL data permanently and cannot be undone.</p>
-              )}
-              {resetPhase === 2 && (
-                <p className="text-green-400 text-sm mb-4">✓ All data cleared successfully.</p>
-              )}
-              {resetPhase < 2 && (
-                <button
-                  onPointerDown={handleResetPoll}
-                  className={`py-3 px-6 rounded-xl text-sm font-bold ${
-                    resetPhase === 1
-                      ? 'bg-red-600 text-white active:bg-red-700'
-                      : 'bg-red-900/40 border border-red-500/30 text-red-400 hover:bg-red-900/60'
-                  }`}
-                >
-                  {resetPhase === 0 ? 'Reset Poll Data' : 'Confirm — Delete Everything'}
-                </button>
-              )}
             </div>
           </div>
-        )}
 
-        {tab === 'data' && (
-          <div className="space-y-6">
-            <h2 className="text-white font-semibold">Download Leads CSV</h2>
+          {/* hard reset */}
+          <div className="bg-gradient-to-br from-red-950/60 to-[#131929] border border-red-500/20 rounded-2xl p-6">
+            <div className="text-red-400 text-2xl mb-2">⚠</div>
+            <h3 className="font-semibold text-white mb-1">Hard Reset</h3>
+            <p className="text-white/40 text-sm mb-5">Clears all local cache and restarts the application.</p>
+            <button
+              onPointerDown={handleHardReset}
+              className={`w-full py-3 rounded-xl text-sm font-bold transition-all ${
+                hardResetPhase === 1
+                  ? 'bg-red-600 text-white animate-pulse'
+                  : hardResetPhase === 2
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-red-500 text-white hover:bg-red-600 active:bg-red-700'
+              }`}
+            >
+              {hardResetPhase === 0 && 'FORCE REBOOT'}
+              {hardResetPhase === 1 && 'CONFIRM — WIPE EVERYTHING?'}
+              {hardResetPhase === 2 && 'Clearing… Reloading'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <label className="text-white/50 text-xs mb-1 block">From date</label>
-                <input
-                  type="date"
-                  value={dateFrom}
-                  onChange={e => setDateFrom(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary-500"
-                  style={{ userSelect: 'auto' }}
-                />
+  // ── analytics view ────────────────────────────────────────────────────────────
+
+  const analyticsView = (
+    <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+      <h1 className="text-xl font-bold text-white">Analytics</h1>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-[#131929] border border-white/8 rounded-2xl p-5">
+          <p className="text-[11px] uppercase tracking-widest text-white/30 mb-3">Game Breakdown</p>
+          <div className="space-y-3">
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-white/70">Trust 2030</span>
+                <span className="text-red-400 font-medium">{trust2030Count}</span>
               </div>
-              <div className="flex-1">
-                <label className="text-white/50 text-xs mb-1 block">To date</label>
-                <input
-                  type="date"
-                  value={dateTo}
-                  onChange={e => setDateTo(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary-500"
-                  style={{ userSelect: 'auto' }}
+              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-red-500 rounded-full transition-all duration-700"
+                  style={{ width: totalPlays ? `${(trust2030Count / totalPlays) * 100}%` : '0%' }}
                 />
               </div>
             </div>
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-white/70">Lost in Context</span>
+                <span className="text-violet-400 font-medium">{licCount}</span>
+              </div>
+              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-violet-500 rounded-full transition-all duration-700"
+                  style={{ width: totalPlays ? `${(licCount / totalPlays) * 100}%` : '0%' }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
+        <div className="bg-[#131929] border border-white/8 rounded-2xl p-5">
+          <p className="text-[11px] uppercase tracking-widest text-white/30 mb-3">Lead Conversion</p>
+          <div className="flex items-center justify-center py-2">
+            <div className="relative w-28 h-28">
+              <svg viewBox="0 0 36 36" className="w-28 h-28 -rotate-90">
+                <circle cx="18" cy="18" r="14" fill="none" stroke="#1e2640" strokeWidth="4" />
+                <circle
+                  cx="18" cy="18" r="14" fill="none" stroke="#10b981" strokeWidth="4"
+                  strokeDasharray={`${completionRate * 87.96 / 100} 87.96`}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-bold text-white">{completionRate}%</span>
+                <span className="text-[10px] text-white/30">captured</span>
+              </div>
+            </div>
+          </div>
+          <p className="text-center text-white/40 text-xs mt-1">{leadsCount} of {totalPlays} players left email</p>
+        </div>
+
+        <div className="bg-[#131929] border border-white/8 rounded-2xl p-5">
+          <p className="text-[11px] uppercase tracking-widest text-white/30 mb-3">Sync Status</p>
+          <div className="space-y-3 mt-2">
+            <div className="flex justify-between items-center">
+              <span className="text-white/50 text-sm">Pending sync</span>
+              <span className={`text-sm font-semibold ${syncPending > 0 ? 'text-yellow-400' : 'text-emerald-400'}`}>
+                {syncPending === 0 ? '✓ All synced' : `${syncPending} items`}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-white/50 text-sm">Last sync</span>
+              <span className="text-white/60 text-sm">{lastSync ? timeAgo(lastSync) : 'Never'}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-white/50 text-sm">Lead capture</span>
+              <span className={`text-sm font-semibold ${leadCaptureEnabled ? 'text-emerald-400' : 'text-white/30'}`}>
+                {leadCaptureEnabled ? 'Enabled' : 'Disabled'}
+              </span>
+            </div>
             <button
-              onPointerDown={downloadCSV}
-              className="w-full py-4 rounded-xl bg-green-600/20 border border-green-500/30 text-green-300 font-semibold hover:bg-green-600/30"
+              onPointerDown={() => setLeadCaptureEnabled(!leadCaptureEnabled)}
+              className={`w-full mt-2 py-2 rounded-xl text-xs font-bold border transition-all ${
+                leadCaptureEnabled
+                  ? 'bg-emerald-600/20 border-emerald-500/30 text-emerald-400 hover:bg-emerald-600/30'
+                  : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10'
+              }`}
             >
-              ↓ Download CSV ({sessions.length} sessions)
+              Lead Capture: {leadCaptureEnabled ? 'ON' : 'OFF'}
             </button>
+          </div>
+        </div>
+      </div>
 
-            {/* Sessions list */}
-            <div className="space-y-2 max-h-80 overflow-y-auto">
-              {sessions.slice().reverse().map(s => (
-                <div key={s.sessionId} className="bg-white/5 rounded-xl px-4 py-3 border border-white/5 text-sm">
-                  <div className="flex justify-between text-white/60">
-                    <span>{s.game_played === 'trust2030' ? 'Trust 2030' : 'Lost in Context'}</span>
-                    <span>{new Date(s.timestamp).toLocaleDateString()}</span>
-                  </div>
-                  <div className="text-white/40 text-xs mt-1">
-                    {s.playerInfo?.name || 'Anonymous'} · {s.playerInfo?.role || 'No role'}
-                    {s.playerInfo?.email ? ` · ${s.playerInfo.email}` : ''}
-                  </div>
+      {/* sessions by day */}
+      <div className="bg-[#131929] border border-white/8 rounded-2xl p-6">
+        <p className="text-[11px] uppercase tracking-widest text-white/30 mb-4">Sessions — Last 7 Days</p>
+        {(() => {
+          const days = []
+          for (let i = 6; i >= 0; i--) {
+            const start = new Date(); start.setHours(0,0,0,0); start.setDate(start.getDate() - i)
+            const end = new Date(start); end.setDate(end.getDate() + 1)
+            const count = sessions.filter(s => s.timestamp >= start.getTime() && s.timestamp < end.getTime()).length
+            days.push({ label: start.toLocaleDateString('en', { weekday: 'short' }), count })
+          }
+          const max = Math.max(...days.map(d => d.count), 1)
+          return (
+            <div className="flex items-end gap-2 h-24">
+              {days.map(d => (
+                <div key={d.label} className="flex-1 flex flex-col items-center gap-1.5">
+                  <span className="text-[10px] text-white/40">{d.count > 0 ? d.count : ''}</span>
+                  <div
+                    className="w-full bg-red-500/70 rounded-t-md transition-all duration-700"
+                    style={{ height: `${(d.count / max) * 64}px`, minHeight: d.count > 0 ? '4px' : '0' }}
+                  />
+                  <span className="text-[10px] text-white/30">{d.label}</span>
                 </div>
               ))}
-              {sessions.length === 0 && (
-                <p className="text-white/30 text-sm text-center py-8">No sessions recorded yet</p>
-              )}
             </div>
-          </div>
-        )}
+          )
+        })()}
+      </div>
+    </div>
+  )
 
-        {tab === 'media' && (
-          <div className="space-y-6">
-            <h2 className="text-white font-semibold">Upload Media</h2>
-            <p className="text-white/50 text-sm">Upload images or videos to override attract screen scenes. Files are stored locally on this device.</p>
-            <label className="block">
-              <div className="w-full py-12 rounded-2xl border-2 border-dashed border-white/20 text-center cursor-pointer hover:border-primary-500/50 transition">
-                <p className="text-4xl mb-3">📁</p>
-                <p className="text-white/60 font-medium">Tap to select image or video</p>
-                <p className="text-white/30 text-sm mt-1">Stored in IndexedDB on this device</p>
-              </div>
-              <input
-                type="file"
-                accept="image/*,video/*"
-                onChange={handleMediaUpload}
-                className="hidden"
-                style={{ userSelect: 'auto' }}
-              />
-            </label>
-          </div>
-        )}
+  // ── leads view ────────────────────────────────────────────────────────────────
 
-        {tab === 'logs' && (
-          <div>
-            <h2 className="text-white font-semibold mb-4">Event Log (last 100)</h2>
-            <pre className="bg-black/40 rounded-xl p-4 text-xs text-green-400 font-mono overflow-x-auto max-h-[500px] overflow-y-auto whitespace-pre-wrap">
-              {logs.length === 0
-                ? 'No events logged yet.'
-                : logs.map(l => `[${new Date(l.timestamp).toISOString()}] ${l.type}${l.sessionId ? ` (${l.sessionId.slice(0, 8)}...)` : ''}${l.reason ? ` — ${l.reason}` : ''}${l.error ? ` ERROR: ${l.error}` : ''}`).join('\n')}
-            </pre>
+  const leadsView = (
+    <div className="flex-1 overflow-y-auto px-8 py-6 space-y-5">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold text-white">Leads ({sessions.length})</h1>
+        <div className="flex gap-3">
+          <div className="flex gap-2">
+            <input
+              type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+              className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white/70 text-sm focus:outline-none focus:border-red-500/50"
+              style={{ userSelect: 'auto' }}
+            />
+            <input
+              type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+              className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white/70 text-sm focus:outline-none focus:border-red-500/50"
+              style={{ userSelect: 'auto' }}
+            />
           </div>
-        )}
+          <button
+            onPointerDown={downloadCSV}
+            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600"
+          >
+            ↓ Export CSV
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-[#131929] border border-white/8 rounded-2xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-white/8">
+              {['TIMESTAMP', 'USER ID', 'NAME', 'EMAIL', 'COMPANY', 'GAME', 'STATUS'].map(h => (
+                <th key={h} className="text-left text-[10px] uppercase tracking-widest text-white/25 font-medium px-5 py-3">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sessions.map((s, i) => (
+              <tr key={s.sessionId} className="border-b border-white/5 hover:bg-white/3 transition-colors">
+                <td className="px-5 py-3 text-white/40 text-xs">{new Date(s.timestamp).toLocaleDateString()}</td>
+                <td className="px-5 py-3"><span className="text-red-400 font-mono text-xs">{shortId(s.sessionId, i)}</span></td>
+                <td className="px-5 py-3 text-white/70">{s.playerInfo?.name || '—'}</td>
+                <td className="px-5 py-3 text-white/60">{s.playerInfo?.email || '—'}</td>
+                <td className="px-5 py-3 text-white/50">{s.playerInfo?.company || '—'}</td>
+                <td className="px-5 py-3 text-white/50">{sessionResult(s)}</td>
+                <td className="px-5 py-3"><StatusBadge status={sessionStatus(s)} /></td>
+              </tr>
+            ))}
+            {sessions.length === 0 && (
+              <tr><td colSpan={7} className="px-5 py-12 text-center text-white/25 text-sm">No sessions recorded yet.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+
+  // ── logs view ─────────────────────────────────────────────────────────────────
+
+  const logsView = (
+    <div className="flex-1 overflow-y-auto px-8 py-6">
+      <h1 className="text-xl font-bold text-white mb-5">Kiosk Logs</h1>
+      <pre className="bg-black/50 rounded-2xl p-5 text-xs text-emerald-400 font-mono overflow-x-auto max-h-[600px] overflow-y-auto whitespace-pre-wrap leading-relaxed">
+        {logs.length === 0
+          ? 'No events logged yet.'
+          : logs.map(l =>
+              `[${new Date(l.timestamp).toISOString()}] ${l.type}${l.sessionId ? ` (${l.sessionId.slice(0, 8)}…)` : ''}${l.reason ? ` — ${l.reason}` : ''}${l.error ? ` ERROR: ${l.error}` : ''}`
+            ).join('\n')}
+      </pre>
+    </div>
+  )
+
+  // ── media view ────────────────────────────────────────────────────────────────
+
+  const mediaView = (
+    <div className="flex-1 overflow-y-auto px-8 py-6 space-y-5">
+      <h1 className="text-xl font-bold text-white">Media</h1>
+      <p className="text-white/40 text-sm">Upload images or videos to override attract screen scenes. Stored locally on this device via IndexedDB.</p>
+      <label className="block">
+        <div className="w-full py-16 rounded-2xl border-2 border-dashed border-white/15 text-center cursor-pointer hover:border-red-500/40 transition-colors">
+          <p className="text-4xl mb-3">📁</p>
+          <p className="text-white/50 font-medium">Tap to select image or video</p>
+          <p className="text-white/25 text-sm mt-1">Stored in IndexedDB on this device</p>
+        </div>
+        <input type="file" accept="image/*,video/*" onChange={handleMediaUpload} className="hidden" style={{ userSelect: 'auto' }} />
+      </label>
+    </div>
+  )
+
+  // ── render ────────────────────────────────────────────────────────────────────
+
+  return (
+    <motion.div
+      className="w-full h-full flex bg-[#0c1020] text-white overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onPointerDown={() => setActionMenu(null)}
+    >
+      {sidebar}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {nav === 'dashboard' && dashboardView}
+        {nav === 'analytics' && analyticsView}
+        {nav === 'leads' && leadsView}
+        {nav === 'logs' && logsView}
+        {nav === 'media' && mediaView}
       </div>
     </motion.div>
   )
