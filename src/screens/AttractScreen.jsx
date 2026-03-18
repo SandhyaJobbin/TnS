@@ -88,7 +88,9 @@ function MetricCard({ label, value, unit, last }) {
 
 function SceneVideo({ src }) {
   const ref = useRef(null)
+  const [ready, setReady] = useState(false)
   useEffect(() => {
+    setReady(false)
     if (ref.current) {
       ref.current.load()
       ref.current.play().catch(() => {})
@@ -102,7 +104,13 @@ function SceneVideo({ src }) {
       loop
       muted
       playsInline
+      onCanPlayThrough={() => setReady(true)}
       className="absolute inset-0 w-full h-full object-cover"
+      style={{
+        filter: ready ? 'blur(0px)' : 'blur(12px)',
+        transform: ready ? 'scale(1)' : 'scale(1.05)',
+        transition: 'filter 0.8s ease, transform 0.8s ease',
+      }}
     />
   )
 }

@@ -256,8 +256,16 @@ export default function GameSelectScreen() {
                     loop
                     muted
                     playsInline
+                    onCanPlayThrough={e => {
+                      e.currentTarget.style.filter = 'blur(0px) brightness(1)'
+                      e.currentTarget.style.transform = 'scale(1)'
+                    }}
                     className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-700"
-                    style={{ transition: 'opacity 0.7s' }}
+                    style={{
+                      filter: 'blur(12px) brightness(0.8)',
+                      transform: 'scale(1.05)',
+                      transition: 'opacity 0.7s, filter 0.8s ease, transform 0.8s ease',
+                    }}
                   />
                   {/* Bottom gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0e1a]/80 via-transparent to-transparent" />
