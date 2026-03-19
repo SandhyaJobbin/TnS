@@ -16,11 +16,24 @@ const FOCUS_AREA_DESCRIPTIONS = {
 function PollOverlay({ question, percentages, userAnswer, isLastQuestion, alwaysShowPollResults, setAlwaysShowPollResults, onContinue }) {
   const continueRef = useRef(onContinue)
   continueRef.current = onContinue
+  const [countdown, setCountdown] = useState(5)
 
   useEffect(() => {
     if (alwaysShowPollResults) return
     const t = setTimeout(() => continueRef.current(), 5000)
     return () => clearTimeout(t)
+  }, [alwaysShowPollResults])
+
+  useEffect(() => {
+    if (alwaysShowPollResults) {
+      setCountdown(5)
+      return
+    }
+    setCountdown(5)
+    const interval = setInterval(() => {
+      setCountdown(n => Math.max(0, n - 1))
+    }, 1000)
+    return () => clearInterval(interval)
   }, [alwaysShowPollResults])
 
   return (
@@ -119,8 +132,15 @@ function PollOverlay({ question, percentages, userAnswer, isLastQuestion, always
           </div>
         </div>
 
+        {/* Countdown label */}
+        {!alwaysShowPollResults && (
+          <p className="text-[10px] text-white/35 text-right px-4 pb-1">
+            Auto-advancing in {countdown}s…
+          </p>
+        )}
+
         {/* Countdown progress bar */}
-        <div className="h-1" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <div className="h-2" style={{ background: 'rgba(255,255,255,0.06)' }}>
           <AnimatePresence>
             {!alwaysShowPollResults && (
               <motion.div
@@ -212,10 +232,16 @@ export default function QuestionScreen() {
             <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Focus Area</p>
             <button
               onPointerDown={e => { e.stopPropagation(); setDimTip(t => !t) }}
-              className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black leading-none select-none"
-              style={{ background: 'rgba(229,57,53,0.15)', border: '1px solid rgba(229,57,53,0.35)', color: '#e53935' }}
+              className="w-10 h-10 rounded-full flex items-center justify-center select-none"
+              style={{ color: '#e53935' }}
+              aria-label="Focus area info"
             >
-              i
+              <span
+                className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black leading-none"
+                style={{ background: 'rgba(229,57,53,0.15)', border: '1px solid rgba(229,57,53,0.35)' }}
+              >
+                i
+              </span>
             </button>
           </div>
           <h2 className="text-white font-black text-xl md:text-3xl tracking-tight leading-none">
@@ -310,33 +336,16 @@ export default function QuestionScreen() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 + i * 0.06 }}
                 whileTap={!locked ? { scale: 0.99 } : {}}
-                className="relative flex items-center gap-4 rounded-xl px-5 py-3.5 md:py-4 transition-all duration-200 text-left w-full"
+                className="relative flex items-center rounded-xl px-5 py-3.5 md:py-4 transition-all duration-200 text-left w-full"
                 style={{
                   background: isSelected ? 'rgba(229,57,53,0.07)' : 'rgba(255,255,255,0.025)',
                   border: isSelected
                     ? '1px solid rgba(229,57,53,0.45)'
                     : '1px solid rgba(255,255,255,0.07)',
                   boxShadow: isSelected ? '0 0 0 1px rgba(229,57,53,0.15), inset 0 0 30px rgba(229,57,53,0.03)' : 'none',
-                  opacity: isDimmed ? 0.3 : 1,
+                  opacity: isDimmed ? 0.55 : 1,
                 }}
               >
-                {/* Radio circle indicator */}
-                <div
-                  className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200"
-                  style={{
-                    border: isSelected ? '2px solid #e53935' : '2px solid rgba(255,255,255,0.2)',
-                  }}
-                >
-                  {isSelected && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{ background: '#e53935' }}
-                    />
-                  )}
-                </div>
-
                 {/* Option text */}
                 <span
                   className="flex-1 font-semibold leading-snug transition-colors duration-200"
