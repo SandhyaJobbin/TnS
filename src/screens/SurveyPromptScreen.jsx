@@ -68,7 +68,7 @@ export default function SurveyPromptScreen() {
 
         {/* Body */}
         <p className="text-white/55 text-base leading-relaxed mb-8">
-          Take our 5-minute Trust &amp; Safety Survey and see how your perspective compares to industry leaders.
+          Take our 90-second Trust &amp; Safety Survey and see how your perspective compares to industry leaders.
         </p>
 
         {/* CTAs */}
@@ -88,10 +88,13 @@ export default function SurveyPromptScreen() {
 
           <button
             onPointerDown={handleSkip}
-            className="w-full py-3 text-white/40 font-bold text-sm uppercase tracking-widest hover:text-white/60 transition-colors"
+            className="w-full py-3 text-white/40 font-bold text-sm uppercase tracking-widest hover:text-white/60 transition-colors flex items-center justify-center gap-2"
             style={{ fontFamily: MONO }}
           >
-            Skip →
+            Skip
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
           </button>
         </div>
       </motion.div>
