@@ -5,7 +5,10 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 function getClient() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.error('[Supabase] Missing credentials — VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY not set')
+    return null
+  }
   return createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 }
 
@@ -47,7 +50,10 @@ export async function syncToSheets(record) {
       correct_count: correctCount,
     })
 
-    if (sessionError) throw new Error(sessionError.message)
+    if (sessionError) {
+      console.error('[Supabase] sessions insert error:', sessionError)
+      throw new Error(sessionError.message)
+    }
 
     // Insert answer rows
     if (questionIds.length > 0) {
@@ -68,12 +74,17 @@ export async function syncToSheets(record) {
       })
 
       const { error: answersError } = await supabase.from('answers').insert(answerRows)
-      if (answersError) throw new Error(answersError.message)
+      if (answersError) {
+        console.error('[Supabase] answers insert error:', answersError)
+        throw new Error(answersError.message)
+      }
     }
 
+    console.log('[Supabase] sync_success', record.sessionId)
     await addLog({ type: 'sync_success', sessionId: record.sessionId })
     return true
   } catch (err) {
+    console.error('[Supabase] sync_error:', err.message, 'session:', record.sessionId)
     await addLog({ type: 'sync_error', error: err.message, sessionId: record.sessionId })
     return false
   }

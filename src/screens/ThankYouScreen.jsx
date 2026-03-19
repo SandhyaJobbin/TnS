@@ -37,9 +37,11 @@ export default function ThankYouScreen() {
         answers,
         questionIds: shuffledQuestions.map(q => q.id),
       }
+      console.log('[ThankYou] saving session', record.sessionId, 'game:', record.game_played, 'answers:', Object.keys(record.answers || {}).length)
       await writeSession(record)
-      await addToSyncQueue({ ...record, id: undefined })
+      await addToSyncQueue(record)
       setSaved(true)
+      console.log('[ThankYou] queued — running processSyncQueue')
       processSyncQueue()
     }
     saveSession()
