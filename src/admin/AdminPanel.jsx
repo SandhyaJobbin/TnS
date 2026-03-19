@@ -15,6 +15,9 @@ import { processSyncQueue, forceFullSync, fetchSessionsFromSupabase } from '../u
 import trust2030Questions from '../data/trust2030_questions.json'
 import licQuestions from '../data/lost_in_context_questions.json'
 
+const ALLOWED_MEDIA_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'mov']
+const MAX_MEDIA_SIZE_BYTES = 500 * 1024 * 1024 // 500 MB
+
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 function timeAgo(ts) {
@@ -312,8 +315,26 @@ export default function AdminPanel() {
   async function handleMediaUpload(e) {
     const file = e.target.files[0]
     if (!file) return
-    await storeMediaBlob(file.name, file)
-    alert(`"${file.name}" stored successfully.`)
+
+    if (file.size > MAX_MEDIA_SIZE_BYTES) {
+      alert(`File too large. Maximum allowed size is 500 MB. This file is ${(file.size / 1024 / 1024).toFixed(1)} MB.`)
+      return
+    }
+
+    const rawName = file.name
+    const ext = rawName.split('.').pop().toLowerCase()
+    if (!ALLOWED_MEDIA_EXTENSIONS.includes(ext)) {
+      alert(`File type ".${ext}" is not allowed. Allowed types: ${ALLOWED_MEDIA_EXTENSIONS.join(', ')}`)
+      return
+    }
+    const safeName = rawName
+      .replace(/[/\\]/g, '')
+      .replace(/\x00/g, '')
+      .replace(/[^a-zA-Z0-9._\-]/g, '_')
+      .slice(0, 255)
+
+    await storeMediaBlob(safeName, file)
+    alert(`"${safeName}" stored successfully.`)
   }
 
   function generateReport() {
