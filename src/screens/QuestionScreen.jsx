@@ -110,7 +110,7 @@ function PollOverlay({ question, percentages, userAnswer, isLastQuestion, always
             </button>
             <motion.button
               onPointerDown={onContinue}
-              className="px-5 py-2.5 rounded-xl text-white font-black text-sm uppercase tracking-wider shrink-0"
+              className="px-5 py-2.5 rounded-xl text-white font-black text-sm uppercase tracking-wider shrink-0 min-h-[44px] flex items-center justify-center"
               style={{ background: '#e53935', boxShadow: '0 4px 16px rgba(229,57,53,0.3)' }}
               whileTap={{ scale: 0.97 }}
             >
