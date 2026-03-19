@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { RED, MONO, MID_BG } from '../theme'
 
-const PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'admin1234'
+const PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE ?? ''
 
 /**
  * PinModal — numeric passcode entry overlay for Admin access.

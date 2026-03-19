@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { useSession } from '../hooks/useSession'
 
-const PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'admin1234'
+const PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE ?? ''
 
 export default function AdminHotspot() {
   const { goToAdmin } = useSession()
