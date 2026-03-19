@@ -4,12 +4,14 @@ import { getSyncQueue, removeSyncQueueItem, addLog, getAllSessions, writeSession
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+let _client = null
 function getClient() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     console.error('[Supabase] Missing credentials — VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY not set')
     return null
   }
-  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  if (!_client) _client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  return _client
 }
 
 export async function syncToSheets(record) {
