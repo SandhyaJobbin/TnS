@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { RED, MONO, MID_BG } from '../theme'
 
@@ -8,34 +8,51 @@ const MAX_ATTEMPTS = 5
 const LOCKOUT_MS = 15 * 60 * 1000 // 15 minutes
 
 function getRateLimit() {
-  const until = parseInt(localStorage.getItem('admin_lockout_until') || '0', 10)
-  const count = parseInt(localStorage.getItem('admin_fail_count') || '0', 10)
-  return { until, count }
-}
-
-function recordFailure() {
-  const { count } = getRateLimit()
-  const next = count + 1
-  localStorage.setItem('admin_fail_count', String(next))
-  if (next >= MAX_ATTEMPTS) {
-    localStorage.setItem('admin_lockout_until', String(Date.now() + LOCKOUT_MS))
-    localStorage.setItem('admin_fail_count', '0')
+  try {
+    const until = parseInt(localStorage.getItem('admin_lockout_until') || '0', 10)
+    const count = parseInt(localStorage.getItem('admin_fail_count') || '0', 10)
+    return { until, count }
+  } catch {
+    return { until: 0, count: 0 }
   }
 }
 
+function recordFailure() {
+  try {
+    const { count } = getRateLimit()
+    const next = count + 1
+    localStorage.setItem('admin_fail_count', String(next))
+    if (next >= MAX_ATTEMPTS) {
+      localStorage.setItem('admin_lockout_until', String(Date.now() + LOCKOUT_MS))
+      // Do NOT reset admin_fail_count here — keep it at MAX_ATTEMPTS so
+      // clearing the lockout timestamp alone doesn't grant fresh attempts
+    }
+  } catch { /* localStorage unavailable — fail silently, don't crash */ }
+}
+
 function recordSuccess() {
-  localStorage.removeItem('admin_fail_count')
-  localStorage.removeItem('admin_lockout_until')
+  try {
+    localStorage.removeItem('admin_fail_count')
+    localStorage.removeItem('admin_lockout_until')
+  } catch { /* localStorage unavailable */ }
 }
 
 function isLockedOut() {
-  const { until } = getRateLimit()
-  return Date.now() < until
+  try {
+    const { until } = getRateLimit()
+    return Date.now() < until
+  } catch {
+    return false
+  }
 }
 
 function lockoutMinutesLeft() {
-  const { until } = getRateLimit()
-  return Math.ceil((until - Date.now()) / 60_000)
+  try {
+    const { until } = getRateLimit()
+    return Math.ceil((until - Date.now()) / 60_000)
+  } catch {
+    return 0
+  }
 }
 
 /**
@@ -49,6 +66,14 @@ export default function PinModal({ onClose, onSuccess }) {
   const [shake, setShake]   = useState(false)
   const [error, setError]   = useState(false)
   const [locked, setLocked] = useState(() => isLockedOut())
+
+  useEffect(() => {
+    if (!locked) return
+    const interval = setInterval(() => {
+      if (!isLockedOut()) setLocked(false)
+    }, 30_000)
+    return () => clearInterval(interval)
+  }, [locked])
 
   function handleSubmit() {
     if (isLockedOut()) { setLocked(true); return }
@@ -70,6 +95,7 @@ export default function PinModal({ onClose, onSuccess }) {
   }
 
   if (locked) {
+    const minsLeft = lockoutMinutesLeft()
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -87,7 +113,7 @@ export default function PinModal({ onClose, onSuccess }) {
             Too Many Attempts
           </p>
           <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: MONO }}>
-            Try again in {lockoutMinutesLeft()} minute{lockoutMinutesLeft() !== 1 ? 's' : ''}
+            Try again in {minsLeft} minute{minsLeft !== 1 ? 's' : ''}
           </p>
           <button
             onPointerDown={onClose}
