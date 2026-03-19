@@ -289,20 +289,6 @@ export default function GameSelectScreen() {
             </div>
           </motion.div>
 
-          {/* Admin shortcut */}
-          <motion.div
-            className="flex justify-center shrink-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <button
-              onPointerDown={handleAdminGear}
-              className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/20 hover:text-white/40 transition-colors py-2 px-3 min-h-[44px] flex items-center"
-            >
-              Admin
-            </button>
-          </motion.div>
         </div>
       </main>
 
