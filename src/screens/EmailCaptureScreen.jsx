@@ -1,23 +1,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useSession } from '../hooks/useSession'
+import Background from '../components/Background'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-function Background() {
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}
-      />
-      <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 rounded-full opacity-10"
-        style={{ background: '#e53935', filter: 'blur(120px)' }} />
-      <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full opacity-8"
-        style={{ background: '#1a0a2e', filter: 'blur(120px)' }} />
-    </div>
-  )
-}
 
 export default function EmailCaptureScreen() {
   const { navigate, playerInfo, setPlayerInfo } = useSession()
@@ -164,14 +150,10 @@ export default function EmailCaptureScreen() {
 
       {/* Footer */}
       <footer
-        className="relative z-10 flex items-center justify-between px-8 py-4 border-t"
+        className="relative z-10 flex items-center justify-end px-8 py-4 border-t"
         style={{ borderColor: 'rgba(255,255,255,0.05)', opacity: 0.4 }}
       >
-        <div className="flex gap-6">
-          <button className="text-[10px] font-bold uppercase tracking-widest text-white/50">Privacy Policy</button>
-          <button className="text-[10px] font-bold uppercase tracking-widest text-white/50">Methodology</button>
-        </div>
-        <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">© 2025 Trust &amp; Safety Summit | {import.meta.env.VITE_STATION_ID || 'booth-07'}</p>
+        <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">© {new Date().getFullYear()} Trust &amp; Safety Summit | {import.meta.env.VITE_STATION_ID || 'booth-07'}</p>
       </footer>
     </motion.div>
   )
