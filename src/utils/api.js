@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { getSyncQueue, removeSyncQueueItem, addLog } from '../hooks/useIndexedDB'
+import { getSyncQueue, removeSyncQueueItem, addLog, getAllSessions } from '../hooks/useIndexedDB'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -98,4 +98,85 @@ export async function processSyncQueue() {
       await removeSyncQueueItem(item.id)
     }
   }
+}
+
+export async function forceFullSync(onProgress) {
+  const supabase = getClient()
+  if (!supabase) {
+    await addLog({ type: 'sync_skipped', reason: 'No Supabase credentials configured' })
+    return { total: 0, synced: 0, failed: 0, errors: [] }
+  }
+
+  const sessions = await getAllSessions()
+  const total = sessions.length
+  let synced = 0
+  let failed = 0
+  const errors = []
+
+  for (let i = 0; i < sessions.length; i++) {
+    const record = sessions[i]
+    try {
+      const pi = record.playerInfo || {}
+      const answers = record.answers || {}
+      const questionIds = record.questionIds || []
+
+      let avgScore = null
+      let correctCount = null
+      if (record.game_played === 'trust2030') {
+        const vals = Object.values(answers).map(a => Number(a.value) || 0).filter(Boolean)
+        if (vals.length) avgScore = Math.round(vals.reduce((s, v) => s + v, 0) / vals.length)
+      }
+      if (record.game_played === 'lostInContext') {
+        correctCount = Object.values(answers).filter(a => a.correct === true).length
+      }
+
+      const { error: sessionError } = await supabase.from('sessions').upsert({
+        session_id:    record.sessionId,
+        timestamp:     record.timestamp ? new Date(record.timestamp).toISOString() : new Date().toISOString(),
+        game_played:   record.game_played || null,
+        name:          pi.name    || null,
+        company:       pi.company || null,
+        role:          pi.role    || null,
+        email:         pi.email   || null,
+        consent:       pi.consent ?? null,
+        answer_count:  questionIds.length,
+        avg_score:     avgScore,
+        correct_count: correctCount,
+      }, { onConflict: 'session_id' })
+
+      if (sessionError) throw new Error(sessionError.message)
+
+      if (questionIds.length > 0) {
+        const answerRows = questionIds.map((qId, idx) => {
+          const ans = answers[qId] || answers[String(idx)] || {}
+          return {
+            session_id:    record.sessionId,
+            timestamp:     record.timestamp ? new Date(record.timestamp).toISOString() : new Date().toISOString(),
+            game_played:   record.game_played || null,
+            question_id:   qId,
+            question_num:  idx + 1,
+            selected:      ans.selected ?? ans.answer ?? null,
+            value:         ans.value    != null ? ans.value       : null,
+            correct:       ans.correct  != null ? ans.correct     : null,
+            dimension:     ans.dimension  || null,
+            time_taken_ms: ans.timeTakenMs || null,
+          }
+        })
+
+        const { error: answersError } = await supabase.from('answers').upsert(answerRows, { onConflict: 'session_id,question_id' })
+        if (answersError) throw new Error(answersError.message)
+      }
+
+      synced++
+    } catch (err) {
+      failed++
+      errors.push({ sessionId: record.sessionId, error: err.message })
+      console.error('[Supabase] forceFullSync error:', err.message, 'session:', record.sessionId)
+    }
+
+    if (onProgress) onProgress({ current: i + 1, total, synced, failed })
+  }
+
+  await addLog({ type: 'force_full_sync', total, synced, failed })
+  return { total, synced, failed, errors }
 }

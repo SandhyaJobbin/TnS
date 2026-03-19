@@ -11,7 +11,7 @@ import {
   storeMediaBlob,
   getAllPollAggregates,
 } from '../hooks/useIndexedDB'
-import { processSyncQueue } from '../utils/api'
+import { processSyncQueue, forceFullSync } from '../utils/api'
 import trust2030Questions from '../data/trust2030_questions.json'
 import licQuestions from '../data/lost_in_context_questions.json'
 
@@ -194,6 +194,9 @@ export default function AdminPanel() {
   const [resetPhase, setResetPhase] = useState(0)
   const [hardResetPhase, setHardResetPhase] = useState(0)
   const [syncing, setSyncing] = useState(false)
+  const [fullSyncing, setFullSyncing] = useState(false)
+  const [fullSyncProgress, setFullSyncProgress] = useState(null)
+  const [fullSyncResult, setFullSyncResult] = useState(null)
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [actionMenu, setActionMenu] = useState(null)
@@ -230,6 +233,19 @@ export default function AdminPanel() {
     await processSyncQueue()
     await loadData()
     setSyncing(false)
+  }
+
+  async function handleForceFullSync() {
+    setFullSyncing(true)
+    setFullSyncProgress(null)
+    setFullSyncResult(null)
+    const result = await forceFullSync((progress) => {
+      setFullSyncProgress(progress)
+    })
+    setFullSyncResult(result)
+    setFullSyncing(false)
+    await loadData()
+    setTimeout(() => setFullSyncResult(null), 6000)
   }
 
   async function handleResetPoll() {
@@ -567,7 +583,7 @@ export default function AdminPanel() {
             <p className="text-sm mb-5" style={{ color: 'rgba(255,255,255,0.35)' }}>
               Run maintenance routines or reset the current kiosk state.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               <button
                 onPointerDown={() => window.location.reload()}
                 className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95"
@@ -577,11 +593,25 @@ export default function AdminPanel() {
               </button>
               <button
                 onPointerDown={handleForceSync}
-                disabled={syncing}
+                disabled={syncing || fullSyncing}
                 className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 disabled:opacity-50"
                 style={{ background: 'rgba(255,0,60,0.12)', border: '1px solid rgba(255,0,60,0.25)', color: '#FF003C' }}
               >
                 {syncing ? 'Syncing…' : 'Force Sync'}
+              </button>
+              <button
+                onPointerDown={handleForceFullSync}
+                disabled={fullSyncing || syncing}
+                className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 disabled:opacity-50"
+                style={{ background: 'rgba(255,165,0,0.12)', border: '1px solid rgba(255,165,0,0.3)', color: 'rgb(251,191,36)' }}
+              >
+                {fullSyncing
+                  ? fullSyncProgress
+                    ? `Syncing ${fullSyncProgress.current} / ${fullSyncProgress.total}…`
+                    : 'Starting…'
+                  : fullSyncResult
+                  ? `✓ ${fullSyncResult.synced} synced${fullSyncResult.failed > 0 ? `, ${fullSyncResult.failed} failed` : ''}`
+                  : 'Force Full Sync'}
               </button>
             </div>
           </div>
