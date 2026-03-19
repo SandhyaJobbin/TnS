@@ -210,12 +210,15 @@ export default function AdminPanel() {
       getAllPollAggregates(),
     ])
 
-    // Try Supabase first; fall back to IndexedDB if offline or on error
+    // Try Supabase first; fall back to IndexedDB if offline, on error, or if Supabase returns 0 rows
     let allSessions = null
     let source = 'local'
     if (navigator.onLine) {
-      allSessions = await fetchSessionsFromSupabase()
-      if (allSessions) source = 'supabase'
+      const remote = await fetchSessionsFromSupabase()
+      if (remote && remote.length > 0) {
+        allSessions = remote
+        source = 'supabase'
+      }
     }
     if (!allSessions) {
       allSessions = await getAllSessions()

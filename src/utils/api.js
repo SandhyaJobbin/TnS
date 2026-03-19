@@ -102,7 +102,11 @@ export async function fetchSessionsFromSupabase() {
       .from('sessions')
       .select('*')
       .order('timestamp', { ascending: false })
-    if (error) throw error
+    if (error) {
+      console.error('[Supabase] fetchSessions query error:', error.code, error.message)
+      throw error
+    }
+    console.log(`[Supabase] fetchSessions returned ${data.length} rows`)
     return data.map(row => ({
       sessionId: row.session_id,
       timestamp: new Date(row.timestamp).getTime(),
