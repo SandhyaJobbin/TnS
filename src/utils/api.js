@@ -130,7 +130,7 @@ export async function forceFullSync(onProgress) {
         correctCount = Object.values(answers).filter(a => a.correct === true).length
       }
 
-      const { error: sessionError } = await supabase.from('sessions').upsert({
+      const { error: sessionError } = await supabase.from('sessions').insert({
         session_id:    record.sessionId,
         timestamp:     record.timestamp ? new Date(record.timestamp).toISOString() : new Date().toISOString(),
         game_played:   record.game_played || null,
@@ -142,9 +142,10 @@ export async function forceFullSync(onProgress) {
         answer_count:  questionIds.length,
         avg_score:     avgScore,
         correct_count: correctCount,
-      }, { onConflict: 'session_id' })
+      })
 
-      if (sessionError) throw new Error(sessionError.message)
+      // 23505 = unique_violation — session already exists in Supabase, treat as synced
+      if (sessionError && sessionError.code !== '23505') throw new Error(sessionError.message)
 
       if (questionIds.length > 0) {
         const answerRows = questionIds.map((qId, idx) => {
@@ -163,8 +164,9 @@ export async function forceFullSync(onProgress) {
           }
         })
 
-        const { error: answersError } = await supabase.from('answers').upsert(answerRows, { onConflict: 'session_id,question_id' })
-        if (answersError) throw new Error(answersError.message)
+        const { error: answersError } = await supabase.from('answers').insert(answerRows)
+        // 23505 on answers is fine too — rows already exist
+        if (answersError && answersError.code !== '23505') throw new Error(answersError.message)
       }
 
       synced++
