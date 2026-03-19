@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
+    "@supabase/supabase-js": "^2.99.2",
     "animejs": "^4.3.6",
     "canvas-confetti": "^1.9.4",
     "chart.js": "^4.5.1",
