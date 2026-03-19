@@ -24,11 +24,24 @@ function Logo() {
 function LICPollOverlay({ question, percentages, userAnswer, isLastQuestion, alwaysShowPollResults, setAlwaysShowPollResults, onContinue }) {
   const continueRef = useRef(onContinue)
   continueRef.current = onContinue
+  const [countdown, setCountdown] = useState(5)
 
   useEffect(() => {
     if (alwaysShowPollResults) return
     const t = setTimeout(() => continueRef.current(), 5000)
     return () => clearTimeout(t)
+  }, [alwaysShowPollResults])
+
+  useEffect(() => {
+    if (alwaysShowPollResults) {
+      setCountdown(5)
+      return
+    }
+    setCountdown(5)
+    const interval = setInterval(() => {
+      setCountdown(n => Math.max(0, n - 1))
+    }, 1000)
+    return () => clearInterval(interval)
   }, [alwaysShowPollResults])
 
   const correctPct = percentages[question.correct_human]
@@ -147,8 +160,15 @@ function LICPollOverlay({ question, percentages, userAnswer, isLastQuestion, alw
           </div>
         </div>
 
+        {/* Countdown label */}
+        {!alwaysShowPollResults && (
+          <p className="text-[10px] text-white/35 text-right px-4 pb-1">
+            Auto-advancing in {countdown}s…
+          </p>
+        )}
+
         {/* Countdown progress bar */}
-        <div className="h-1" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <div className="h-2" style={{ background: 'rgba(255,255,255,0.06)' }}>
           <AnimatePresence>
             {!alwaysShowPollResults && (
               <motion.div
@@ -209,17 +229,13 @@ export default function LostInContextQuestion() {
       const correct = option === question.correct_human
       correct ? playCorrect() : playWrong()
       setShowFlash(true)
-      setTimeout(() => setShowFlash(false), 500)
+      setTimeout(() => setShowFlash(false), 800)
       if (correct) {
-        confetti({
-          particleCount: 60,
-          spread: 70,
-          origin: { y: 0.5 },
-          colors: ['#e53935', '#ff8099', '#ff4d6b', '#ffffff'],
-          disableForReducedMotion: true,
-        })
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.5 }, colors: ['#e53935', '#ff8099', '#ff4d6b', '#ffffff'], disableForReducedMotion: true })
+        setTimeout(() => setShowPollOverlay(true), 800)
+      } else {
+        setShowPollOverlay(true)
       }
-      setShowPollOverlay(true)
     }, 650)
   }
 
@@ -282,7 +298,7 @@ export default function LostInContextQuestion() {
               Currently Playing
             </p>
             <h2 className="text-lg md:text-2xl font-black tracking-tight text-white">
-              Decode GenZ Lingos: Round {currentQuestionIndex + 1}
+              Round {currentQuestionIndex + 1}
             </h2>
           </div>
           <div className="text-right">
@@ -372,20 +388,27 @@ export default function LostInContextQuestion() {
                   transition={{ delay: 0.25 + i * 0.07 }}
                   whileTap={!submitted ? { scale: 0.97 } : {}}
                   className="relative group flex flex-col items-center justify-center rounded-2xl transition-all duration-300 overflow-hidden p-3 md:p-5 lg:p-6"
-                  style={{
-                    background: isSelected
-                      ? 'rgba(10,14,26,0.95)'
-                      : 'rgba(255,255,255,0.025)',
-                    border: isSelected
-                      ? '2px solid #e53935'
-                      : '1px solid rgba(255,255,255,0.08)',
-                    boxShadow: isSelected
-                      ? '0 0 40px rgba(229,57,53,0.25), inset 0 0 60px rgba(229,57,53,0.04)'
-                      : 'none',
-                    opacity: isDimmed ? 0.35 : 1,
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                  }}
+                  style={(() => {
+                    if (submitted && isSelected) {
+                      const correct = option === question.correct_human
+                      return {
+                        background: correct ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.04)',
+                        border: correct ? '2px solid #4ade80' : '2px solid rgba(255,255,255,0.12)',
+                        boxShadow: correct ? '0 0 40px rgba(74,222,128,0.2)' : 'none',
+                        opacity: 1,
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                      }
+                    }
+                    return {
+                      background: isSelected ? 'rgba(10,14,26,0.95)' : 'rgba(255,255,255,0.025)',
+                      border: isSelected ? '2px solid #e53935' : '1px solid rgba(255,255,255,0.08)',
+                      boxShadow: isSelected ? '0 0 40px rgba(229,57,53,0.25), inset 0 0 60px rgba(229,57,53,0.04)' : 'none',
+                      opacity: isDimmed ? 0.35 : 1,
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
+                    }
+                  })()}
                 >
                   {/* Letter badge */}
                   <div
