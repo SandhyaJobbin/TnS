@@ -35,8 +35,9 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Bake the admin passcode at build time (set this secret in your repo settings)
-          VITE_ADMIN_PASSCODE: ${{ secrets.VITE_ADMIN_PASSCODE }}
+          VITE_ADMIN_PASSCODE:     ${{ secrets.VITE_ADMIN_PASSCODE }}
+          VITE_SUPABASE_URL:       ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY:  ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
