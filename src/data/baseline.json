@@ -91,37 +91,45 @@
     },
     "lic1": {
       "options": {
-        "A hidden URL": 0.25,
-        "A secret romantic partner": 0.45,
-        "A Wi-Fi exploit": 0.15,
-        "A social media trick": 0.15
+        "Being rich": 0.15,
+        "Having charisma or charm": 0.55,
+        "Feeling angry": 0.10,
+        "A type of music": 0.20
       }
     },
     "lic2": {
       "options": {
-        "A laundry instruction": 0.30,
-        "Anxious or upset about something": 0.45,
-        "Under physical pressure": 0.15,
-        "A printing method": 0.10
+        "Not wearing a hat": 0.30,
+        "That is a lie": 0.10,
+        "I am not lying / I am serious": 0.50,
+        "A missing accessory": 0.10
       }
     },
     "lic3": {
       "options": {
-        "A punctuation mark": 0.30,
-        "A grammar error": 0.15,
-        "Emphasis — end of discussion": 0.45,
-        "A medical term": 0.10
+        "A hidden URL": 0.25,
+        "A secret romantic partner": 0.45,
+        "A Wi-Fi exploit": 0.15,
+        "A slow internet connection": 0.15
       }
     },
     "lic4": {
       "options": {
-        "The 23rd letter": 0.20,
-        "A compass direction": 0.15,
-        "A win or victory": 0.55,
-        "A grade": 0.10
+        "Broken or damaged": 0.10,
+        "Extremely good (usually food)": 0.55,
+        "Very loud": 0.10,
+        "Getting on a bus": 0.25
       }
     },
     "lic5": {
+      "options": {
+        "To harm someone": 0.20,
+        "To do something very well": 0.55,
+        "To be exhausted": 0.15,
+        "To perform badly": 0.10
+      }
+    },
+    "lic6": {
       "options": {
         "A gaming character": 0.45,
         "A network protocol": 0.15,
@@ -129,15 +137,15 @@
         "A type of processor": 0.10
       }
     },
-    "lic6": {
+    "lic7": {
       "options": {
-        "To physically rest": 0.25,
-        "To ignore someone": 0.25,
-        "To underestimate or overlook": 0.40,
-        "A sleep disorder": 0.10
+        "Needing water": 0.15,
+        "Bitter or upset about something": 0.55,
+        "Funny and sarcastic": 0.20,
+        "Full of energy": 0.10
       }
     },
-    "lic7": {
+    "lic8": {
       "options": {
         "Without clothing": 0.35,
         "Empty or exposed": 0.25,
@@ -145,28 +153,20 @@
         "An animal": 0.10
       }
     },
-    "lic8": {
+    "lic9": {
       "options": {
-        "Received applause": 0.40,
-        "Made a loud sound": 0.20,
-        "Broken or unattractive": 0.30,
-        "Finished something": 0.10
+        "A wager of money": 0.25,
+        "Yes / I agree / Challenge accepted": 0.55,
+        "No way": 0.10,
+        "A sports term": 0.10
       }
     },
-    "lic9": {
+    "lic10": {
       "options": {
         "A vehicle type": 0.15,
         "A foreign language flag": 0.25,
         "A traditional dish": 0.15,
         "What's going on?": 0.45
-      }
-    },
-    "lic10": {
-      "options": {
-        "A grammar mistake": 0.25,
-        "Located inside something": 0.15,
-        "A filler for agreement or emphasis": 0.50,
-        "A contraction of 'in it'": 0.10
       }
     }
   }
