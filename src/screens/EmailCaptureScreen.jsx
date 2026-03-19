@@ -25,11 +25,12 @@ export default function EmailCaptureScreen() {
   const [error, setError] = useState('')
 
   function handleSubmit() {
-    if (!EMAIL_RE.test(email)) {
+    const trimmed = email.trim().slice(0, 254)
+    if (!EMAIL_RE.test(trimmed)) {
       setError('Please enter a valid email address')
       return
     }
-    setPlayerInfo({ ...playerInfo, email })
+    setPlayerInfo({ ...playerInfo, email: trimmed })
     navigate('thankYou')
   }
 
@@ -112,6 +113,7 @@ export default function EmailCaptureScreen() {
                   value={email}
                   onChange={e => { setEmail(e.target.value); setError('') }}
                   placeholder="your@email.com"
+                  maxLength={254}
                   className="w-full pl-12 pr-4 py-4 rounded-xl text-white text-base outline-none transition-all placeholder:text-white/20"
                   style={{
                     background: 'rgba(10,14,26,0.6)',

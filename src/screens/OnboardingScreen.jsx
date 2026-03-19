@@ -46,8 +46,8 @@ export default function OnboardingScreen() {
   function handleContinue() {
     if (!canContinue) return
     setPlayerInfo({
-      name: form.name || '',
-      company: form.company || '',
+      name: form.name.trim().slice(0, 100),
+      company: form.company.trim().slice(0, 150),
       role: form.role || '',
       industry: form.industry || '',
       consent: form.consent,
@@ -148,6 +148,7 @@ export default function OnboardingScreen() {
                     value={form.name}
                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                     placeholder="Enter your name"
+                    maxLength={100}
                     className="w-full pl-10 pr-4 py-3 rounded-xl text-slate-100 outline-none transition-all placeholder:text-slate-600 text-sm"
                     style={{ background: 'rgba(2,11,24,0.5)', border: '1px solid rgba(255,0,60,0.2)' }}
                   />
@@ -166,6 +167,7 @@ export default function OnboardingScreen() {
                     value={form.company}
                     onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
                     placeholder="Enter company name"
+                    maxLength={150}
                     className="w-full pl-10 pr-4 py-3 rounded-xl text-slate-100 outline-none transition-all placeholder:text-slate-600 text-sm"
                     style={{ background: 'rgba(2,11,24,0.5)', border: '1px solid rgba(255,0,60,0.2)' }}
                   />
