@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { getSyncQueue, removeSyncQueueItem, addLog, getAllSessions } from '../hooks/useIndexedDB'
+import { getSyncQueue, removeSyncQueueItem, addLog, getAllSessions, writeSession } from '../hooks/useIndexedDB'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -88,6 +88,49 @@ export async function syncToSheets(record) {
     await addLog({ type: 'sync_error', error: err.message, sessionId: record.sessionId })
     return false
   }
+}
+
+// Fetch all sessions from Supabase and return them in local format.
+// Returns null if offline or credentials missing.
+export async function fetchSessionsFromSupabase() {
+  const supabase = getClient()
+  if (!supabase) return null
+  try {
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('*')
+      .order('timestamp', { ascending: false })
+    if (error) throw error
+    return data.map(row => ({
+      sessionId: row.session_id,
+      timestamp: new Date(row.timestamp).getTime(),
+      game_played: row.game_played,
+      playerInfo: {
+        name: row.name || '',
+        company: row.company || '',
+        role: row.role || '',
+        email: row.email || '',
+        consent: row.consent ?? false,
+      },
+      answers: {},
+      questionIds: [],
+    }))
+  } catch (err) {
+    console.error('[Supabase] fetchSessions error:', err.message)
+    return null
+  }
+}
+
+// Pull all Supabase sessions into IndexedDB (upsert — Supabase wins on conflict).
+// Then push any local-only sessions up.
+export async function pullFromSupabase() {
+  const sessions = await fetchSessionsFromSupabase()
+  if (!sessions) return { pulled: 0, error: true }
+  for (const session of sessions) {
+    await writeSession(session)
+  }
+  await addLog({ type: 'pull_sync', count: sessions.length })
+  return { pulled: sessions.length, error: false }
 }
 
 export async function processSyncQueue() {

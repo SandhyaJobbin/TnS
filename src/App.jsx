@@ -2,7 +2,7 @@ import { createContext, useState, useRef, useEffect, useCallback, lazy, Suspense
 import { AnimatePresence } from 'framer-motion'
 import { v4 as uuidv4 } from 'uuid'
 import { addLog } from './hooks/useIndexedDB'
-import { processSyncQueue } from './utils/api'
+import { processSyncQueue, pullFromSupabase } from './utils/api'
 
 // Eager — needed on first paint
 import AttractScreen from './screens/AttractScreen'
@@ -79,6 +79,17 @@ export default function App() {
       if (idleTimer.current) clearTimeout(idleTimer.current)
     }
   }, [resetIdleTimer])
+
+  // Pull sync: on mount (if online) and whenever the device comes back online
+  useEffect(() => {
+    async function syncBidirectional() {
+      await pullFromSupabase()
+      await processSyncQueue()
+    }
+    if (navigator.onLine) syncBidirectional()
+    window.addEventListener('online', syncBidirectional)
+    return () => window.removeEventListener('online', syncBidirectional)
+  }, [])
 
   // Block browser back navigation
   useEffect(() => {

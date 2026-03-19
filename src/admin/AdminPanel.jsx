@@ -11,7 +11,7 @@ import {
   storeMediaBlob,
   getAllPollAggregates,
 } from '../hooks/useIndexedDB'
-import { processSyncQueue, forceFullSync } from '../utils/api'
+import { processSyncQueue, forceFullSync, fetchSessionsFromSupabase } from '../utils/api'
 import trust2030Questions from '../data/trust2030_questions.json'
 import licQuestions from '../data/lost_in_context_questions.json'
 
@@ -193,6 +193,7 @@ export default function AdminPanel() {
   const [lastSync, setLastSync] = useState(null)
   const [resetPhase, setResetPhase] = useState(0)
   const [hardResetPhase, setHardResetPhase] = useState(0)
+  const [dataSource, setDataSource] = useState(null) // 'supabase' | 'local' | null
   const [syncing, setSyncing] = useState(false)
   const [fullSyncing, setFullSyncing] = useState(false)
   const [fullSyncProgress, setFullSyncProgress] = useState(null)
@@ -203,14 +204,26 @@ export default function AdminPanel() {
   const [pollAggregates, setPollAggregates] = useState([])
 
   const loadData = useCallback(async () => {
-    const [allSessions, queue, allLogs, aggregates] = await Promise.all([
-      getAllSessions(),
+    const [queue, allLogs, aggregates] = await Promise.all([
       getSyncQueue(),
       getLogs(),
       getAllPollAggregates(),
     ])
+
+    // Try Supabase first; fall back to IndexedDB if offline or on error
+    let allSessions = null
+    let source = 'local'
+    if (navigator.onLine) {
+      allSessions = await fetchSessionsFromSupabase()
+      if (allSessions) source = 'supabase'
+    }
+    if (!allSessions) {
+      allSessions = await getAllSessions()
+    }
+
     allSessions.sort((a, b) => b.timestamp - a.timestamp)
     setSessions(allSessions)
+    setDataSource(source)
     setLogs(allLogs.reverse())
     setSyncPending(queue.length)
     setPollAggregates(aggregates)
@@ -458,6 +471,16 @@ export default function AdminPanel() {
           <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>Real-time engagement metrics and capture data.</p>
         </div>
         <div className="flex items-center gap-3">
+          {dataSource && (
+            <span
+              className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md"
+              style={dataSource === 'supabase'
+                ? { background: 'rgba(52,211,153,0.1)', color: 'rgb(52,211,153)', border: '1px solid rgba(52,211,153,0.25)' }
+                : { background: 'rgba(255,165,0,0.1)', color: 'rgb(251,191,36)', border: '1px solid rgba(255,165,0,0.25)' }}
+            >
+              {dataSource === 'supabase' ? '⬡ Live' : '⬡ Local cache'}
+            </span>
+          )}
           <button
             onPointerDown={loadData}
             className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
@@ -662,6 +685,16 @@ export default function AdminPanel() {
           <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>Engagement metrics and survey response data.</p>
         </div>
         <div className="flex items-center gap-3">
+          {dataSource && (
+            <span
+              className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md"
+              style={dataSource === 'supabase'
+                ? { background: 'rgba(52,211,153,0.1)', color: 'rgb(52,211,153)', border: '1px solid rgba(52,211,153,0.25)' }
+                : { background: 'rgba(255,165,0,0.1)', color: 'rgb(251,191,36)', border: '1px solid rgba(255,165,0,0.25)' }}
+            >
+              {dataSource === 'supabase' ? '⬡ Live' : '⬡ Local cache'}
+            </span>
+          )}
           <button
             onPointerDown={loadData}
             className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
