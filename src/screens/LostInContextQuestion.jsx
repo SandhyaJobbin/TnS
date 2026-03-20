@@ -323,7 +323,7 @@ export default function LostInContextQuestion() {
       </div>
 
       {/* ── MAIN CONTENT ── */}
-      <div className="relative z-10 flex-1 flex flex-col min-h-0 px-4 md:px-10 pb-2 md:pb-3 lg:pb-4 overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col min-h-0 px-4 md:px-10 pb-2 md:pb-3 lg:pb-4 overflow-y-auto">
         <motion.div
           className="flex-1 flex flex-col min-h-0"
           initial={{ opacity: 0, y: 16 }}
@@ -348,7 +348,7 @@ export default function LostInContextQuestion() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
               className="text-white font-black leading-tight mb-3"
-              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)' }}
+              style={{ fontSize: 'clamp(2rem, 4.5vh, 3.5rem)' }}
             >
               What does <span style={{ color: '#e53935' }}>&ldquo;{question.term}&rdquo;</span> mean?
             </motion.h3>
