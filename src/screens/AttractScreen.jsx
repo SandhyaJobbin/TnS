@@ -67,25 +67,6 @@ const FLOATING_ICONS = [
 ]
 
 
-function MetricCard({ label, value, unit, last }) {
-  return (
-    <div
-      className="flex flex-col items-center px-10"
-      style={{ borderRight: last ? 'none' : '1px solid rgba(255,255,255,0.05)' }}
-    >
-      <span
-        style={{ fontSize: '10px', fontFamily: MONO, letterSpacing: '0.15em', textTransform: 'uppercase', color: RED, marginBottom: '6px' }}
-      >
-        {label}
-      </span>
-      <div className="flex items-baseline gap-1">
-        <span className="text-white font-bold" style={{ fontSize: '1.4rem', letterSpacing: '-0.02em' }}>{value}</span>
-        {unit && <span style={{ fontSize: '11px', opacity: 0.4, fontFamily: MONO }}>{unit}</span>}
-      </div>
-    </div>
-  )
-}
-
 function VideoPool({ scenes, activeIndex }) {
   const refs = useRef([])
   const [readyMap, setReadyMap] = useState({})
@@ -383,7 +364,7 @@ export default function AttractScreen() {
                   </span>
                 </div>
                 <button
-                  onClick={handleAbort}
+                  onPointerDown={handleAbort}
                   style={{ color: 'rgba(255,255,255,0.4)', fontFamily: MONO, fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer' }}
                 >
                   [ Abort ]

@@ -46,8 +46,8 @@ export default function OnboardingScreen() {
   function handleContinue() {
     if (!canContinue) return
     setPlayerInfo({
-      name: form.name || '',
-      company: form.company || '',
+      name: form.name.trim().slice(0, 100),
+      company: form.company.trim().slice(0, 150),
       role: form.role || '',
       industry: form.industry || '',
       consent: form.consent,
@@ -81,20 +81,13 @@ export default function OnboardingScreen() {
           </button>
           <div>
             <h2 className="text-slate-100 text-base font-bold leading-tight tracking-tight">Trust &amp; Safety Summit</h2>
-            <p className="text-slate-400 font-semibold uppercase tracking-widest" style={{ fontSize: '9px' }}>Identity Portal</p>
+            <p className="text-slate-400 font-semibold uppercase tracking-widest" style={{ fontSize: '9px' }}>About You</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="hidden sm:block text-right">
             <p className="text-slate-500 font-bold uppercase tracking-widest" style={{ fontSize: '9px' }}>Kiosk Station</p>
             <p className="text-slate-100 text-sm font-medium">{import.meta.env.VITE_STATION_ID || 'Booth-07'}</p>
-          </div>
-          <div className="p-0.5 rounded-full" style={{ background: 'rgba(255,0,60,0.2)', border: '1px solid rgba(255,0,60,0.3)' }}>
-            <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(2,11,24,0.8)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.5)" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
           </div>
         </div>
       </header>
@@ -148,6 +141,7 @@ export default function OnboardingScreen() {
                     value={form.name}
                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                     placeholder="Enter your name"
+                    maxLength={100}
                     className="w-full pl-10 pr-4 py-3 rounded-xl text-slate-100 outline-none transition-all placeholder:text-slate-600 text-sm"
                     style={{ background: 'rgba(2,11,24,0.5)', border: '1px solid rgba(255,0,60,0.2)' }}
                   />
@@ -166,6 +160,7 @@ export default function OnboardingScreen() {
                     value={form.company}
                     onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
                     placeholder="Enter company name"
+                    maxLength={150}
                     className="w-full pl-10 pr-4 py-3 rounded-xl text-slate-100 outline-none transition-all placeholder:text-slate-600 text-sm"
                     style={{ background: 'rgba(2,11,24,0.5)', border: '1px solid rgba(255,0,60,0.2)' }}
                   />
@@ -185,7 +180,7 @@ export default function OnboardingScreen() {
                   <select
                     value={form.role}
                     onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl text-sm outline-none appearance-none cursor-pointer transition-colors"
+                    className="w-full px-4 py-4 rounded-xl text-base outline-none appearance-none cursor-pointer transition-colors"
                     style={form.role ? selectStyle : selectStyleEmpty}
                   >
                     <option value="" style={{ background: '#020B18', color: 'rgba(255,255,255,0.4)' }}>Select your role</option>
@@ -206,7 +201,7 @@ export default function OnboardingScreen() {
                   <select
                     value={form.industry}
                     onChange={e => setForm(f => ({ ...f, industry: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl text-sm outline-none appearance-none cursor-pointer transition-colors"
+                    className="w-full px-4 py-4 rounded-xl text-base outline-none appearance-none cursor-pointer transition-colors"
                     style={form.industry ? selectStyle : selectStyleEmpty}
                   >
                     <option value="" style={{ background: '#020B18', color: 'rgba(255,255,255,0.4)' }}>Select your industry</option>

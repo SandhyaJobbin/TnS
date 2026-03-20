@@ -69,6 +69,18 @@ export default function GameIntroScreen() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Back button */}
+      <button
+        onPointerDown={() => navigate('gameSelect')}
+        className="absolute top-4 left-4 z-10 w-10 h-10 flex items-center justify-center rounded-xl transition-all active:scale-95"
+        style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+        aria-label="Back"
+      >
+        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
       {/* Fullscreen video */}
       <video
         src={content.video}
@@ -180,17 +192,11 @@ export default function GameIntroScreen() {
             </motion.div>
 
             {/* Question */}
-            <motion.div variants={fadeUp} className="flex items-start gap-3 mt-1 justify-end">
-              <p className="font-black text-white leading-snug"
+            <motion.div variants={fadeUp} className="mt-1">
+              <p className="font-black text-white leading-snug text-right"
                 style={{ fontSize: 'clamp(0.95rem, 1.8vw, 1.3rem)' }}>
                 {content.question}
               </p>
-              <span
-                className="text-[10px] font-black uppercase tracking-[0.2em] shrink-0 mt-1"
-                style={{ color: ACCENT }}
-              >
-                Question:
-              </span>
             </motion.div>
 
             {/* CTA */}

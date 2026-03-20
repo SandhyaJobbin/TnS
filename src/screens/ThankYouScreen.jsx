@@ -4,23 +4,9 @@ import { v4 as uuidv4 } from 'uuid'
 import { useSession } from '../hooks/useSession'
 import { writeSession, addToSyncQueue } from '../hooks/useIndexedDB'
 import { processSyncQueue } from '../utils/api'
+import Background from '../components/Background'
 
 const AUTO_RESET_SECONDS = 15
-
-function Background() {
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}
-      />
-      <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 rounded-full opacity-10"
-        style={{ background: '#e53935', filter: 'blur(120px)' }} />
-      <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full opacity-8"
-        style={{ background: '#1a0a2e', filter: 'blur(120px)' }} />
-    </div>
-  )
-}
 
 export default function ThankYouScreen() {
   const { sessionId, playerInfo, selectedGame, answers, shuffledQuestions, resetSession, navigate } = useSession()
@@ -114,26 +100,37 @@ export default function ThankYouScreen() {
 
           {/* Headline */}
           <motion.h1
-            className="font-black text-white leading-[1.05] mb-5"
+            className={`font-black text-white leading-[1.05] ${selectedGame === 'lostInContext' ? 'mb-10' : 'mb-5'}`}
             style={{ fontSize: 'clamp(2rem, 5vw, 3.4rem)', letterSpacing: '-0.02em' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            The Future of Trust &amp; Safety<br />
-            <span style={{ color: '#e53935' }}>will be AI + Human Judgment</span>
+            {selectedGame === 'lostInContext' ? (
+              <>
+                Nice work decoding Gen Z<br />
+                <span style={{ color: '#e53935' }}>How well do you read the room?</span>
+              </>
+            ) : (
+              <>
+                The Future of Trust &amp; Safety<br />
+                <span style={{ color: '#e53935' }}>will be AI + Human Judgment</span>
+              </>
+            )}
           </motion.h1>
 
-          {/* Question */}
-          <motion.p
-            className="font-bold text-white/60 mb-10"
-            style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.5rem)' }}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.32 }}
-          >
-            Is your platform ready?
-          </motion.p>
+          {/* Subheadline — only shown for trust2030 */}
+          {selectedGame !== 'lostInContext' && (
+            <motion.p
+              className="font-bold text-white/60 mb-10"
+              style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.5rem)' }}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.32 }}
+            >
+              Is your platform ready?
+            </motion.p>
+          )}
 
           {/* Primary CTA */}
           <motion.button
@@ -191,14 +188,10 @@ export default function ThankYouScreen() {
 
       {/* Footer */}
       <footer
-        className="relative z-10 flex items-center justify-between px-8 py-4 border-t"
+        className="relative z-10 flex items-center justify-end px-8 py-4 border-t"
         style={{ borderColor: 'rgba(255,255,255,0.05)', opacity: 0.4 }}
       >
-        <div className="flex gap-6">
-          <button className="text-[10px] font-bold uppercase tracking-widest text-white/50">Privacy Policy</button>
-          <button className="text-[10px] font-bold uppercase tracking-widest text-white/50">Methodology</button>
-        </div>
-        <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">© 2024 Trust &amp; Safety Summit | Kiosk-07</p>
+        <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">© {new Date().getFullYear()} Trust &amp; Safety Summit | {import.meta.env.VITE_STATION_ID || 'booth-07'}</p>
       </footer>
     </motion.div>
   )

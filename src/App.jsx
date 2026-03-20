@@ -65,9 +65,7 @@ export default function App() {
 
   const resetIdleTimer = useCallback(() => {
     if (idleTimer.current) clearTimeout(idleTimer.current)
-    if (state.currentScreen !== 'admin') {
-      idleTimer.current = setTimeout(resetSession, IDLE_TIMEOUT)
-    }
+    idleTimer.current = setTimeout(resetSession, IDLE_TIMEOUT)
   }, [state.currentScreen, resetSession])
 
   useEffect(() => {

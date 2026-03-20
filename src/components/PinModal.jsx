@@ -1,8 +1,59 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { RED, MONO, MID_BG } from '../theme'
 
-const PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'admin1234'
+const PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE ?? ''
+
+const MAX_ATTEMPTS = 5
+const LOCKOUT_MS = 15 * 60 * 1000 // 15 minutes
+
+function getRateLimit() {
+  try {
+    const until = parseInt(localStorage.getItem('admin_lockout_until') || '0', 10)
+    const count = parseInt(localStorage.getItem('admin_fail_count') || '0', 10)
+    return { until, count }
+  } catch {
+    return { until: 0, count: 0 }
+  }
+}
+
+function recordFailure() {
+  try {
+    const { count } = getRateLimit()
+    const next = count + 1
+    localStorage.setItem('admin_fail_count', String(next))
+    if (next >= MAX_ATTEMPTS) {
+      localStorage.setItem('admin_lockout_until', String(Date.now() + LOCKOUT_MS))
+      // Do NOT reset admin_fail_count here — keep it at MAX_ATTEMPTS so
+      // clearing the lockout timestamp alone doesn't grant fresh attempts
+    }
+  } catch { /* localStorage unavailable — fail silently, don't crash */ }
+}
+
+function recordSuccess() {
+  try {
+    localStorage.removeItem('admin_fail_count')
+    localStorage.removeItem('admin_lockout_until')
+  } catch { /* localStorage unavailable */ }
+}
+
+function isLockedOut() {
+  try {
+    const { until } = getRateLimit()
+    return Date.now() < until
+  } catch {
+    return false
+  }
+}
+
+function lockoutMinutesLeft() {
+  try {
+    const { until } = getRateLimit()
+    return Math.ceil((until - Date.now()) / 60_000)
+  } catch {
+    return 0
+  }
+}
 
 /**
  * PinModal — numeric passcode entry overlay for Admin access.
@@ -14,11 +65,25 @@ export default function PinModal({ onClose, onSuccess }) {
   const [value, setValue]   = useState('')
   const [shake, setShake]   = useState(false)
   const [error, setError]   = useState(false)
+  const [locked, setLocked] = useState(() => isLockedOut())
+
+  useEffect(() => {
+    if (!locked) return
+    const interval = setInterval(() => {
+      if (!isLockedOut()) setLocked(false)
+    }, 30_000)
+    return () => clearInterval(interval)
+  }, [locked])
 
   function handleSubmit() {
+    if (isLockedOut()) { setLocked(true); return }
+
     if (value === PASSCODE) {
+      recordSuccess()
       onSuccess()
     } else {
+      recordFailure()
+      setLocked(isLockedOut())
       setShake(true)
       setError(true)
       setTimeout(() => { setShake(false); setError(false); setValue('') }, 700)
@@ -27,6 +92,39 @@ export default function PinModal({ onClose, onSuccess }) {
 
   function handleKeyDown(e) {
     if (e.key === 'Enter') handleSubmit()
+  }
+
+  if (locked) {
+    const minsLeft = lockoutMinutesLeft()
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        style={{ background: 'rgba(5,5,10,0.85)', backdropFilter: 'blur(20px)' }}
+        onPointerDown={e => { if (e.target === e.currentTarget) onClose() }}
+      >
+        <div
+          className="w-80 rounded-2xl p-8 flex flex-col items-center gap-5"
+          style={{ background: MID_BG, border: `1px solid rgba(255,0,60,0.25)` }}
+        >
+          <p className="text-white font-black text-sm uppercase tracking-[0.2em]" style={{ fontFamily: MONO }}>
+            Too Many Attempts
+          </p>
+          <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: MONO }}>
+            Try again in {minsLeft} minute{minsLeft !== 1 ? 's' : ''}
+          </p>
+          <button
+            onPointerDown={onClose}
+            className="text-xs uppercase tracking-widest font-bold"
+            style={{ color: 'rgba(255,255,255,0.3)', fontFamily: MONO }}
+          >
+            Close
+          </button>
+        </div>
+      </motion.div>
+    )
   }
 
   return (

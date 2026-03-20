@@ -146,7 +146,7 @@ export default function GameSelectScreen() {
           {/* Card 1 — Decode GenZ Lingos */}
           <motion.div
             onPointerDown={() => handleSelect(HERO.id)}
-            className="group relative rounded-2xl cursor-pointer overflow-hidden flex-1 min-h-0"
+            className="group relative rounded-2xl cursor-pointer overflow-hidden flex-1 min-h-0 transition-opacity duration-300 hover:opacity-90"
             style={{
               border: '2px solid rgba(56,189,248,0.35)',
               boxShadow: '0 0 32px rgba(56,189,248,0.08)',
@@ -219,7 +219,7 @@ export default function GameSelectScreen() {
           {/* Card 2 — Trust & Safety Survey */}
           <motion.div
             onPointerDown={() => handleSelect(SURVEY.id)}
-            className="group relative rounded-2xl cursor-pointer overflow-hidden flex-1 min-h-0"
+            className="group relative rounded-2xl cursor-pointer overflow-hidden flex-1 min-h-0 transition-opacity duration-300 hover:opacity-90"
             style={{
               border: '2px solid rgba(229,57,53,0.3)',
               boxShadow: '0 0 32px rgba(229,57,53,0.06)',
@@ -289,20 +289,6 @@ export default function GameSelectScreen() {
             </div>
           </motion.div>
 
-          {/* Admin shortcut */}
-          <motion.div
-            className="flex justify-center shrink-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <button
-              onPointerDown={handleAdminGear}
-              className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/20 hover:text-white/40 transition-colors py-1 px-3"
-            >
-              Admin
-            </button>
-          </motion.div>
         </div>
       </main>
 
