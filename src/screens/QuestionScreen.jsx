@@ -289,7 +289,7 @@ export default function QuestionScreen() {
       </div>
 
       {/* ── Main content ── */}
-      <div className="relative z-10 flex-1 flex flex-col items-center px-4 sm:px-6 md:px-10 py-3 md:py-4 gap-3 md:gap-4 lg:gap-5 min-h-0 overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col items-center px-4 sm:px-6 md:px-10 py-3 md:py-4 gap-3 md:gap-4 lg:gap-5 min-h-0 overflow-y-auto">
 
         {/* Question section */}
         <div className="flex flex-col items-center text-center w-full max-w-4xl mx-auto shrink-0">
@@ -309,7 +309,7 @@ export default function QuestionScreen() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15 }}
             className="text-white font-black leading-tight"
-            style={{ fontSize: 'clamp(1.4rem, 3vw, 2.4rem)' }}
+            style={{ fontSize: 'clamp(1.2rem, 4.5vh, 2.4rem)' }}
           >
             {question.scenario}
           </motion.h3>
