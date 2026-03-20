@@ -97,7 +97,7 @@ export default function OnboardingScreen() {
 
         {/* Title */}
         <motion.div
-          className="w-full max-w-3xl text-center mb-4 md:mb-6"
+          className="w-full max-w-3xl text-center mb-4 md:mb-6 shrink-0"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -111,7 +111,7 @@ export default function OnboardingScreen() {
 
         {/* Form card */}
         <motion.div
-          className="w-full max-w-3xl rounded-2xl p-4 md:p-7 lg:p-9 relative overflow-hidden"
+          className="w-full max-w-3xl rounded-2xl p-4 md:p-7 lg:p-9 relative overflow-hidden shrink-0"
           style={{
             background: 'rgba(10,25,47,0.85)',
             border: '1px solid rgba(255,0,60,0.15)',
