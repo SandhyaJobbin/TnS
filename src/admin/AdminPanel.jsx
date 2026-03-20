@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSession } from '../hooks/useSession'
 import {
@@ -204,6 +204,7 @@ export default function AdminPanel() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [actionMenu, setActionMenu] = useState(null)
+  const [expandedRow, setExpandedRow] = useState(null)
   const [pollAggregates, setPollAggregates] = useState([])
 
   const loadData = useCallback(async () => {
@@ -564,7 +565,8 @@ export default function AdminPanel() {
               {sessions.slice(0, 8).map((s, i) => {
                 const status = sessionStatus(s)
                 return (
-                  <tr key={s.sessionId} className="transition-colors" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                  <React.Fragment key={s.sessionId}>
+                  <tr className="transition-colors" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                     <td className="px-6 py-3.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{timeAgo(s.timestamp)}</td>
                     <td className="px-6 py-3.5">
                       <span className="font-mono text-xs" style={{ color: '#FF003C' }}>{shortId(s.sessionId, i)}</span>
@@ -591,11 +593,11 @@ export default function AdminPanel() {
                               style={{ background: 'rgba(10,25,47,0.95)', border: '1px solid rgba(255,0,60,0.2)', backdropFilter: 'blur(16px)' }}
                             >
                               <button
-                                onPointerDown={() => { setActionMenu(null) }}
+                                onPointerDown={() => { setExpandedRow(expandedRow === s.sessionId ? null : s.sessionId); setActionMenu(null) }}
                                 className="w-full text-left px-4 py-2.5 text-sm transition-all"
                                 style={{ color: 'rgba(255,255,255,0.6)' }}
                               >
-                                View Details
+                                {expandedRow === s.sessionId ? 'Hide Details' : 'View Details'}
                               </button>
                               <button
                                 onPointerDown={() => { navigator.clipboard?.writeText(s.sessionId); setActionMenu(null) }}
@@ -610,6 +612,72 @@ export default function AdminPanel() {
                       </div>
                     </td>
                   </tr>
+                  <AnimatePresence>
+                    {expandedRow === s.sessionId && (
+                      <tr key={`${s.sessionId}-detail`}>
+                        <td colSpan={6} style={{ background: 'rgba(255,0,60,0.03)', borderBottom: '1px solid rgba(255,0,60,0.1)', padding: 0 }}>
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            style={{ overflow: 'hidden' }}
+                          >
+                            <div className="px-8 py-5 grid grid-cols-3 gap-6 text-sm">
+                              <div className="space-y-2">
+                                <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Identity</p>
+                                {[
+                                  ['Name', s.playerInfo?.name],
+                                  ['Company', s.playerInfo?.company],
+                                  ['Role', s.playerInfo?.role],
+                                  ['Email', s.playerInfo?.email],
+                                  ['Consent', s.playerInfo?.consent ? 'Yes' : 'No'],
+                                ].map(([label, val]) => (
+                                  <div key={label} className="flex justify-between gap-4">
+                                    <span style={{ color: 'rgba(255,255,255,0.3)' }}>{label}</span>
+                                    <span className="font-medium truncate" style={{ color: 'rgba(255,255,255,0.7)' }}>{val || '—'}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="space-y-2">
+                                <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Session</p>
+                                {[
+                                  ['Game', s.game_played === 'trust2030' ? 'Trust 2030' : s.game_played === 'lostInContext' ? 'Lost in Context' : s.game_played || '—'],
+                                  ['Timestamp', s.timestamp ? new Date(s.timestamp).toLocaleString() : '—'],
+                                  ['Session ID', s.sessionId?.slice(0, 16) + '…'],
+                                  ['Questions', s.questionIds?.length ?? Object.keys(s.answers || {}).length],
+                                ].map(([label, val]) => (
+                                  <div key={label} className="flex justify-between gap-4">
+                                    <span style={{ color: 'rgba(255,255,255,0.3)' }}>{label}</span>
+                                    <span className="font-medium truncate font-mono text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>{val}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div>
+                                <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Answers</p>
+                                {s.answers && Object.keys(s.answers).length > 0 ? (
+                                  <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                                    {Object.entries(s.answers).map(([qId, ans]) => (
+                                      <div key={qId} className="flex justify-between gap-4">
+                                        <span className="truncate text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{qId}</span>
+                                        <span className="font-medium text-xs shrink-0" style={{ color: '#FF003C' }}>
+                                          {ans?.value ?? ans?.choice ?? '—'}
+                                          {ans?.correct === true && ' ✓'}
+                                          {ans?.correct === false && ' ✗'}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span style={{ color: 'rgba(255,255,255,0.2)' }}>No answers recorded</span>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        </td>
+                      </tr>
+                    )}
+                  </AnimatePresence>
+                  </React.Fragment>
                 )
               })}
               {sessions.length === 0 && (
