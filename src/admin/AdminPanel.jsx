@@ -530,7 +530,7 @@ export default function AdminPanel() {
       </div>
 
       <div className="px-8 py-6 space-y-6">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCard label="Total Plays" value={totalPlays.toLocaleString()} icon="👆" trend={trendPlays} valueColor="text-white" />
           <StatCard label="Leads Captured" value={leadsCount.toLocaleString()} icon="👤" trend={trendLeads} valueColor="text-white" />
           <StatCard label="Trust 2030" value={trust2030Count.toLocaleString()} icon="🕐" trend={null} valueColor="text-[#FF003C]" />
@@ -624,7 +624,7 @@ export default function AdminPanel() {
         </div>
 
         {/* bottom row */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="rounded-2xl p-6" style={cardStyle}>
             <h3 className="font-semibold text-white mb-1">Diagnostic Tools</h3>
             <p className="text-sm mb-5" style={{ color: 'rgba(255,255,255,0.35)' }}>
@@ -738,7 +738,7 @@ export default function AdminPanel() {
 
       <div className="px-8 py-6 space-y-6">
         {/* engagement cards */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="rounded-2xl p-5" style={cardStyle}>
             <p className="text-[11px] uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.3)' }}>Game Breakdown</p>
             <div className="space-y-3">

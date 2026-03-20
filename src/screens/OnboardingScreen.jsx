@@ -93,7 +93,7 @@ export default function OnboardingScreen() {
       </header>
 
       {/* Main */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 md:px-8 lg:px-12 py-4 md:py-6 min-h-0 overflow-y-auto">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 md:px-8 lg:px-12 py-4 md:py-6 min-h-0 overflow-y-auto">
 
         {/* Title */}
         <motion.div
@@ -111,7 +111,7 @@ export default function OnboardingScreen() {
 
         {/* Form card */}
         <motion.div
-          className="w-full max-w-3xl rounded-2xl p-5 md:p-7 lg:p-9 relative overflow-hidden"
+          className="w-full max-w-3xl rounded-2xl p-4 md:p-7 lg:p-9 relative overflow-hidden"
           style={{
             background: 'rgba(10,25,47,0.85)',
             border: '1px solid rgba(255,0,60,0.15)',
