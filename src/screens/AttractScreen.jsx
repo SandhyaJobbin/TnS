@@ -220,7 +220,7 @@ export default function AttractScreen() {
 
         {/* Center badge */}
         <div
-          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-sm"
+          className="absolute left-1/2 -translate-x-1/2 hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-sm"
           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)' }}
         >
           <Shield size={12} weight="fill" style={{ color: RED }} />
