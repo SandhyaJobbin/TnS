@@ -14,7 +14,7 @@ function getClient() {
   return _client
 }
 
-export async function syncToSheets(record) {
+export async function syncToSupabase(record) {
   const supabase = getClient()
   if (!supabase) {
     await addLog({ type: 'sync_skipped', reason: 'No Supabase credentials configured' })
@@ -45,7 +45,9 @@ export async function syncToSheets(record) {
       name:          pi.name    || null,
       company:       pi.company || null,
       role:          pi.role    || null,
+      industry:      pi.industry || null,
       email:         pi.email   || null,
+      phone_number:  pi.phone   || null,
       consent:       pi.consent ?? null,
       answer_count:  questionIds.length,
       avg_score:     avgScore,
@@ -115,7 +117,9 @@ export async function fetchSessionsFromSupabase() {
         name: row.name || '',
         company: row.company || '',
         role: row.role || '',
+        industry: row.industry || '',
         email: row.email || '',
+        phone: row.phone_number || '',
         consent: row.consent ?? false,
       },
       answers: {},
@@ -142,7 +146,7 @@ export async function pullFromSupabase() {
 export async function processSyncQueue() {
   const queue = await getSyncQueue()
   for (const item of queue) {
-    const success = await syncToSheets(item)
+    const success = await syncToSupabase(item)
     if (success) {
       await removeSyncQueueItem(item.id)
     }
@@ -186,7 +190,9 @@ export async function forceFullSync(onProgress) {
         name:          pi.name    || null,
         company:       pi.company || null,
         role:          pi.role    || null,
+        industry:      pi.industry || null,
         email:         pi.email   || null,
+        phone_number:  pi.phone   || null,
         consent:       pi.consent ?? null,
         answer_count:  questionIds.length,
         avg_score:     avgScore,
