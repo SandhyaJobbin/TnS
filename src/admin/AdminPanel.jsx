@@ -290,7 +290,7 @@ export default function AdminPanel() {
     if (dateFrom) filtered = filtered.filter(s => s.timestamp >= new Date(dateFrom).getTime())
     if (dateTo) filtered = filtered.filter(s => s.timestamp <= new Date(dateTo).getTime() + 86_400_000)
     if (filtered.length === 0) { alert('No sessions match the selected date range.'); return }
-    const headers = ['sessionId', 'timestamp', 'game_played', 'name', 'company', 'role', 'email', 'consent', 'status', 'answers']
+    const headers = ['sessionId', 'timestamp', 'game_played', 'name', 'company', 'role', 'industry', 'email', 'phone_number', 'consent', 'status', 'answers']
     const rows = filtered.map(s => [
       s.sessionId,
       new Date(s.timestamp).toISOString(),
@@ -298,7 +298,9 @@ export default function AdminPanel() {
       s.playerInfo?.name || '',
       s.playerInfo?.company || '',
       s.playerInfo?.role || '',
+      s.playerInfo?.industry || '',
       s.playerInfo?.email || '',
+      s.playerInfo?.phone || '',
       s.playerInfo?.consent ? 'yes' : 'no',
       sessionStatus(s),
       JSON.stringify(s.answers),
@@ -629,7 +631,9 @@ export default function AdminPanel() {
                                   ['Name', s.playerInfo?.name],
                                   ['Company', s.playerInfo?.company],
                                   ['Role', s.playerInfo?.role],
+                                  ['Industry', s.playerInfo?.industry],
                                   ['Email', s.playerInfo?.email],
+                                  ['Phone', s.playerInfo?.phone],
                                   ['Consent', s.playerInfo?.consent ? 'Yes' : 'No'],
                                 ].map(([label, val]) => (
                                   <div key={label} className="flex justify-between gap-4">
