@@ -31,7 +31,7 @@ const IDLE_TIMEOUT = 90_000 // 90 seconds
 const initialState = {
   currentScreen: 'attract',
   sessionId: null,
-  playerInfo: { name: '', company: '', role: '', industry: '', consent: false },
+  playerInfo: { name: '', company: '', role: '', industry: '', email: '', phone: '', consent: false },
   selectedGame: null,
   shuffledQuestions: [],
   currentQuestionIndex: 0,
@@ -87,6 +87,14 @@ export default function App() {
     if (navigator.onLine) syncBidirectional()
     window.addEventListener('online', syncBidirectional)
     return () => window.removeEventListener('online', syncBidirectional)
+  }, [])
+
+  // 5-minute background sync — flushes any pending syncQueue items to Supabase
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (navigator.onLine) processSyncQueue()
+    }, 5 * 60 * 1000)
+    return () => clearInterval(id)
   }, [])
 
   // Block browser back navigation
