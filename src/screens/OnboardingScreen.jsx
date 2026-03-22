@@ -3,7 +3,10 @@ import { motion } from 'framer-motion'
 import { useSession } from '../hooks/useSession'
 
 const ROLES = [
-  'Trust & Safety',
+  'Trust and Safety OPS',
+  'Trust and Safety Wellness',
+  'Risk & Compliance / Legal',
+  'Public Policy / Government Relations',
   'Policy / Public Policy',
   'Product / Engineering',
   'Safety Technology Vendor',
@@ -106,7 +109,6 @@ export default function OnboardingScreen() {
             Tell us who you are in the{' '}
             <span style={{ color: '#FF003C' }}>T&amp;S Ecosystem</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1.5">All fields are optional — fill in what you&apos;re comfortable sharing.</p>
         </motion.div>
 
         {/* Form card */}
