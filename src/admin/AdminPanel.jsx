@@ -203,7 +203,6 @@ export default function AdminPanel() {
   const [fullSyncResult, setFullSyncResult] = useState(null)
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
-  const [actionMenu, setActionMenu] = useState(null)
   const [expandedRow, setExpandedRow] = useState(null)
   const [pollAggregates, setPollAggregates] = useState([])
 
@@ -558,7 +557,7 @@ export default function AdminPanel() {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,0,60,0.08)' }}>
-                {['TIMESTAMP', 'USER ID', 'EMAIL', 'RESULT', 'STATUS', 'ACTIONS'].map(h => (
+                {['TIMESTAMP', 'USER ID', 'EMAIL', 'RESULT', 'STATUS'].map(h => (
                   <th key={h} className="text-left text-[10px] uppercase tracking-widest font-medium px-6 py-3" style={{ color: 'rgba(255,255,255,0.25)' }}>{h}</th>
                 ))}
               </tr>
@@ -568,7 +567,7 @@ export default function AdminPanel() {
                 const status = sessionStatus(s)
                 return (
                   <React.Fragment key={s.sessionId}>
-                  <tr className="transition-colors" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                  <tr className="transition-colors cursor-pointer" onPointerDown={() => setExpandedRow(expandedRow === s.sessionId ? null : s.sessionId)} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                     <td className="px-6 py-3.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{timeAgo(s.timestamp)}</td>
                     <td className="px-6 py-3.5">
                       <span className="font-mono text-xs" style={{ color: '#FF003C' }}>{shortId(s.sessionId, i)}</span>
@@ -576,48 +575,11 @@ export default function AdminPanel() {
                     <td className="px-6 py-3.5" style={{ color: 'rgba(255,255,255,0.55)' }}>{s.playerInfo?.email || '—'}</td>
                     <td className="px-6 py-3.5" style={{ color: 'rgba(255,255,255,0.65)' }}>{sessionResult(s)}</td>
                     <td className="px-6 py-3.5"><StatusBadge status={status} /></td>
-                    <td className="px-6 py-3.5">
-                      <div className="relative">
-                        <button
-                          onPointerDown={() => setActionMenu(actionMenu === s.sessionId ? null : s.sessionId)}
-                          className="px-2 py-1 rounded-lg transition-all"
-                          style={{ color: 'rgba(255,255,255,0.3)' }}
-                        >
-                          ⋮
-                        </button>
-                        <AnimatePresence>
-                          {actionMenu === s.sessionId && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -4 }}
-                              className="absolute right-0 top-8 rounded-xl shadow-xl z-10 min-w-[140px] overflow-hidden"
-                              style={{ background: 'rgba(10,25,47,0.95)', border: '1px solid rgba(255,0,60,0.2)', backdropFilter: 'blur(16px)' }}
-                            >
-                              <button
-                                onPointerDown={() => { setExpandedRow(expandedRow === s.sessionId ? null : s.sessionId); setActionMenu(null) }}
-                                className="w-full text-left px-4 py-2.5 text-sm transition-all"
-                                style={{ color: 'rgba(255,255,255,0.6)' }}
-                              >
-                                {expandedRow === s.sessionId ? 'Hide Details' : 'View Details'}
-                              </button>
-                              <button
-                                onPointerDown={() => { navigator.clipboard?.writeText(s.sessionId); setActionMenu(null) }}
-                                className="w-full text-left px-4 py-2.5 text-sm transition-all"
-                                style={{ color: 'rgba(255,255,255,0.6)', borderTop: '1px solid rgba(255,255,255,0.05)' }}
-                              >
-                                Copy ID
-                              </button>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </td>
                   </tr>
                   <AnimatePresence>
                     {expandedRow === s.sessionId && (
                       <tr key={`${s.sessionId}-detail`}>
-                        <td colSpan={6} style={{ background: 'rgba(255,0,60,0.03)', borderBottom: '1px solid rgba(255,0,60,0.1)', padding: 0 }}>
+                        <td colSpan={5} style={{ background: 'rgba(255,0,60,0.03)', borderBottom: '1px solid rgba(255,0,60,0.1)', padding: 0 }}>
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
@@ -1102,7 +1064,7 @@ export default function AdminPanel() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      onPointerDown={() => setActionMenu(null)}
+      onPointerDown={() => {}}
     >
       {/* Background decor */}
       <div className="absolute inset-0 data-grid opacity-20 pointer-events-none" />
