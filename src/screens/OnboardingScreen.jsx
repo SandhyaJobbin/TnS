@@ -42,18 +42,20 @@ const selectStyleEmpty = {
 
 export default function OnboardingScreen() {
   const { setPlayerInfo, navigate } = useSession()
-  const [form, setForm] = useState({ name: '', company: '', role: '', industry: '', consent: false })
+  const [form, setForm] = useState({ name: '', company: '', role: '', industry: '', email: '', phone: '', consent: false })
 
   const canContinue = form.consent
 
   function handleContinue() {
     if (!canContinue) return
     setPlayerInfo({
-      name: form.name.trim().slice(0, 100),
-      company: form.company.trim().slice(0, 150),
-      role: form.role || '',
+      name:     form.name.trim().slice(0, 100),
+      company:  form.company.trim().slice(0, 150),
+      role:     form.role || '',
       industry: form.industry || '',
-      consent: form.consent,
+      email:    form.email.trim().slice(0, 254),
+      phone:    form.phone.trim().slice(0, 30),
+      consent:  form.consent,
     })
     navigate('gameSelect')
   }
@@ -214,6 +216,50 @@ export default function OnboardingScreen() {
                   <svg className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="rgba(255,0,60,0.5)" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px w-full" style={{ background: 'rgba(255,255,255,0.06)' }} />
+
+            {/* Row 3: Email + Phone */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Email */}
+              <div className="flex flex-col gap-2">
+                <label className="text-slate-400 font-black tracking-[0.18em] uppercase text-[10px]">Email Address</label>
+                <div className="relative">
+                  <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="rgba(255,0,60,0.5)" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    placeholder="your@email.com"
+                    maxLength={254}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl text-slate-100 outline-none transition-all placeholder:text-slate-600 text-sm"
+                    style={{ background: 'rgba(2,11,24,0.5)', border: '1px solid rgba(255,0,60,0.2)' }}
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className="flex flex-col gap-2">
+                <label className="text-slate-400 font-black tracking-[0.18em] uppercase text-[10px]">Phone Number</label>
+                <div className="relative">
+                  <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="rgba(255,0,60,0.5)" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  <input
+                    type="text"
+                    value={form.phone}
+                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                    placeholder="+1 555 123 4567"
+                    maxLength={30}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl text-slate-100 outline-none transition-all placeholder:text-slate-600 text-sm"
+                    style={{ background: 'rgba(2,11,24,0.5)', border: '1px solid rgba(255,0,60,0.2)' }}
+                  />
                 </div>
               </div>
             </div>
