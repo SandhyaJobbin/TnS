@@ -21,6 +21,7 @@ export default function EmailCaptureScreen() {
   }
 
   function handleSkip() {
+    setPlayerInfo({ ...playerInfo, email: email.trim().slice(0, 254) })
     navigate('thankYou')
   }
 
