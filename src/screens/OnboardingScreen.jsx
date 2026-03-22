@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useSession } from '../hooks/useSession'
+import { writeSession, addToSyncQueue } from '../hooks/useIndexedDB'
+import { processSyncQueue } from '../utils/api'
 
 const ROLES = [
   'Trust and Safety OPS',
@@ -40,23 +42,52 @@ const selectStyleEmpty = {
   color: 'rgb(71,85,105)',
 }
 
+// Format digits into international phone: CC-NNN-NNN-NNNN
+function formatPhone(raw) {
+  // Strip leading + and all non-digits
+  const digits = raw.replace(/^\+/, '').replace(/\D/g, '')
+  if (digits.length <= 3) return digits
+  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`
+  if (digits.length <= 10) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`
+  // 11+ digits: treat leading digits as country code, then 3-3-4
+  const cc = digits.slice(0, digits.length - 10)
+  const rest = digits.slice(digits.length - 10)
+  return `${cc}-${rest.slice(0, 3)}-${rest.slice(3, 6)}-${rest.slice(6)}`
+}
+
 export default function OnboardingScreen() {
-  const { setPlayerInfo, navigate } = useSession()
+  const { sessionId, setPlayerInfo, navigate } = useSession()
   const [form, setForm] = useState({ name: '', company: '', role: '', industry: '', email: '', phone: '', consent: false })
 
   const canContinue = form.consent
 
-  function handleContinue() {
+  async function handleContinue() {
     if (!canContinue) return
-    setPlayerInfo({
+    const playerInfo = {
       name:     form.name.trim().slice(0, 100),
       company:  form.company.trim().slice(0, 150),
       role:     form.role || '',
       industry: form.industry || '',
       email:    form.email.trim().slice(0, 254),
-      phone:    form.phone.trim().slice(0, 30),
+      phone:    form.phone.trim() ? `+${form.phone.trim()}`.slice(0, 30) : '',
       consent:  form.consent,
-    })
+    }
+    setPlayerInfo(playerInfo)
+
+    // Save a partial session immediately so lead details aren't lost if user walks away
+    const partialRecord = {
+      sessionId,
+      timestamp: Date.now(),
+      game_played: null,
+      playerInfo,
+      answers: {},
+      questionIds: [],
+      partial: true,
+    }
+    await writeSession(partialRecord)
+    await addToSyncQueue(partialRecord)
+    processSyncQueue()
+
     navigate('gameSelect')
   }
 
@@ -247,18 +278,23 @@ export default function OnboardingScreen() {
               {/* Phone */}
               <div className="flex flex-col gap-2">
                 <label className="text-slate-400 font-black tracking-[0.18em] uppercase text-[10px]">Phone Number</label>
-                <div className="relative">
-                  <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="rgba(255,0,60,0.5)" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
+                <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,0,60,0.2)' }}>
+                  {/* + prefix badge */}
+                  <div
+                    className="flex items-center justify-center px-3 flex-shrink-0 text-sm font-bold select-none"
+                    style={{ background: 'rgba(255,0,60,0.12)', color: 'rgba(255,0,60,0.8)', borderRight: '1px solid rgba(255,0,60,0.2)' }}
+                  >
+                    +
+                  </div>
                   <input
-                    type="text"
+                    type="tel"
+                    inputMode="numeric"
                     value={form.phone}
-                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                    placeholder="+1 555 123 4567"
-                    maxLength={30}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl text-slate-100 outline-none transition-all placeholder:text-slate-600 text-sm"
-                    style={{ background: 'rgba(2,11,24,0.5)', border: '1px solid rgba(255,0,60,0.2)' }}
+                    onChange={e => setForm(f => ({ ...f, phone: formatPhone(e.target.value) }))}
+                    placeholder="1-555-123-4567"
+                    maxLength={20}
+                    className="flex-1 px-3 py-3 text-slate-100 outline-none text-sm"
+                    style={{ background: 'rgba(2,11,24,0.5)' }}
                   />
                 </div>
               </div>

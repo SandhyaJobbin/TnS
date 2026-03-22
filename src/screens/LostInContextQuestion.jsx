@@ -55,7 +55,7 @@ function LICPollOverlay({ question, percentages, userAnswer, isLastQuestion, alw
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
       className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', background: 'rgba(0,0,0,0.2)' }}
+      style={{ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', background: 'rgba(0,0,0,0.55)' }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
@@ -359,8 +359,7 @@ export default function LostInContextQuestion() {
               transition={{ delay: 0.15 }}
               className="text-white/40 text-sm max-w-xl mx-auto leading-relaxed"
             >
-              This word means something very different in Gen Z culture.{' '}
-              <span className="text-white/60 underline decoration-[#e53935]/40 underline-offset-4">
+              <span className="text-white/60">
                 Pick the meaning that's actually in use — not the dictionary definition.
               </span>
             </motion.p>

@@ -1,21 +1,23 @@
-import { createClient } from '@supabase/supabase-js'
 import { getSyncQueue, removeSyncQueueItem, addLog, getAllSessions, writeSession } from '../hooks/useIndexedDB'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 let _client = null
-function getClient() {
+async function getClient() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     console.error('[Supabase] Missing credentials — VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY not set')
     return null
   }
-  if (!_client) _client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  if (!_client) {
+    const { createClient } = await import('@supabase/supabase-js')
+    _client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  }
   return _client
 }
 
 export async function syncToSupabase(record) {
-  const supabase = getClient()
+  const supabase = await getClient()
   if (!supabase) {
     await addLog({ type: 'sync_skipped', reason: 'No Supabase credentials configured' })
     return false
@@ -37,8 +39,8 @@ export async function syncToSupabase(record) {
       correctCount = Object.values(answers).filter(a => a.correct === true).length
     }
 
-    // Insert session row
-    const { error: sessionError } = await supabase.from('sessions').insert({
+    // Upsert session row — partial sessions written at onboarding get overwritten when the full session arrives
+    const { error: sessionError } = await supabase.from('sessions').upsert({
       session_id:    record.sessionId,
       timestamp:     record.timestamp ? new Date(record.timestamp).toISOString() : new Date().toISOString(),
       game_played:   record.game_played || null,
@@ -52,10 +54,10 @@ export async function syncToSupabase(record) {
       answer_count:  questionIds.length,
       avg_score:     avgScore,
       correct_count: correctCount,
-    })
+    }, { onConflict: 'session_id' })
 
     if (sessionError) {
-      console.error('[Supabase] sessions insert error:', sessionError)
+      console.error('[Supabase] sessions upsert error:', sessionError)
       throw new Error(sessionError.message)
     }
 
@@ -97,7 +99,7 @@ export async function syncToSupabase(record) {
 // Fetch all sessions from Supabase and return them in local format.
 // Returns null if offline or credentials missing.
 export async function fetchSessionsFromSupabase() {
-  const supabase = getClient()
+  const supabase = await getClient()
   if (!supabase) return null
   try {
     const { data, error } = await supabase
@@ -154,7 +156,7 @@ export async function processSyncQueue() {
 }
 
 export async function forceFullSync(onProgress) {
-  const supabase = getClient()
+  const supabase = await getClient()
   if (!supabase) {
     await addLog({ type: 'sync_skipped', reason: 'No Supabase credentials configured' })
     return { total: 0, synced: 0, failed: 0, errors: [] }

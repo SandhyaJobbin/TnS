@@ -69,7 +69,6 @@ const FLOATING_ICONS = [
 
 function VideoPool({ scenes, activeIndex }) {
   const refs = useRef([])
-  const [readyMap, setReadyMap] = useState({})
 
   useEffect(() => {
     refs.current.forEach((el, i) => {
@@ -93,13 +92,10 @@ function VideoPool({ scenes, activeIndex }) {
           muted
           playsInline
           preload="auto"
-          onCanPlayThrough={() => setReadyMap(m => ({ ...m, [i]: true }))}
           className="absolute inset-0 w-full h-full object-cover"
           style={{
             opacity: i === activeIndex ? 1 : 0,
             transition: 'opacity 1.2s ease',
-            filter: readyMap[i] ? 'blur(0px)' : 'blur(12px)',
-            transform: readyMap[i] ? 'scale(1)' : 'scale(1.05)',
             pointerEvents: 'none',
           }}
         />
