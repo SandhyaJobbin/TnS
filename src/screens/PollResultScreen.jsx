@@ -146,31 +146,18 @@ export default function PollResultScreen() {
           </motion.div>
 
           {/* Your answer badge */}
-          {userAnswer && (
+          {userAligned && (
             <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-5">
-              <span className="text-white/35 text-xs">Your answer:</span>
               <span
-                className="text-xs font-semibold px-3 py-1 rounded-full"
+                className="text-xs font-semibold px-2 py-1 rounded-full"
                 style={{
-                  background: 'rgba(229,57,53,0.12)',
-                  color: '#ff8099',
-                  border: '1px solid rgba(229,57,53,0.25)',
+                  background: 'rgba(16,185,129,0.12)',
+                  color: '#4ade80',
+                  border: '1px solid rgba(16,185,129,0.2)',
                 }}
               >
-                {userAnswer}
+                ✓ Aligned with industry
               </span>
-              {userAligned && (
-                <span
-                  className="text-xs font-semibold px-2 py-1 rounded-full"
-                  style={{
-                    background: 'rgba(16,185,129,0.12)',
-                    color: '#4ade80',
-                    border: '1px solid rgba(16,185,129,0.2)',
-                  }}
-                >
-                  ✓ Aligned with industry
-                </span>
-              )}
             </div>
           )}
 

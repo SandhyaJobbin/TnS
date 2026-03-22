@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSession } from '../hooks/useSession'
 import {
@@ -203,7 +203,7 @@ export default function AdminPanel() {
   const [fullSyncResult, setFullSyncResult] = useState(null)
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
-  const [actionMenu, setActionMenu] = useState(null)
+  const [expandedRow, setExpandedRow] = useState(null)
   const [pollAggregates, setPollAggregates] = useState([])
 
   const loadData = useCallback(async () => {
@@ -289,7 +289,7 @@ export default function AdminPanel() {
     if (dateFrom) filtered = filtered.filter(s => s.timestamp >= new Date(dateFrom).getTime())
     if (dateTo) filtered = filtered.filter(s => s.timestamp <= new Date(dateTo).getTime() + 86_400_000)
     if (filtered.length === 0) { alert('No sessions match the selected date range.'); return }
-    const headers = ['sessionId', 'timestamp', 'game_played', 'name', 'company', 'role', 'email', 'consent', 'status', 'answers']
+    const headers = ['sessionId', 'timestamp', 'game_played', 'name', 'company', 'role', 'industry', 'email', 'phone_number', 'consent', 'status', 'answers']
     const rows = filtered.map(s => [
       s.sessionId,
       new Date(s.timestamp).toISOString(),
@@ -297,7 +297,9 @@ export default function AdminPanel() {
       s.playerInfo?.name || '',
       s.playerInfo?.company || '',
       s.playerInfo?.role || '',
+      s.playerInfo?.industry || '',
       s.playerInfo?.email || '',
+      s.playerInfo?.phone || '',
       s.playerInfo?.consent ? 'yes' : 'no',
       sessionStatus(s),
       JSON.stringify(s.answers),
@@ -530,7 +532,7 @@ export default function AdminPanel() {
       </div>
 
       <div className="px-8 py-6 space-y-6">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCard label="Total Plays" value={totalPlays.toLocaleString()} icon="👆" trend={trendPlays} valueColor="text-white" />
           <StatCard label="Leads Captured" value={leadsCount.toLocaleString()} icon="👤" trend={trendLeads} valueColor="text-white" />
           <StatCard label="Trust 2030" value={trust2030Count.toLocaleString()} icon="🕐" trend={null} valueColor="text-[#FF003C]" />
@@ -555,7 +557,7 @@ export default function AdminPanel() {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,0,60,0.08)' }}>
-                {['TIMESTAMP', 'USER ID', 'EMAIL', 'RESULT', 'STATUS', 'ACTIONS'].map(h => (
+                {['TIMESTAMP', 'USER ID', 'EMAIL', 'RESULT', 'STATUS'].map(h => (
                   <th key={h} className="text-left text-[10px] uppercase tracking-widest font-medium px-6 py-3" style={{ color: 'rgba(255,255,255,0.25)' }}>{h}</th>
                 ))}
               </tr>
@@ -564,7 +566,8 @@ export default function AdminPanel() {
               {sessions.slice(0, 8).map((s, i) => {
                 const status = sessionStatus(s)
                 return (
-                  <tr key={s.sessionId} className="transition-colors" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                  <React.Fragment key={s.sessionId}>
+                  <tr className="transition-colors cursor-pointer" onPointerDown={() => setExpandedRow(expandedRow === s.sessionId ? null : s.sessionId)} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                     <td className="px-6 py-3.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{timeAgo(s.timestamp)}</td>
                     <td className="px-6 py-3.5">
                       <span className="font-mono text-xs" style={{ color: '#FF003C' }}>{shortId(s.sessionId, i)}</span>
@@ -572,44 +575,75 @@ export default function AdminPanel() {
                     <td className="px-6 py-3.5" style={{ color: 'rgba(255,255,255,0.55)' }}>{s.playerInfo?.email || '—'}</td>
                     <td className="px-6 py-3.5" style={{ color: 'rgba(255,255,255,0.65)' }}>{sessionResult(s)}</td>
                     <td className="px-6 py-3.5"><StatusBadge status={status} /></td>
-                    <td className="px-6 py-3.5">
-                      <div className="relative">
-                        <button
-                          onPointerDown={() => setActionMenu(actionMenu === s.sessionId ? null : s.sessionId)}
-                          className="px-2 py-1 rounded-lg transition-all"
-                          style={{ color: 'rgba(255,255,255,0.3)' }}
-                        >
-                          ⋮
-                        </button>
-                        <AnimatePresence>
-                          {actionMenu === s.sessionId && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -4 }}
-                              className="absolute right-0 top-8 rounded-xl shadow-xl z-10 min-w-[140px] overflow-hidden"
-                              style={{ background: 'rgba(10,25,47,0.95)', border: '1px solid rgba(255,0,60,0.2)', backdropFilter: 'blur(16px)' }}
-                            >
-                              <button
-                                onPointerDown={() => { setActionMenu(null) }}
-                                className="w-full text-left px-4 py-2.5 text-sm transition-all"
-                                style={{ color: 'rgba(255,255,255,0.6)' }}
-                              >
-                                View Details
-                              </button>
-                              <button
-                                onPointerDown={() => { navigator.clipboard?.writeText(s.sessionId); setActionMenu(null) }}
-                                className="w-full text-left px-4 py-2.5 text-sm transition-all"
-                                style={{ color: 'rgba(255,255,255,0.6)', borderTop: '1px solid rgba(255,255,255,0.05)' }}
-                              >
-                                Copy ID
-                              </button>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </td>
                   </tr>
+                  <AnimatePresence>
+                    {expandedRow === s.sessionId && (
+                      <tr key={`${s.sessionId}-detail`}>
+                        <td colSpan={5} style={{ background: 'rgba(255,0,60,0.03)', borderBottom: '1px solid rgba(255,0,60,0.1)', padding: 0 }}>
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            style={{ overflow: 'hidden' }}
+                          >
+                            <div className="px-8 py-5 grid grid-cols-3 gap-6 text-sm">
+                              <div className="space-y-2">
+                                <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Identity</p>
+                                {[
+                                  ['Name', s.playerInfo?.name],
+                                  ['Company', s.playerInfo?.company],
+                                  ['Role', s.playerInfo?.role],
+                                  ['Industry', s.playerInfo?.industry],
+                                  ['Email', s.playerInfo?.email],
+                                  ['Phone', s.playerInfo?.phone],
+                                  ['Consent', s.playerInfo?.consent ? 'Yes' : 'No'],
+                                ].map(([label, val]) => (
+                                  <div key={label} className="flex justify-between gap-4">
+                                    <span style={{ color: 'rgba(255,255,255,0.3)' }}>{label}</span>
+                                    <span className="font-medium truncate" style={{ color: 'rgba(255,255,255,0.7)' }}>{val || '—'}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="space-y-2">
+                                <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Session</p>
+                                {[
+                                  ['Game', s.game_played === 'trust2030' ? 'Trust 2030' : s.game_played === 'lostInContext' ? 'Lost in Context' : s.game_played || '—'],
+                                  ['Timestamp', s.timestamp ? new Date(s.timestamp).toLocaleString() : '—'],
+                                  ['Session ID', s.sessionId?.slice(0, 16) + '…'],
+                                  ['Questions', s.questionIds?.length ?? Object.keys(s.answers || {}).length],
+                                ].map(([label, val]) => (
+                                  <div key={label} className="flex justify-between gap-4">
+                                    <span style={{ color: 'rgba(255,255,255,0.3)' }}>{label}</span>
+                                    <span className="font-medium truncate font-mono text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>{val}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div>
+                                <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Answers</p>
+                                {s.answers && Object.keys(s.answers).length > 0 ? (
+                                  <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                                    {Object.entries(s.answers).map(([qId, ans]) => (
+                                      <div key={qId} className="flex justify-between gap-4">
+                                        <span className="truncate text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{qId}</span>
+                                        <span className="font-medium text-xs shrink-0" style={{ color: '#FF003C' }}>
+                                          {ans?.value ?? ans?.choice ?? '—'}
+                                          {ans?.correct === true && ' ✓'}
+                                          {ans?.correct === false && ' ✗'}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span style={{ color: 'rgba(255,255,255,0.2)' }}>No answers recorded</span>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        </td>
+                      </tr>
+                    )}
+                  </AnimatePresence>
+                  </React.Fragment>
                 )
               })}
               {sessions.length === 0 && (
@@ -624,7 +658,7 @@ export default function AdminPanel() {
         </div>
 
         {/* bottom row */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="rounded-2xl p-6" style={cardStyle}>
             <h3 className="font-semibold text-white mb-1">Diagnostic Tools</h3>
             <p className="text-sm mb-5" style={{ color: 'rgba(255,255,255,0.35)' }}>
@@ -738,7 +772,7 @@ export default function AdminPanel() {
 
       <div className="px-8 py-6 space-y-6">
         {/* engagement cards */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="rounded-2xl p-5" style={cardStyle}>
             <p className="text-[11px] uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.3)' }}>Game Breakdown</p>
             <div className="space-y-3">
@@ -1030,7 +1064,7 @@ export default function AdminPanel() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      onPointerDown={() => setActionMenu(null)}
+      onPointerDown={() => {}}
     >
       {/* Background decor */}
       <div className="absolute inset-0 data-grid opacity-20 pointer-events-none" />

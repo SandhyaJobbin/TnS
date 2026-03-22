@@ -88,16 +88,8 @@ export default function GameIntroScreen() {
         loop
         muted
         playsInline
-        onCanPlayThrough={e => {
-          e.currentTarget.style.filter = 'brightness(0.5) blur(0px)'
-          e.currentTarget.style.transform = 'scale(1)'
-        }}
         className="absolute inset-0 w-full h-full object-cover"
-        style={{
-          filter: 'brightness(0.5) blur(12px)',
-          transform: 'scale(1.05)',
-          transition: 'filter 0.8s ease, transform 0.8s ease',
-        }}
+        style={{ filter: 'brightness(0.5)' }}
       />
 
       {/* Gradients */}

@@ -1,9 +1,14 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useSession } from '../hooks/useSession'
+import { writeSession, addToSyncQueue } from '../hooks/useIndexedDB'
+import { processSyncQueue } from '../utils/api'
 
 const ROLES = [
-  'Trust & Safety',
+  'Trust and Safety OPS',
+  'Trust and Safety Wellness',
+  'Risk & Compliance / Legal',
+  'Public Policy / Government Relations',
   'Policy / Public Policy',
   'Product / Engineering',
   'Safety Technology Vendor',
@@ -37,21 +42,52 @@ const selectStyleEmpty = {
   color: 'rgb(71,85,105)',
 }
 
+// Format digits into international phone: CC-NNN-NNN-NNNN
+function formatPhone(raw) {
+  // Strip leading + and all non-digits
+  const digits = raw.replace(/^\+/, '').replace(/\D/g, '')
+  if (digits.length <= 3) return digits
+  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`
+  if (digits.length <= 10) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`
+  // 11+ digits: treat leading digits as country code, then 3-3-4
+  const cc = digits.slice(0, digits.length - 10)
+  const rest = digits.slice(digits.length - 10)
+  return `${cc}-${rest.slice(0, 3)}-${rest.slice(3, 6)}-${rest.slice(6)}`
+}
+
 export default function OnboardingScreen() {
-  const { setPlayerInfo, navigate } = useSession()
-  const [form, setForm] = useState({ name: '', company: '', role: '', industry: '', consent: false })
+  const { sessionId, setPlayerInfo, navigate } = useSession()
+  const [form, setForm] = useState({ name: '', company: '', role: '', industry: '', email: '', phone: '', consent: false })
 
   const canContinue = form.consent
 
-  function handleContinue() {
+  async function handleContinue() {
     if (!canContinue) return
-    setPlayerInfo({
-      name: form.name.trim().slice(0, 100),
-      company: form.company.trim().slice(0, 150),
-      role: form.role || '',
+    const playerInfo = {
+      name:     form.name.trim().slice(0, 100),
+      company:  form.company.trim().slice(0, 150),
+      role:     form.role || '',
       industry: form.industry || '',
-      consent: form.consent,
-    })
+      email:    form.email.trim().slice(0, 254),
+      phone:    form.phone.trim() ? `+${form.phone.trim()}`.slice(0, 30) : '',
+      consent:  form.consent,
+    }
+    setPlayerInfo(playerInfo)
+
+    // Save a partial session immediately so lead details aren't lost if user walks away
+    const partialRecord = {
+      sessionId,
+      timestamp: Date.now(),
+      game_played: null,
+      playerInfo,
+      answers: {},
+      questionIds: [],
+      partial: true,
+    }
+    await writeSession(partialRecord)
+    await addToSyncQueue(partialRecord)
+    processSyncQueue()
+
     navigate('gameSelect')
   }
 
@@ -93,11 +129,11 @@ export default function OnboardingScreen() {
       </header>
 
       {/* Main */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 md:px-8 lg:px-12 py-4 md:py-6 min-h-0 overflow-y-auto">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 md:px-8 lg:px-12 py-4 md:py-6 min-h-0 overflow-y-auto">
 
         {/* Title */}
         <motion.div
-          className="w-full max-w-3xl text-center mb-4 md:mb-6"
+          className="w-full max-w-3xl text-center mb-4 md:mb-6 shrink-0"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -106,12 +142,11 @@ export default function OnboardingScreen() {
             Tell us who you are in the{' '}
             <span style={{ color: '#FF003C' }}>T&amp;S Ecosystem</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1.5">All fields are optional — fill in what you&apos;re comfortable sharing.</p>
         </motion.div>
 
         {/* Form card */}
         <motion.div
-          className="w-full max-w-3xl rounded-2xl p-5 md:p-7 lg:p-9 relative overflow-hidden"
+          className="w-full max-w-3xl rounded-2xl p-4 md:p-7 lg:p-9 relative overflow-hidden shrink-0"
           style={{
             background: 'rgba(10,25,47,0.85)',
             border: '1px solid rgba(255,0,60,0.15)',
@@ -212,6 +247,55 @@ export default function OnboardingScreen() {
                   <svg className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="rgba(255,0,60,0.5)" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px w-full" style={{ background: 'rgba(255,255,255,0.06)' }} />
+
+            {/* Row 3: Email + Phone */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Email */}
+              <div className="flex flex-col gap-2">
+                <label className="text-slate-400 font-black tracking-[0.18em] uppercase text-[10px]">Email Address</label>
+                <div className="relative">
+                  <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="rgba(255,0,60,0.5)" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    placeholder="your@email.com"
+                    maxLength={254}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl text-slate-100 outline-none transition-all placeholder:text-slate-600 text-sm"
+                    style={{ background: 'rgba(2,11,24,0.5)', border: '1px solid rgba(255,0,60,0.2)' }}
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className="flex flex-col gap-2">
+                <label className="text-slate-400 font-black tracking-[0.18em] uppercase text-[10px]">Phone Number</label>
+                <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,0,60,0.2)' }}>
+                  {/* + prefix badge */}
+                  <div
+                    className="flex items-center justify-center px-3 flex-shrink-0 text-sm font-bold select-none"
+                    style={{ background: 'rgba(255,0,60,0.12)', color: 'rgba(255,0,60,0.8)', borderRight: '1px solid rgba(255,0,60,0.2)' }}
+                  >
+                    +
+                  </div>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={form.phone}
+                    onChange={e => setForm(f => ({ ...f, phone: formatPhone(e.target.value) }))}
+                    placeholder="1-555-123-4567"
+                    maxLength={20}
+                    className="flex-1 px-3 py-3 text-slate-100 outline-none text-sm"
+                    style={{ background: 'rgba(2,11,24,0.5)' }}
+                  />
                 </div>
               </div>
             </div>

@@ -149,7 +149,7 @@ export default function FinalResultsScreen() {
 
         {/* Dimension scorecard tiles — sorted best first */}
         {hasDimensions && (
-          <div className="w-full max-w-2xl grid grid-cols-2 gap-3 mb-4">
+          <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             {sortedDimensions.map(([dim, score], i) => {
               const isTop = i === 0
               const tierLabel = score >= 70 ? 'Leading' : score >= 40 ? 'On Track' : 'Independent Take'
@@ -175,7 +175,7 @@ export default function FinalResultsScreen() {
                   )}
                   <p className="text-[10px] font-black uppercase tracking-widest mb-3 pr-20" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: MONO }}>{dim}</p>
                   <div className="flex items-end justify-between mb-3">
-                    <span className="font-black leading-none" style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)', color: RED }}>
+                    <span className="font-black leading-none" style={{ fontSize: 'clamp(2rem, 5vh, 2.75rem)', color: RED }}>
                       {score}%
                     </span>
                     <span
@@ -369,7 +369,7 @@ function LostInContextResults({ answers, questions, navigate, leadCaptureEnabled
 
         {/* 2-col cards */}
         <motion.div
-          className="w-full max-w-2xl grid grid-cols-2 gap-4 mb-4"
+          className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -380,7 +380,7 @@ function LostInContextResults({ answers, questions, navigate, leadCaptureEnabled
             style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
           >
             <p className="text-[10px] font-black uppercase tracking-wider mb-2" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: MONO }}>You beat AI on</p>
-            <div className="font-black leading-none mb-1" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: RED, textShadow: '0 0 20px rgba(255,0,60,0.4)' }}>
+            <div className="font-black leading-none mb-1" style={{ fontSize: 'clamp(2rem, 5vh, 3rem)', color: RED, textShadow: '0 0 20px rgba(255,0,60,0.4)' }}>
               {userBeatAI}<span className="text-white/30 text-2xl">/{aiErrors}</span>
             </div>
             <p className="text-xs text-white/40 mb-2">tricky terms</p>
@@ -453,7 +453,7 @@ function LostInContextResults({ answers, questions, navigate, leadCaptureEnabled
             }}
             whileTap={{ scale: 0.98 }}
           >
-            Continue →
+            Continue
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

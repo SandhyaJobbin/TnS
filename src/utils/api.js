@@ -1,21 +1,23 @@
-import { createClient } from '@supabase/supabase-js'
 import { getSyncQueue, removeSyncQueueItem, addLog, getAllSessions, writeSession } from '../hooks/useIndexedDB'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 let _client = null
-function getClient() {
+async function getClient() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     console.error('[Supabase] Missing credentials — VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY not set')
     return null
   }
-  if (!_client) _client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  if (!_client) {
+    const { createClient } = await import('@supabase/supabase-js')
+    _client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  }
   return _client
 }
 
-export async function syncToSheets(record) {
-  const supabase = getClient()
+export async function syncToSupabase(record) {
+  const supabase = await getClient()
   if (!supabase) {
     await addLog({ type: 'sync_skipped', reason: 'No Supabase credentials configured' })
     return false
@@ -37,23 +39,25 @@ export async function syncToSheets(record) {
       correctCount = Object.values(answers).filter(a => a.correct === true).length
     }
 
-    // Insert session row
-    const { error: sessionError } = await supabase.from('sessions').insert({
+    // Upsert session row — partial sessions written at onboarding get overwritten when the full session arrives
+    const { error: sessionError } = await supabase.from('sessions').upsert({
       session_id:    record.sessionId,
       timestamp:     record.timestamp ? new Date(record.timestamp).toISOString() : new Date().toISOString(),
       game_played:   record.game_played || null,
       name:          pi.name    || null,
       company:       pi.company || null,
       role:          pi.role    || null,
+      industry:      pi.industry || null,
       email:         pi.email   || null,
+      phone_number:  pi.phone   || null,
       consent:       pi.consent ?? null,
       answer_count:  questionIds.length,
       avg_score:     avgScore,
       correct_count: correctCount,
-    })
+    }, { onConflict: 'session_id' })
 
     if (sessionError) {
-      console.error('[Supabase] sessions insert error:', sessionError)
+      console.error('[Supabase] sessions upsert error:', sessionError)
       throw new Error(sessionError.message)
     }
 
@@ -95,7 +99,7 @@ export async function syncToSheets(record) {
 // Fetch all sessions from Supabase and return them in local format.
 // Returns null if offline or credentials missing.
 export async function fetchSessionsFromSupabase() {
-  const supabase = getClient()
+  const supabase = await getClient()
   if (!supabase) return null
   try {
     const { data, error } = await supabase
@@ -115,7 +119,9 @@ export async function fetchSessionsFromSupabase() {
         name: row.name || '',
         company: row.company || '',
         role: row.role || '',
+        industry: row.industry || '',
         email: row.email || '',
+        phone: row.phone_number || '',
         consent: row.consent ?? false,
       },
       answers: {},
@@ -142,7 +148,7 @@ export async function pullFromSupabase() {
 export async function processSyncQueue() {
   const queue = await getSyncQueue()
   for (const item of queue) {
-    const success = await syncToSheets(item)
+    const success = await syncToSupabase(item)
     if (success) {
       await removeSyncQueueItem(item.id)
     }
@@ -150,7 +156,7 @@ export async function processSyncQueue() {
 }
 
 export async function forceFullSync(onProgress) {
-  const supabase = getClient()
+  const supabase = await getClient()
   if (!supabase) {
     await addLog({ type: 'sync_skipped', reason: 'No Supabase credentials configured' })
     return { total: 0, synced: 0, failed: 0, errors: [] }
@@ -186,7 +192,9 @@ export async function forceFullSync(onProgress) {
         name:          pi.name    || null,
         company:       pi.company || null,
         role:          pi.role    || null,
+        industry:      pi.industry || null,
         email:         pi.email   || null,
+        phone_number:  pi.phone   || null,
         consent:       pi.consent ?? null,
         answer_count:  questionIds.length,
         avg_score:     avgScore,

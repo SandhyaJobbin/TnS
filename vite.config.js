@@ -37,7 +37,7 @@ export default defineConfig({
         theme_color: '#0a0e1a',
         background_color: '#0a0e1a',
         display: 'fullscreen',
-        orientation: 'landscape',
+        orientation: 'any',
         start_url: '/TnS/',
         scope: '/TnS/',
         icons: [

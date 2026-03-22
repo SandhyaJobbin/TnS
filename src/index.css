@@ -35,6 +35,11 @@ input, textarea, select {
   .landscape-row {
     flex-direction: column !important;
   }
+  /* Slow down scan-line in portrait: shorter vertical distance makes
+     the default 8s animation appear to flash rapidly on narrow screens */
+  .scan-line, .scan-line-cyan {
+    animation-duration: 10s;
+  }
 }
 
 /* Fluid font sizes */
@@ -215,8 +220,13 @@ input, textarea, select {
   }
 }
 
-/* ── Safe area insets for notched iPads ── */
-@supports (padding: env(safe-area-inset-bottom)) {
+/* ── Safe area insets — covers notched iPads and Android devices ── */
+@supports (padding: env(safe-area-inset-top)) {
+  #root {
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
   .kiosk-footer {
     padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
   }

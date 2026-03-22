@@ -121,7 +121,7 @@ export default function GameSelectScreen() {
       </header>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col items-center justify-start px-4 md:px-6 py-3 md:py-4 overflow-hidden min-h-0">
+      <main className="flex-1 flex flex-col items-center justify-start px-4 md:px-6 py-3 md:py-4 overflow-y-auto min-h-0">
         {/* Title */}
         <motion.div
           className="max-w-2xl w-full text-center mb-3 md:mb-4 shrink-0"
@@ -146,7 +146,7 @@ export default function GameSelectScreen() {
           {/* Card 1 — Decode GenZ Lingos */}
           <motion.div
             onPointerDown={() => handleSelect(HERO.id)}
-            className="group relative rounded-2xl cursor-pointer overflow-hidden flex-1 min-h-0 transition-opacity duration-300 hover:opacity-90"
+            className="group relative rounded-2xl cursor-pointer overflow-hidden flex-1 min-h-[220px] transition-opacity duration-300 hover:opacity-90"
             style={{
               border: '2px solid rgba(56,189,248,0.35)',
               boxShadow: '0 0 32px rgba(56,189,248,0.08)',
@@ -219,7 +219,7 @@ export default function GameSelectScreen() {
           {/* Card 2 — Trust & Safety Survey */}
           <motion.div
             onPointerDown={() => handleSelect(SURVEY.id)}
-            className="group relative rounded-2xl cursor-pointer overflow-hidden flex-1 min-h-0 transition-opacity duration-300 hover:opacity-90"
+            className="group relative rounded-2xl cursor-pointer overflow-hidden flex-1 min-h-[220px] transition-opacity duration-300 hover:opacity-90"
             style={{
               border: '2px solid rgba(229,57,53,0.3)',
               boxShadow: '0 0 32px rgba(229,57,53,0.06)',

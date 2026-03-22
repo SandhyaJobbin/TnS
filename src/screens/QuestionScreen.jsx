@@ -224,7 +224,7 @@ export default function QuestionScreen() {
 
       {/* ── Header ── */}
       <header
-        className="relative z-10 flex items-center justify-between px-4 sm:px-6 md:px-10 py-3 md:py-4 lg:py-6 border-b"
+        className="relative z-20 flex items-center justify-between px-4 sm:px-6 md:px-10 py-3 md:py-4 lg:py-6 border-b"
         style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(10,14,26,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
       >
         <div className="relative">
@@ -289,7 +289,7 @@ export default function QuestionScreen() {
       </div>
 
       {/* ── Main content ── */}
-      <div className="relative z-10 flex-1 flex flex-col items-center px-4 sm:px-6 md:px-10 py-3 md:py-4 gap-3 md:gap-4 lg:gap-5 min-h-0 overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col items-center px-4 sm:px-6 md:px-10 py-3 md:py-4 gap-3 md:gap-4 lg:gap-5 min-h-0 overflow-y-auto">
 
         {/* Question section */}
         <div className="flex flex-col items-center text-center w-full max-w-4xl mx-auto shrink-0">
@@ -309,7 +309,7 @@ export default function QuestionScreen() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15 }}
             className="text-white font-black leading-tight"
-            style={{ fontSize: 'clamp(1.4rem, 3vw, 2.4rem)' }}
+            style={{ fontSize: 'clamp(1.2rem, 4.5vh, 2.4rem)' }}
           >
             {question.scenario}
           </motion.h3>
@@ -318,7 +318,7 @@ export default function QuestionScreen() {
         {/* ── Options — horizontal survey tiles ── */}
         <motion.div
           key={`grid-${question.id}`}
-          className="flex-1 min-h-0 w-full max-w-3xl mx-auto pb-2 flex flex-col gap-2 md:gap-2.5"
+          className="w-full max-w-3xl mx-auto pb-2 flex flex-col gap-2 md:gap-2.5"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
@@ -336,7 +336,7 @@ export default function QuestionScreen() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 + i * 0.06 }}
                 whileTap={!locked ? { scale: 0.99 } : {}}
-                className="relative flex items-center rounded-xl px-5 py-3.5 md:py-4 transition-all duration-200 text-left w-full"
+                className="relative flex items-center rounded-xl px-5 py-3.5 md:py-4 transition-all duration-200 text-left w-full min-h-[52px]"
                 style={{
                   background: isSelected ? 'rgba(229,57,53,0.07)' : 'rgba(255,255,255,0.025)',
                   border: isSelected

@@ -7,7 +7,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function EmailCaptureScreen() {
   const { navigate, playerInfo, setPlayerInfo } = useSession()
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(playerInfo?.email || '')
   const [error, setError] = useState('')
 
   function handleSubmit() {
@@ -21,6 +21,7 @@ export default function EmailCaptureScreen() {
   }
 
   function handleSkip() {
+    setPlayerInfo({ ...playerInfo, email: email.trim().slice(0, 254) })
     navigate('thankYou')
   }
 
